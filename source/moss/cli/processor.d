@@ -20,13 +20,37 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module main;
+module moss.cli.processor;
 
-import std.stdio;
-import moss.cli;
+/**
+ * The cli.Processor provides a simple subcommand oriented processing system
+ * with which to dispatch and handle CLI arguments.
+ */
 
-int main(string[] args)
+final struct Processor
 {
-    auto p = Processor(args);
-    return p.process();
+
+private:
+
+    string[] argv;
+
+public:
+
+    @disable this();
+
+    /**
+     * Construct a new Processor
+     */
+    this(string[] argv)
+    {
+        this.argv = argv;
+    }
+
+    /**
+     * Process all arguments and dispatch to the right caller
+     */
+    final int process()
+    {
+        return 0;
+    }
 }

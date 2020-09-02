@@ -20,13 +20,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module main;
-
-import std.stdio;
-import moss.cli;
-
-int main(string[] args)
-{
-    auto p = Processor(args);
-    return p.process();
-}
+/**
+ * HelpCommand implementation
+ */
+module moss.cli.helpCommand;

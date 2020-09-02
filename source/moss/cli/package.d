@@ -20,13 +20,6 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module main;
+module moss.cli;
 
-import std.stdio;
-import moss.cli;
-
-int main(string[] args)
-{
-    auto p = Processor(args);
-    return p.process();
-}
+public import moss.cli.processor;
