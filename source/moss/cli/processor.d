@@ -25,6 +25,8 @@ module moss.cli.processor;
 import moss.cli : Command;
 import moss.cli.helpCommand;
 import moss.cli.versionCommand;
+import moss.cli.installCommand;
+import moss.cli.removeCommand;
 
 import std.stdio;
 import std.algorithm.mutation : remove;
@@ -45,7 +47,9 @@ private:
     /**
      * Builtin list of handlers
      */
-    static const Command*[] handlers = [&helpCommand, &versionCommand];
+    static const Command*[] handlers = [
+        &installCommand, &removeCommand, &helpCommand, &versionCommand
+    ];
 
 public:
 
