@@ -14,3 +14,7 @@ doing so too early will hinder progress on all fronts.
 
 This package manager is implemented in the D Programming Language,
 and we strongly recommend using the `ldc` compiler.
+
+The command line interface takes direct inspiration from the
+`eopkg` package manager in Solus, in turn a fork of `pisi` from
+Pardus.
