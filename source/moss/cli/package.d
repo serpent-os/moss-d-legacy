@@ -36,6 +36,7 @@ struct Command
     const string secondary; /**< Secondary invocation ("it") */
     const string helpText; /**< Help text to display */
     const string blurb; /**< One line description for the command */
+    const string usage; /**< Usage help for invocation */
     exec_helper exec;
 
     /**

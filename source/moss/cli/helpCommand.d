@@ -31,10 +31,36 @@ static int helpExecute(ref Processor p)
 {
     import std.stdio;
 
-    p.printUsage();
-    writeln();
-    p.printGlobalHelp();
-    return 0;
+    switch (p.argv.length)
+    {
+    case 0:
+        p.printUsage();
+        writeln();
+        p.printGlobalHelp();
+        return 0;
+    case 1:
+        auto cmd = p.findHandler(p.argv[0]);
+        if (cmd is null)
+        {
+            stderr.writefln("Unknown command: %s", cmd);
+            return 1;
+        }
+        if (cmd.secondary !is null)
+        {
+            writefln("%s (%s) - %s\n", cmd.primary, cmd.secondary, cmd.blurb);
+        }
+        else
+        {
+            writefln("%s - %s\n", cmd.primary, cmd.blurb);
+        }
+        writefln("Usage: %s %s\n", p.name, cmd.usage !is null ? cmd.usage : p.argv[0]);
+        writeln(cmd.helpText);
+        return 0;
+    default:
+        p.printUsage();
+        writeln();
+        return 1;
+    }
 }
 
 const Command helpCommand = {

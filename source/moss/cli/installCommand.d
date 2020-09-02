@@ -37,5 +37,5 @@ static int installExecute(ref Processor p)
 
 const Command installCommand = {
     primary: "install", secondary: "it", blurb: "Install packages", helpText: "Install packages",
-    exec: &installExecute,
+    usage: "install <package>", exec: &installExecute,
 };
