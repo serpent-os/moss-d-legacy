@@ -1,4 +1,4 @@
-### package-manager
+### moss
 
 This repository is a placeholder for our package manager, once we enter
 stage4 of the bootstrap. Certain decisions have already been made:
@@ -18,3 +18,9 @@ discussions.
 We have a fairly solid idea internally of how the package manager will
 look, and will make that public and documented at the first appropriate
 time.
+
+### Why Not Meson
+
+We cannot afford to dynamically link with Phobos as we're a system
+critical component. Meson enforces dynamic linking with Phobos by
+default now: https://github.com/mesonbuild/meson/pull/6796
