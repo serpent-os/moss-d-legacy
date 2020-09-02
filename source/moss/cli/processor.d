@@ -79,16 +79,7 @@ public:
 
         /** TODO: Consume getopt */
         const auto command = _argv[0];
-        Command* handler = null;
-
-        foreach (const ref h; handlers)
-        {
-            if (h.matches(command))
-            {
-                handler = cast(Command*) h;
-                break;
-            }
-        }
+        auto handler = findHandler(argv[0]);
 
         if (handler is null)
         {
@@ -104,6 +95,21 @@ public:
         assert(handler.exec !is null, "Unimplemented execution handler");
 
         return handler.exec(this);
+    }
+
+    /**
+     * Return the command that matches the input name
+     */
+    const(Command*) findHandler(string name) @safe @nogc nothrow
+    {
+        foreach (const ref h; handlers)
+        {
+            if (h.matches(name))
+            {
+                return h;
+            }
+        }
+        return null;
     }
 
     /**
