@@ -75,7 +75,7 @@ public:
         }
 
         /** TODO: Consume getopt */
-        auto command = argv[0];
+        const auto command = argv[0];
         Command* handler = null;
 
         /* Pop command. */
