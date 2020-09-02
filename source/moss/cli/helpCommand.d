@@ -25,7 +25,17 @@
  */
 module moss.cli.helpCommand;
 import moss.cli : Command;
+import moss.cli.processor : Processor;
+
+static int helpExecute(ref Processor p)
+{
+    import std.stdio;
+
+    stderr.writeln("Not yet implemented");
+    return 0;
+}
 
 const Command helpCommand = {
     primary: "help", secondary: "?", blurb: "Display help topics", helpText: "Display help topics",
+    exec: &helpExecute,
 };

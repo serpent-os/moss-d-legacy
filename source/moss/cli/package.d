@@ -24,6 +24,8 @@ module moss.cli;
 
 public import moss.cli.processor;
 
+alias int function(ref Processor p) exec_helper;
+
 /**
  * Command provides the basic API with which to implement subcommand handling
  * in moss. Each command may have an optional alias to make CLI usage simpler.
@@ -34,6 +36,7 @@ struct Command
     const string secondary; /**< Secondary invocation ("it") */
     const string helpText; /**< Help text to display */
     const string blurb; /**< One line description for the command */
+    exec_helper exec;
 
     /**
      * If the command matches, return true..

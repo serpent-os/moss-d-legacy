@@ -99,6 +99,6 @@ public:
             return 1;
         }
 
-        return 0;
+        return handler.exec(this);
     }
 }
