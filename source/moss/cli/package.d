@@ -34,7 +34,7 @@ struct Command
     /**
      * If the command matches, return true..
      */
-    pure bool matches(string cmd) const
+    pragma(inline, true) pure const bool matches(string cmd) @safe @nogc nothrow
     {
         return primary == cmd || secondary == cmd;
     }

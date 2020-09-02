@@ -56,7 +56,7 @@ public:
     /**
      * Construct a new Processor
      */
-    this(string[] argv)
+    this(string[] argv) nothrow
     {
         this.name = argv[0];
         this.argv = argv.length > 1 ? argv[1 .. $] : [];
