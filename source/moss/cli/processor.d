@@ -95,7 +95,6 @@ public:
             {
                 return findHandler("help").exec(this);
             }
-            stderr.writeln("No command given.");
             printUsage();
             return ExitStatus.Failure;
         }
