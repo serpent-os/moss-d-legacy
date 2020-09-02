@@ -22,7 +22,7 @@
 
 module moss.cli.processor;
 
-import moss.cli : Command;
+import moss.cli : Command, ExitStatus;
 import moss.cli.helpCommand;
 import moss.cli.versionCommand;
 import moss.cli.installCommand;
@@ -68,13 +68,13 @@ public:
     /**
      * Process all arguments and dispatch to the right caller
      */
-    final int process()
+    final ExitStatus process()
     {
         if (argv.length < 1)
         {
             stderr.writeln("No command given.");
             printUsage();
-            return 1;
+            return ExitStatus.Failure;
         }
 
         /** TODO: Consume getopt */
@@ -85,7 +85,7 @@ public:
         {
             stderr.writefln("Unknown command: %s", command);
             printUsage();
-            return 1;
+            return ExitStatus.Failure;
         }
 
         /* Pop command. */

@@ -22,5 +22,18 @@
 
 module moss;
 
+import core.stdc.stdlib : EXIT_FAILURE, EXIT_SUCCESS;
+
 /** Current Moss Version */
 const Version = "0.0.1";
+
+/**
+ * Currently just wraps the two well known exit codes from the
+ * C standard library. We will flesh this out with specific exit
+ * codes to facilitate integration with scripts and tooling.
+ */
+enum ExitStatus
+{
+    Failure = EXIT_FAILURE,
+    Success = EXIT_SUCCESS,
+}

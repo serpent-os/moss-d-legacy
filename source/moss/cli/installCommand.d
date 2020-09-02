@@ -24,15 +24,14 @@
  * HelpCommand implementation
  */
 module moss.cli.installCommand;
-import moss.cli : Command;
-import moss.cli.processor : Processor;
+import moss.cli;
 
-static int installExecute(ref Processor p)
+static ExitStatus installExecute(ref Processor p)
 {
     import std.stdio;
 
     stderr.writeln("Not yet implemented");
-    return 0;
+    return ExitStatus.Failure;
 }
 
 const Command installCommand = {

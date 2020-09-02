@@ -24,15 +24,14 @@
  * HelpCommand implementation
  */
 module moss.cli.removeCommand;
-import moss.cli : Command;
-import moss.cli.processor : Processor;
+import moss.cli;
 
-static int removeExecute(ref Processor p)
+static ExitStatus removeExecute(ref Processor p)
 {
     import std.stdio;
 
     stderr.writeln("Not yet implemented");
-    return 0;
+    return ExitStatus.Failure;
 }
 
 const Command removeCommand = {

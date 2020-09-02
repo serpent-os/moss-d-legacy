@@ -24,10 +24,9 @@
  * HelpCommand implementation
  */
 module moss.cli.helpCommand;
-import moss.cli : Command;
-import moss.cli.processor : Processor;
+import moss.cli;
 
-static int helpExecute(ref Processor p)
+static ExitStatus helpExecute(ref Processor p)
 {
     import std.stdio;
 
@@ -37,13 +36,13 @@ static int helpExecute(ref Processor p)
         p.printUsage();
         writeln();
         p.printGlobalHelp();
-        return 0;
+        return ExitStatus.Success;
     case 1:
         auto cmd = p.findHandler(p.argv[0]);
         if (cmd is null)
         {
             stderr.writefln("Unknown command: %s", cmd);
-            return 1;
+            return ExitStatus.Failure;
         }
         if (cmd.secondary !is null)
         {
@@ -55,11 +54,11 @@ static int helpExecute(ref Processor p)
         }
         writefln("Usage: %s %s\n", p.name, cmd.usage !is null ? cmd.usage : p.argv[0]);
         writeln(cmd.helpText);
-        return 0;
+        return ExitStatus.Success;
     default:
         p.printUsage();
         writeln();
-        return 1;
+        return ExitStatus.Failure;
     }
 }
 

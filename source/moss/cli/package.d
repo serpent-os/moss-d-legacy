@@ -22,9 +22,10 @@
 
 module moss.cli;
 
+public import moss : ExitStatus;
 public import moss.cli.processor;
 
-alias int function(ref Processor p) exec_helper;
+alias ExitStatus function(ref Processor p) exec_helper;
 
 /**
  * Command provides the basic API with which to implement subcommand handling

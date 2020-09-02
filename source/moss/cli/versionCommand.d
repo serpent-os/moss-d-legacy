@@ -24,18 +24,17 @@
  * HelpCommand implementation
  */
 module moss.cli.versionCommand;
-import moss.cli.processor : Processor;
-import moss.cli : Command;
+import moss.cli;
 import moss;
 
-static int versionExecute(ref Processor p)
+static ExitStatus versionExecute(ref Processor p)
 {
     import std.stdio;
 
     writefln("moss package manager, version %s", moss.Version);
     writeln("\nCopyright © 2020 Serpent OS Developers");
     writeln("Available under the terms of the ZLib license");
-    return 0;
+    return ExitStatus.Success;
 }
 
 const Command versionCommand = {
