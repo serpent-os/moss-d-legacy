@@ -31,7 +31,9 @@ static int helpExecute(ref Processor p)
 {
     import std.stdio;
 
-    stderr.writeln("Not yet implemented");
+    p.printUsage();
+    writeln();
+    p.printGlobalHelp();
     return 0;
 }
 

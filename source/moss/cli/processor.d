@@ -47,11 +47,6 @@ private:
      */
     static const Command*[] handlers = [&helpCommand, &versionCommand];
 
-    final void printUsage()
-    {
-        writefln("%s: [command] [--options]", name);
-    }
-
 public:
 
     @disable this();
@@ -130,5 +125,41 @@ public:
     void popArg(int index) @safe @nogc nothrow
     {
         this._argv = this._argv.remove(index);
+    }
+
+    void printUsage()
+    {
+        writefln("%s: [command] [--options]", name);
+    }
+
+    /**
+     * Print the usage, and all supported subcommands
+     */
+    void printGlobalHelp()
+    {
+        import std.algorithm;
+        import std.range;
+        import std.stdio;
+        import std.string : format;
+
+        /* Automatically pad */
+        auto largestName = handlers.maxElement!("a.primary").primary.length;
+        auto largestAlias = handlers.maxElement!("a.secondary").secondary.length;
+        auto maxPad = largestName + largestAlias;
+        maxPad *= 2;
+
+        foreach (const ref h; handlers)
+        {
+            string cmdString;
+            if (h.secondary !is null)
+            {
+                cmdString = "%s (%s)".format(h.primary, h.secondary);
+            }
+            else
+            {
+                cmdString = "%s".format(h.primary);
+            }
+            writefln("%*s - %s", maxPad, cmdString, h.blurb);
+        }
     }
 }
