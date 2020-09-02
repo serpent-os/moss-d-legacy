@@ -24,3 +24,8 @@
  * HelpCommand implementation
  */
 module moss.cli.helpCommand;
+import moss.cli : Command;
+
+Command helpCommand = {
+    primary: "help", secondary: "?", blurb: "Display help topics", helpText: "Display help topics",
+};

@@ -23,3 +23,11 @@
 module moss.cli;
 
 public import moss.cli.processor;
+
+struct Command
+{
+    string primary; /**< Primary command invocation ("install") */
+    string secondary; /**< Secondary invocation ("it") */
+    string helpText; /**< Help text to display */
+    string blurb; /**< One line description for the command */
+}
