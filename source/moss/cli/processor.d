@@ -99,6 +99,9 @@ public:
             return 1;
         }
 
+        /* Only for development. */
+        assert(handler.exec !is null, "Unimplemented execution handler");
+
         return handler.exec(this);
     }
 }
