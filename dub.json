@@ -1,0 +1,21 @@
+{
+	"authors": [
+		"Serpent OS Developers",
+	],
+	"copyright": "Copyright © 2020 Serpent OS Developers",
+	"description": "Serpent OS Package Manager",
+	"license": "ZLib",
+	"name": "moss",
+	"targetPath": "bin",
+	"buildTypes": {
+		"debug": {
+			"buildOptions": ["debugMode", "optimize"],
+			"dflags-dmd": ["-g", "-fPIC"],
+			"dflags-ldc": ["-gc", "-O2", "--relocation-model=pic"]
+		},
+		"release": {
+			"buildOptions": ["releaseMode", "optimize", "inline"],
+			"dflags-ldc": ["-flto=thin", "--relocation-model=pic", "-link-defaultlib-shared=false"]
+		}
+	}
+}
