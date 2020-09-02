@@ -49,7 +49,7 @@ private:
 
     final void printUsage()
     {
-        stderr.writeln("USE ME CORRECTLY");
+        writefln("%s: [command] [--options]", name);
     }
 
 public:
