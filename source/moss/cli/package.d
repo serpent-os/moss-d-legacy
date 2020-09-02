@@ -24,6 +24,10 @@ module moss.cli;
 
 public import moss.cli.processor;
 
+/**
+ * Command provides the basic API with which to implement subcommand handling
+ * in moss. Each command may have an optional alias to make CLI usage simpler.
+ */
 struct Command
 {
     const string primary; /**< Primary command invocation ("install") */
