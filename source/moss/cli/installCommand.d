@@ -21,7 +21,7 @@
  */
 
 /**
- * HelpCommand implementation
+ * Install command implementation
  */
 module moss.cli.installCommand;
 import moss.cli;

@@ -21,7 +21,7 @@
  */
 
 /**
- * HelpCommand implementation
+ * Search command implementation
  */
 module moss.cli.searchCommand;
 import moss.cli;

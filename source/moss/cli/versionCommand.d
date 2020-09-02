@@ -21,7 +21,7 @@
  */
 
 /**
- * HelpCommand implementation
+ * Version command implementation
  */
 module moss.cli.versionCommand;
 import moss.cli;

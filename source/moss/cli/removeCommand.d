@@ -21,7 +21,7 @@
  */
 
 /**
- * HelpCommand implementation
+ * Remove command implementation
  */
 module moss.cli.removeCommand;
 import moss.cli;
