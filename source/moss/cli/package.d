@@ -26,10 +26,10 @@ public import moss.cli.processor;
 
 struct Command
 {
-    string primary; /**< Primary command invocation ("install") */
-    string secondary; /**< Secondary invocation ("it") */
-    string helpText; /**< Help text to display */
-    string blurb; /**< One line description for the command */
+    const string primary; /**< Primary command invocation ("install") */
+    const string secondary; /**< Secondary invocation ("it") */
+    const string helpText; /**< Help text to display */
+    const string blurb; /**< One line description for the command */
 
     /**
      * If the command matches, return true..
