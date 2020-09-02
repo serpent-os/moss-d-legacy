@@ -22,7 +22,9 @@
 
 module moss.cli.processor;
 
+import moss.cli : Command;
 import moss.cli.helpCommand;
+import std.stdio;
 
 /**
  * The cli.Processor provides a simple subcommand oriented processing system
@@ -35,11 +37,17 @@ final struct Processor
 private:
 
     string[] argv;
+    string name; /* CLI Name */
 
     /**
      * Builtin list of handlers
      */
-    static auto handlers = [&helpCommand,];
+    static const Command*[] handlers = [&helpCommand,];
+
+    final void printUsage()
+    {
+        stderr.writeln("USE ME CORRECTLY");
+    }
 
 public:
 
@@ -50,7 +58,8 @@ public:
      */
     this(string[] argv)
     {
-        this.argv = argv;
+        this.name = argv[0];
+        this.argv = argv.length > 1 ? argv[1 .. $] : [];
     }
 
     /**
@@ -58,6 +67,32 @@ public:
      */
     final int process()
     {
+        if (argv.length < 1)
+        {
+            printUsage();
+            return 1;
+        }
+
+        /** TODO: Consume getopt */
+        auto command = argv[0];
+        Command* handler = null;
+
+        foreach (const ref h; handlers)
+        {
+            if (h.primary == command || h.secondary == command)
+            {
+                handler = cast(Command*) h;
+                break;
+            }
+        }
+
+        if (handler is null)
+        {
+            stderr.writefln("Unknown command: %s", command);
+            printUsage();
+            return 1;
+        }
+
         return 0;
     }
 }
