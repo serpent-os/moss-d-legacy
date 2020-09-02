@@ -78,8 +78,8 @@ public:
         bool helpFlag = false;
 
         /* Ignore unknowns and let the individual commands handle it */
-        auto result = getopt(_argv, std.getopt.config.passThrough,
-                std.getopt.config.bundling, "version", &versionFlag, "h|help", &helpFlag);
+        auto result = getopt(_argv, std.getopt.config.passThrough, std.getopt.config.bundling,
+                "version", "Show the program version and exit", &versionFlag);
         _options = result.options;
 
         popArg(0);
@@ -91,7 +91,7 @@ public:
 
         if (argv.length < 1)
         {
-            if (helpFlag)
+            if (result.helpWanted)
             {
                 return findHandler("help").exec(this);
             }
@@ -102,7 +102,7 @@ public:
 
         /* Print help on the command */
         const auto command = _argv[0];
-        if (helpFlag)
+        if (result.helpWanted)
         {
             _argv = [command];
             return findHandler("help").exec(this);
@@ -163,7 +163,8 @@ public:
 
     void printUsage()
     {
-        writefln("%s: [command] [--options]", name);
+        writefln("%s: [command] [--options]\n", name);
+        defaultGetoptPrinter("Options: ", _options);
     }
 
     /**
