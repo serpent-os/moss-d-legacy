@@ -102,14 +102,10 @@ public:
      */
     const(Command*) findHandler(string name) @safe @nogc nothrow
     {
-        foreach (const ref h; handlers)
-        {
-            if (h.matches(name))
-            {
-                return h;
-            }
-        }
-        return null;
+        import std.algorithm;
+
+        auto find = handlers.find!((a, b) => (a.matches(b)))(name);
+        return find.length > 0 ? find[0] : null;
     }
 
     /**
