@@ -72,6 +72,7 @@ public:
     {
         if (argv.length < 1)
         {
+            stderr.writeln("No command given.");
             printUsage();
             return 1;
         }
