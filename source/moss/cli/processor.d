@@ -25,6 +25,7 @@ module moss.cli.processor;
 import moss.cli : Command;
 import moss.cli.helpCommand;
 import std.stdio;
+import std.algorithm.mutation : remove;
 
 /**
  * The cli.Processor provides a simple subcommand oriented processing system
@@ -37,7 +38,7 @@ final struct Processor
 private:
 
     string[] argv;
-    string name; /* CLI Name */
+    const string name; /* CLI Name */
 
     /**
      * Builtin list of handlers
@@ -56,10 +57,10 @@ public:
     /**
      * Construct a new Processor
      */
-    this(string[] argv) nothrow
+    this(string[] argv) @safe @nogc nothrow
     {
         this.name = argv[0];
-        this.argv = argv.length > 1 ? argv[1 .. $] : [];
+        this.argv = argv.remove(0);
     }
 
     /**
@@ -76,6 +77,9 @@ public:
         /** TODO: Consume getopt */
         auto command = argv[0];
         Command* handler = null;
+
+        /* Pop command. */
+        argv = argv.remove(0);
 
         foreach (const ref h; handlers)
         {
