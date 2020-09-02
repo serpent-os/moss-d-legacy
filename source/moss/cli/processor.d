@@ -30,6 +30,7 @@ import moss.cli.removeCommand;
 import moss.cli.searchCommand;
 
 import std.stdio;
+import std.getopt;
 import std.algorithm.mutation : remove;
 
 /**
@@ -44,6 +45,7 @@ private:
 
     string[] _argv;
     const string _name; /* CLI Name */
+    Option[] _options; /* Getopt options */
 
     /**
      * Builtin list of handlers
@@ -64,7 +66,6 @@ public:
     {
         this._name = argv[0];
         this._argv = argv;
-        popArg(0);
     }
 
     /**
@@ -72,17 +73,43 @@ public:
      */
     final ExitStatus process()
     {
+        bool debugFlag = false;
+        bool versionFlag = false;
+        bool helpFlag = false;
+
+        /* Ignore unknowns and let the individual commands handle it */
+        auto result = getopt(_argv, std.getopt.config.passThrough,
+                std.getopt.config.bundling, "version", &versionFlag, "h|help", &helpFlag);
+        _options = result.options;
+
+        popArg(0);
+
+        if (versionFlag)
+        {
+            return findHandler("version").exec(this);
+        }
+
         if (argv.length < 1)
         {
+            if (helpFlag)
+            {
+                return findHandler("help").exec(this);
+            }
             stderr.writeln("No command given.");
             printUsage();
             return ExitStatus.Failure;
         }
 
-        /** TODO: Consume getopt */
+        /* Print help on the command */
         const auto command = _argv[0];
-        auto handler = findHandler(argv[0]);
+        if (helpFlag)
+        {
+            _argv = [command];
+            return findHandler("help").exec(this);
+        }
 
+        /* Execute the command itself */
+        auto handler = findHandler(argv[0]);
         if (handler is null)
         {
             stderr.writefln("Unknown command: %s", command);
