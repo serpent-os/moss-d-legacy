@@ -24,6 +24,8 @@ module moss.cli.processor;
 
 import moss.cli : Command;
 import moss.cli.helpCommand;
+import moss.cli.versionCommand;
+
 import std.stdio;
 import std.algorithm.mutation : remove;
 
@@ -43,7 +45,7 @@ private:
     /**
      * Builtin list of handlers
      */
-    static const Command*[] handlers = [&helpCommand,];
+    static const Command*[] handlers = [&helpCommand, &versionCommand];
 
     final void printUsage()
     {
