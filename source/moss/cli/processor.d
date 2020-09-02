@@ -22,6 +22,8 @@
 
 module moss.cli.processor;
 
+import moss.cli.helpCommand;
+
 /**
  * The cli.Processor provides a simple subcommand oriented processing system
  * with which to dispatch and handle CLI arguments.
@@ -33,6 +35,11 @@ final struct Processor
 private:
 
     string[] argv;
+
+    /**
+     * Builtin list of handlers
+     */
+    static auto handlers = [&helpCommand,];
 
 public:
 
