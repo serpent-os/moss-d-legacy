@@ -40,7 +40,7 @@ final struct Processor
 private:
 
     string[] _argv;
-    const string name; /* CLI Name */
+    const string _name; /* CLI Name */
 
     /**
      * Builtin list of handlers
@@ -61,7 +61,7 @@ public:
      */
     this(string[] argv) @safe @nogc nothrow
     {
-        this.name = argv[0];
+        this._name = argv[0];
         this._argv = argv;
         popArg(0);
     }
@@ -118,6 +118,14 @@ public:
     pure @property ref const(string[]) argv() @safe @nogc nothrow
     {
         return cast(const(string[])) _argv;
+    }
+
+    /**
+     * Return the name of the process (argv[0])
+     */
+    pure @property const(string) name() @safe @nogc nothrow
+    {
+        return _name;
     }
 
     /**
