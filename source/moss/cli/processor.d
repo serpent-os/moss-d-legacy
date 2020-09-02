@@ -39,7 +39,7 @@ final struct Processor
 
 private:
 
-    string[] argv;
+    string[] _argv;
     const string name; /* CLI Name */
 
     /**
@@ -62,7 +62,8 @@ public:
     this(string[] argv) @safe @nogc nothrow
     {
         this.name = argv[0];
-        this.argv = argv.remove(0);
+        this._argv = argv;
+        popArg(0);
     }
 
     /**
@@ -77,11 +78,8 @@ public:
         }
 
         /** TODO: Consume getopt */
-        const auto command = argv[0];
+        const auto command = _argv[0];
         Command* handler = null;
-
-        /* Pop command. */
-        argv = argv.remove(0);
 
         foreach (const ref h; handlers)
         {
@@ -99,9 +97,28 @@ public:
             return 1;
         }
 
+        /* Pop command. */
+        popArg(0);
+
         /* Only for development. */
         assert(handler.exec !is null, "Unimplemented execution handler");
 
         return handler.exec(this);
+    }
+
+    /**
+     * Obtain reference to arguments
+     */
+    pure @property ref const(string[]) argv() @safe @nogc nothrow
+    {
+        return cast(const(string[])) _argv;
+    }
+
+    /**
+     * Pop argument at the given position
+     */
+    void popArg(int index) @safe @nogc nothrow
+    {
+        this._argv = this._argv.remove(index);
     }
 }
