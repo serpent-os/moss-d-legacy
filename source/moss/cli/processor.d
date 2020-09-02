@@ -79,7 +79,7 @@ public:
 
         foreach (const ref h; handlers)
         {
-            if (h.primary == command || h.secondary == command)
+            if (h.matches(command))
             {
                 handler = cast(Command*) h;
                 break;

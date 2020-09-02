@@ -30,4 +30,12 @@ struct Command
     string secondary; /**< Secondary invocation ("it") */
     string helpText; /**< Help text to display */
     string blurb; /**< One line description for the command */
+
+    /**
+     * If the command matches, return true..
+     */
+    pure bool matches(string cmd) const
+    {
+        return primary == cmd || secondary == cmd;
+    }
 }
