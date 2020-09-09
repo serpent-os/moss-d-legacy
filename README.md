@@ -18,3 +18,19 @@ and we strongly recommend using the `ldc` compiler.
 The command line interface takes direct inspiration from the
 `eopkg` package manager in Solus, in turn a fork of `pisi` from
 Pardus.
+
+
+#### Modules
+
+moss/cli
+
+    Implements the command line interface
+
+moss/build
+
+    Implements support for building packages
+
+moss/format
+
+    Implement format support, including binary and source build formats
+    If required, we can split this into a submodule down the line.
