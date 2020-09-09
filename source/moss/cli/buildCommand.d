@@ -35,6 +35,11 @@ static ExitStatus buildExecute(ref Processor p)
 }
 
 const Command buildCommand = {
-    primary: "build", secondary: "bi", blurb: "Build a package", helpText: "Build a package",
-    usage: "build [spec]", exec: &buildExecute,
+    primary: "build", secondary: "bi", blurb: "Build a package", usage: "build [spec]",
+    exec: &buildExecute, helpText: `
+Build a binary package from the given package specification file. It will
+be built using the locally available build dependencies and the resulting
+binary packages (.stone) will be emitted to the output directory, which
+defaults to the current working directory.
+`
 };
