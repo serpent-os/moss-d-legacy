@@ -47,6 +47,7 @@ private:
     string[] _argv;
     const string _name; /* CLI Name */
     Option[] _options; /* Getopt options */
+    string _rootDirectory = "/";
 
     /**
      * Builtin list of handlers
@@ -80,7 +81,8 @@ public:
 
         /* Ignore unknowns and let the individual commands handle it */
         auto result = getopt(_argv, std.getopt.config.passThrough, std.getopt.config.bundling,
-                "version", "Show the program version and exit", &versionFlag);
+                std.getopt.config.caseSensitive, "version", "Show the program version and exit",
+                &versionFlag, "D|destdir", "Set the system root", &_rootDirectory);
         _options = result.options;
 
         popArg(0);
@@ -151,6 +153,14 @@ public:
     pure @property const(string) name() @safe @nogc nothrow
     {
         return _name;
+    }
+
+    /**
+     * Return the root directory for all operations
+     */
+    pure @property const(string) rootDirectory() @safe @nogc nothrow
+    {
+        return _rootDirectory;
     }
 
     /**
