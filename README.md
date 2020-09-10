@@ -94,3 +94,17 @@ to it so our earlyboot code can switch to the appropriate system version.
 This will allow us to automatically have boot entries for the last X versions
 of Serpent OS, making it a far more robust and reliable system for administrators
 and users alike.
+
+#### Inspiration
+
+moss has been inspired by a number of tools, including (but not limited to):
+
+ - eopkg/pisi
+ - rpm
+ - swupd
+ - nix/guix
+
+Our approach is a hybrid one, traditional package management with internal
+features found only in next-gen package managers. This helps us to reduce
+the testing matrix and potential configurations to a sane norm, and lock
+OS releases to their corresponding kernel releases.
