@@ -41,7 +41,7 @@ enum ExitStatus
 /**
  * Base of all our required directories
  */
-const RootTree = "/serpent";
+const RootTree = "serpent";
 
 /**
  * The HashStore directory, used for deduplication purposes
