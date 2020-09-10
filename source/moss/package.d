@@ -37,3 +37,23 @@ enum ExitStatus
     Failure = EXIT_FAILURE,
     Success = EXIT_SUCCESS,
 }
+
+/**
+ * Base of all our required directories
+ */
+const RootTree = "/serpent";
+
+/**
+ * The HashStore directory, used for deduplication purposes
+ */
+const HashStore = RootTree ~ "/store";
+
+/**
+ * The RootStore directory contains our OS image root
+ */
+const RootStore = RootTree ~ "/root";
+
+/**
+ * The DownloadStore directory contains all downloads
+ */
+const DownloadStore = RootTree ~ "/download";
