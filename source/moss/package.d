@@ -41,7 +41,7 @@ enum ExitStatus
 /**
  * Base of all our required directories
  */
-const RootTree = "moss";
+const RootTree = "os";
 
 /**
  * The HashStore directory, used for deduplication purposes
