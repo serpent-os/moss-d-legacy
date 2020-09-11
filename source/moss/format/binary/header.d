@@ -45,7 +45,7 @@ const ubyte[21] IntegrityCheck = [
 enum MossFileType : uint8_t
 {
     Unknown = 0,
-    Binary = 1,
+    Binary,
     Delta,
 };
 
