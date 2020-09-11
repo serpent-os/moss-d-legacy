@@ -56,6 +56,7 @@ enum RecordTag : uint16_t
     Version, /** Version of the package */
     Sumary, /** Summary of the package */
     Description, /** Description of the package */
+
 };
 
 /**
@@ -69,9 +70,9 @@ enum RecordTag : uint16_t
  */
 struct Record
 {
-    uint16_t length; /** 2 bytes per record length*/
-    RecordTag tag; /** 2 bytes for the tag */
-    RecordType type; /** 1 byte for the type */
+    @autoEndian uint16_t length; /** 2 bytes per record length*/
+    @autoEndian RecordTag tag; /** 2 bytes for the tag */
+    @autoEndian RecordType type; /** 1 byte for the type */
     ubyte[2] padding;
 };
 
