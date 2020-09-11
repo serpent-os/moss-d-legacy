@@ -70,7 +70,7 @@ public:
     MossFileType type; /* 1-byte */
     @autoEndian uint32_t versionNumber; /* 4 bytes */
 
-    this(uint32_t versionNumber)
+    this(uint32_t versionNumber) @safe @nogc nothrow
     {
         this.magic = MossFileHeader;
         this.numRecords = 0;
