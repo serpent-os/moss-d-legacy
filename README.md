@@ -5,6 +5,13 @@ Serpent OS. It is not intended as a replacement for other package managers,
 or indeed, even "next generation". Simply it aims to be a traditional
 package manager with a focus on reliability and trust.
 
+#### Building
+
+    git submodule update --init --recursive
+    ./scripts/build.sh release
+
+    ./bin/moss -h
+
 #### Package Format
 
 Our plan is a binary format that contains a well-known and versioned header,
