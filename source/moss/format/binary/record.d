@@ -54,7 +54,7 @@ enum RecordTag : uint16_t
     Name, /** Name of the package */
     Architecture, /** Architecture of the package */
     Version, /** Version of the package */
-    Sumary, /** Summary of the package */
+    Summary, /** Summary of the package */
     Description, /** Description of the package */
 
 };
