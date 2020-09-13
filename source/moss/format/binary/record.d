@@ -56,6 +56,11 @@ enum RecordTag : uint16_t
     Version, /** Version of the package */
     Summary, /** Summary of the package */
     Description, /** Description of the package */
+    Homepage, /** Homepage for the package */
+    SourceID, /** ID for the source package, used for grouping */
+    Depends, /** Runtime dependencies */
+    Provides, /** Provides some capability or name */
+    Conflicts, /** Conflicts with some capability or name */
 
 };
 
