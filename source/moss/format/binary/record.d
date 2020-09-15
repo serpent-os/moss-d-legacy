@@ -74,10 +74,10 @@ enum RecordTag : uint16_t
  */
 struct Record
 {
-    @autoEndian uint16_t length; /** 2 bytes per record length*/
+    @autoEndian uint32_t length; /** 4 bytes per record length*/
     @autoEndian RecordTag tag; /** 2 bytes for the tag */
     @autoEndian RecordType type; /** 1 byte for the type */
-    ubyte[3] padding;
+    ubyte[1] padding;
 };
 
 static assert(Record.sizeof == 8,
