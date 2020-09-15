@@ -61,6 +61,7 @@ enum RecordTag : uint16_t
     Depends = 8, /** Runtime dependencies */
     Provides = 9, /** Provides some capability or name */
     Conflicts = 10, /** Conflicts with some capability or name */
+
 }
 
 /**
@@ -76,7 +77,7 @@ struct Record
 {
     @autoEndian uint32_t length; /** 4 bytes per record length*/
     @autoEndian RecordTag tag; /** 2 bytes for the tag */
-    @autoEndian RecordType type; /** 1 byte for the type */
+    RecordType type; /** 1 byte for the type */
     ubyte[1] padding;
 };
 

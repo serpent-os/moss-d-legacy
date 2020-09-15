@@ -26,6 +26,44 @@ import std.bitmanip;
 import std.stdint;
 
 /**
+ * Internal type to auto convert uint64
+ */
+package union autoEndianUint64
+{
+    ubyte[8] bytes;
+    uint64_t value;
+
+    static assert(autoEndianUint64.sizeof == uint64_t.sizeof, "Invalid size for uint64_t");
+
+    pure this(uint64_t v) @safe @nogc nothrow
+    {
+        value = v;
+    }
+
+    /**
+     * On little-endian systems, convert to big-endian (network order)
+     */
+    pragma(inline, true) pure auto toNetworkOrder() @safe @nogc nothrow
+    {
+        version (LittleEndian)
+        {
+            bytes = nativeToBigEndian(value);
+        }
+    }
+
+    /**
+     * On little-endian systems, convert back to little-endian (host order)
+     */
+    pragma(inline, true) pure auto toHostOrder() @safe @nogc nothrow
+    {
+        version (LittleEndian)
+        {
+            value = bigEndianToNative!(uint64_t, 8)(bytes);
+        }
+    }
+}
+
+/**
  * Internal type to auto convert uint32
  */
 package union autoEndianUint32
@@ -35,7 +73,7 @@ package union autoEndianUint32
 
     static assert(autoEndianUint32.sizeof == uint32_t.sizeof, "Invalid size for uint32_t");
 
-    this(uint32_t v) @safe @nogc nothrow
+    pure this(uint32_t v) @safe @nogc nothrow
     {
         value = v;
     }
@@ -73,7 +111,7 @@ package union autoEndianUint16
 
     static assert(autoEndianUint16.sizeof == uint16_t.sizeof, "Invalid size for uint16_t");
 
-    this(uint16_t v) @safe @nogc nothrow
+    pure this(uint16_t v) @safe @nogc nothrow
     {
         value = v;
     }
@@ -108,6 +146,21 @@ struct autoEndian
 {
 }
 
+static pure auto autoEndianConvert(uint64_t v) @safe @nogc nothrow
+{
+    return autoEndianUint64(v);
+}
+
+static pure auto autoEndianConvert(uint32_t v) @safe @nogc nothrow
+{
+    return autoEndianUint32(v);
+}
+
+static pure auto autoEndianConvert(uint16_t v) @safe @nogc nothrow
+{
+    return autoEndianUint16(v);
+}
+
 /**
  * Internal helper to convert between endians
  */
@@ -119,24 +172,17 @@ static void orderHelper(T, string funcer)(ref T v) @safe @nogc nothrow
     {
         static if (__traits(compiles, __traits(getMember, T, member)))
         {
+            mixin("import " ~ moduleName!T ~ ";");
+
             static if (mixin("hasUDA!(" ~ T.stringof ~ "." ~ member ~ ", autoEndian)"))
             {
-                static if (mixin("is(typeof(" ~ T.stringof ~ "." ~ member ~ ") == uint32_t)"))
-                {
-                    mixin("autoEndianUint32 e = autoEndianUint32(v." ~ member ~ ");");
-                    mixin("e." ~ funcer ~ "();");
-                    mixin("v." ~ member ~ " = e.value;");
-                }
-                else static if (mixin("is(typeof(" ~ T.stringof ~ "." ~ member ~ ") == uint16_t)"))
-                {
-                    mixin("autoEndianUint16 e = autoEndianUint16(v." ~ member ~ ");");
-                    mixin("e." ~ funcer ~ "();");
-                    mixin("v." ~ member ~ " = e.value;");
-                }
-                else
-                {
-                    static assert(0, "Unsupported encoding: " ~ T.stringof ~ "." ~ member);
-                }
+                static assert(mixin("!is(typeof(" ~ T.stringof ~ "." ~ member ~ ") == uint8_t)"),
+                        "Do not @autoEndian a uint8_t: " ~ T.stringof ~ "." ~ member);
+                static assert(mixin("(" ~ T.stringof ~ "." ~ member ~ ".sizeof != uint8_t.sizeof)"),
+                        "Do not @autoEndian a uint8_t derived enum: " ~ T.stringof ~ "." ~ member);
+                mixin("auto e = autoEndianConvert(v." ~ member ~ ");");
+                mixin("e." ~ funcer ~ "();");
+                mixin("v." ~ member ~ " = cast(typeof(T." ~ member ~ ")) e.value;");
             }
         }
     }
