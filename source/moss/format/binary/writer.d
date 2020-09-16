@@ -49,6 +49,11 @@ public:
         _file = File(filename, "wb");
     }
 
+    ~this() @safe
+    {
+        close();
+    }
+
     /**
      * Return the filename for the Writer
      */
@@ -62,6 +67,10 @@ public:
      */
     final void close() @safe
     {
-        _file.close();
+        if (_file.isOpen())
+        {
+            _file.close();
+            _file = File();
+        }
     }
 }
