@@ -26,11 +26,19 @@
 module moss.cli.buildCommand;
 import moss.cli;
 
+import moss.format.binary;
+
 static ExitStatus buildExecute(ref Processor p)
 {
     import std.stdio;
 
-    stderr.writeln("Not yet implemented");
+    auto writer = new Writer("testpackage.stone");
+    scope(exit)
+    {
+        writer.close();
+    }
+
+    stderr.writeln("Writer test");
     return ExitStatus.Failure;
 }
 

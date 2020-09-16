@@ -51,4 +51,11 @@ public:
     {
         return _filename;
     }
+
+    /**
+     * Flush and close the underying file.
+     */
+    pure final void close() @safe @nogc nothrow
+    {
+    }
 }
