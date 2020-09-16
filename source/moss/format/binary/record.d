@@ -51,19 +51,36 @@ enum RecordType : uint8_t
 enum RecordTag : uint16_t
 {
     Unknown = 0,
-    Name = 1, /** Name of the package */
-    Architecture = 2, /** Architecture of the package */
-    Version = 3, /** Version of the package */
-    Summary = 4, /** Summary of the package */
-    Description = 5, /** Description of the package */
-    Homepage = 6, /** Homepage for the package */
-    SourceID = 7, /** ID for the source package, used for grouping */
-    Depends = 8, /** Runtime dependencies */
-    Provides = 9, /** Provides some capability or name */
-    Conflicts = 10, /** Conflicts with some capability or name */
 
+    /** Name of the package */
+    Name = 1,
 
+    /** Architecture of the package */
+    Architecture = 2,
 
+    /** Version of the package */
+    Version = 3,
+
+    /** Summary of the package */
+    Summary = 4,
+
+    /** Description of the package */
+    Description = 5,
+
+    /** Homepage for the package */
+    Homepage = 6,
+
+    /** ID for the source package, used for grouping */
+    SourceID = 7,
+
+    /** Runtime dependencies */
+    Depends = 8,
+
+    /** Provides some capability or name */
+    Provides = 9,
+
+    /** Conflicts with some capability or name */
+    Conflicts = 10,
 }
 
 /**

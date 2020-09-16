@@ -32,10 +32,8 @@ import moss.format.binary.endianness;
  */
 enum PayloadType : uint16_t
 {
-    Unknown = 0, /** Catch errors: Payload type should be known */
-
-
-
+    /** Catch errors: Payload type should be known */
+    Unknown = 0,
 }
 
 /**
@@ -46,12 +44,14 @@ enum PayloadType : uint16_t
  */
 enum PayloadCompression : uint8_t
 {
-    Unknown = 0, /** Catch errors: Compression should be known */
-    None = 1, /** Payload has no compression */
-    Zstd = 2, /** Payload uses ZSTD compression */
+    /** Catch errors: Compression should be known */
+    Unknown = 0,
 
+    /** Payload has no compression */
+    None = 1,
 
-
+    /** Payload uses ZSTD compression */
+    Zstd = 2,
 }
 
 struct Payload
