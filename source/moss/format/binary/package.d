@@ -22,8 +22,15 @@
 
 module moss.format.binary;
 
+public import std.stdint : uint32_t;
+
 public import moss.format.binary.endianness;
 public import moss.format.binary.header;
 public import moss.format.binary.payload;
 public import moss.format.binary.record;
 public import moss.format.binary.writer;
+
+/**
+ * Current version of the package format that we target.
+ */
+const uint32_t MossFormatVersionNumber = 1;

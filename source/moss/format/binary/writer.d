@@ -24,6 +24,9 @@ module moss.format.binary.writer;
 
 import std.stdio : File;
 
+import moss.format.binary : MossFormatVersionNumber;
+import moss.format.binary.header;
+
 /**
  * This class is responsible for writing binary moss packages to disk,
  * setting relevant meta-information and merging a payload.
@@ -35,6 +38,7 @@ private:
 
     string _filename;
     File _file;
+    Header _header;
 
 public:
     @disable this();
@@ -47,6 +51,7 @@ public:
         _filename = filename;
 
         _file = File(filename, "wb");
+        _header = Header(MossFormatVersionNumber);
     }
 
     ~this() @safe
