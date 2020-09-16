@@ -22,7 +22,7 @@
 
 module moss.format.binary.header;
 
-import std.stdint;
+public import std.stdint;
 import moss.format.binary.endianness;
 
 /**
