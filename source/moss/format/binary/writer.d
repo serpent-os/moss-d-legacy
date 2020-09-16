@@ -46,12 +46,12 @@ public:
     /**
      * Construct a new Writer for the given filename
      */
-    this(string filename) @safe
+    this(string filename, uint32_t versionNumber = MossFormatVersionNumber) @safe
     {
         _filename = filename;
 
         _file = File(filename, "wb");
-        _header = Header(MossFormatVersionNumber);
+        _header = Header(versionNumber);
     }
 
     ~this() @safe
