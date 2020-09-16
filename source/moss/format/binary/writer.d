@@ -27,6 +27,8 @@ import std.stdio : File;
 import moss.format.binary : MossFormatVersionNumber;
 import moss.format.binary.header;
 
+import moss.format.binary.endianness;
+
 /**
  * This class is responsible for writing binary moss packages to disk,
  * setting relevant meta-information and merging a payload.
@@ -46,12 +48,17 @@ public:
     /**
      * Construct a new Writer for the given filename
      */
-    this(string filename, uint32_t versionNumber = MossFormatVersionNumber) @safe
+    this(string filename, uint32_t versionNumber = MossFormatVersionNumber) @trusted
     {
         _filename = filename;
 
         _file = File(filename, "wb");
         _header = Header(versionNumber);
+        _header.numRecords = 0;
+        _header.toNetworkOrder();
+
+        /* Insert the header now, we'll rewind and fix number of records */
+        _file.rawWrite((&_header)[0 .. Header.sizeof]);
     }
 
     ~this() @safe
@@ -74,6 +81,7 @@ public:
     {
         if (_file.isOpen())
         {
+            _file.flush();
             _file.close();
             _file = File();
         }
