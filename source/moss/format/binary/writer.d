@@ -20,10 +20,35 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module moss.format.binary;
+module moss.format.binary.writer;
 
-public import moss.format.binary.endianness;
-public import moss.format.binary.header;
-public import moss.format.binary.payload;
-public import moss.format.binary.record;
-public import moss.format.binary.writer;
+/**
+ * This class is responsible for writing binary moss packages to disk,
+ * setting relevant meta-information and merging a payload.
+ */
+class Writer
+{
+
+private:
+
+    string _filename;
+
+public:
+    @disable this();
+
+    /**
+     * Construct a new Writer for the given filename
+     */
+    pure this(string filename) @safe @nogc nothrow
+    {
+        _filename = filename;
+    }
+
+    /**
+     * Return the filename for the Writer
+     */
+    pure final @property const(string) filename() @safe @nogc nothrow
+    {
+        return _filename;
+    }
+}
