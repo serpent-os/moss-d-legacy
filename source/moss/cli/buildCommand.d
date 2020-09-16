@@ -33,7 +33,7 @@ static ExitStatus buildExecute(ref Processor p)
     import std.stdio;
 
     auto writer = new Writer("testpackage.stone");
-    scope(exit)
+    scope (exit)
     {
         writer.close();
     }

@@ -22,6 +22,8 @@
 
 module moss.format.binary.writer;
 
+import std.stdio : File;
+
 /**
  * This class is responsible for writing binary moss packages to disk,
  * setting relevant meta-information and merging a payload.
@@ -32,6 +34,7 @@ class Writer
 private:
 
     string _filename;
+    File _file;
 
 public:
     @disable this();
@@ -39,9 +42,11 @@ public:
     /**
      * Construct a new Writer for the given filename
      */
-    pure this(string filename) @safe @nogc nothrow
+    this(string filename) @safe
     {
         _filename = filename;
+
+        _file = File(filename, "wb");
     }
 
     /**
@@ -55,7 +60,8 @@ public:
     /**
      * Flush and close the underying file.
      */
-    pure final void close() @safe @nogc nothrow
+    final void close() @safe
     {
+        _file.close();
     }
 }
