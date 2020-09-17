@@ -67,11 +67,15 @@ public:
      */
     final void close() @safe
     {
-        if (_file.isOpen())
+        if (!_file.isOpen())
         {
-            _file.flush();
-            _file.close();
+            return;
         }
+        _file.seek(0);
+        scope auto fp = _file.getFP();
+        _header.encode(fp);
+        _file.flush();
+        _file.close();
     }
 
     /**
@@ -237,6 +241,8 @@ public:
         record.tag = key;
         record.toNetworkOrder();
         record.encode(fp);
+
+        _header.numRecords++;
 
         assert(encoder !is null, "Missing encoder");
         encoder();
