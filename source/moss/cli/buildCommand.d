@@ -38,9 +38,10 @@ static ExitStatus buildExecute(ref Processor p)
         writer.close();
     }
 
-    writer.addRecord(RecordTag.Name, "some-package"); /* Should pass */
-    writer.addRecord(RecordTag.Architecture, "some-architecture");
-
+    writer.addRecord(RecordTag.Name, "nano");
+    writer.addRecord(RecordTag.Summary, "This is an awesome package");
+    writer.addRecord(RecordTag.Description, "This is a REALLY awesome package");
+    writer.addRecord(RecordTag.Homepage, "https://www.nano-editor.org/");
     stderr.writeln("Writer test");
     return ExitStatus.Failure;
 }

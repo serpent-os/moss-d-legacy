@@ -96,8 +96,16 @@ public:
         import std.traits;
         import std.conv : to;
         import std.stdio;
+        import std.string : toStringz;
 
         Record record;
+        void delegate() encoder;
+
+        void encodeString()
+        {
+            auto z = toStringz(datum);
+            _file.rawWrite(z[0 .. record.length]);
+        }
 
         static foreach (i, m; EnumMembers!RecordTag)
         {
@@ -118,10 +126,11 @@ public:
                             "addRecord(RecordTag." ~ memberName ~ ") expects string, not " ~ typeof(datum)
                             .stringof);
                     writeln("Writing key: ", key, " - value: ", datum);
-                    record.type = RecordType.String;
-                    assert(datum.length <= uint32_t.max,
+                    assert(datum.length < uint32_t.max,
                             "addRecord(RecordTag." ~ memberName ~ "): Length too long");
-                    record.length = cast(uint32_t) datum.length;
+                    record.type = RecordType.String;
+                    record.length = cast(uint32_t) datum.length + 1;
+                    encoder = &encodeString;
                     break;
 
                     /* Handle int32_t */
@@ -143,5 +152,8 @@ public:
 
         /* Insert the header now, we'll rewind and fix number of records */
         _file.rawWrite((&record)[0 .. Record.sizeof]);
+
+        assert(encoder !is null, "Missing encoder");
+        encoder();
     }
 }
