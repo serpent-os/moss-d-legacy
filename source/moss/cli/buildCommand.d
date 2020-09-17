@@ -39,7 +39,7 @@ static ExitStatus buildExecute(ref Processor p)
     }
 
     writer.addRecord(RecordTag.Name, "some-package"); /* Should pass */
-    writer.addRecord(RecordTag.Architecture, 42); /* Shouldn't compile */
+    writer.addRecord(RecordTag.Architecture, "some-architecture");
 
     stderr.writeln("Writer test");
     return ExitStatus.Failure;

@@ -97,6 +97,8 @@ public:
         import std.conv : to;
         import std.stdio;
 
+        Record record;
+
         static foreach (i, m; EnumMembers!RecordTag)
         {
             if (i == key)
@@ -116,6 +118,10 @@ public:
                             "addRecord(RecordTag." ~ memberName ~ ") expects string, not " ~ typeof(datum)
                             .stringof);
                     writeln("Writing key: ", key, " - value: ", datum);
+                    record.type = RecordType.String;
+                    assert(datum.length <= uint32_t.max,
+                            "addRecord(RecordTag." ~ memberName ~ "): Length too long");
+                    record.length = cast(uint32_t) datum.length;
                     break;
 
                     /* Handle int32_t */
@@ -124,11 +130,18 @@ public:
                             "addRecord(RecordTag." ~ memberName ~ ") expects int32_t, not " ~ typeof(datum)
                             .stringof);
                     writeln("Writing key: ", key, " - value: ", datum);
+                    record.type = RecordType.Int32;
+                    record.length = cast(uint32_t) int32_t.sizeof;
                     break;
                 default:
                     assert(0, "INCOMPLETE SUPPORT");
                 }
             }
         }
+
+        record.tag = key;
+
+        /* Insert the header now, we'll rewind and fix number of records */
+        _file.rawWrite((&record)[0 .. Record.sizeof]);
     }
 }
