@@ -163,7 +163,39 @@ public:
                     encoder = &encodeString;
                     break;
 
-                    /* Handle int32_t */
+                case RecordType.Int8:
+                    assert(typeid(datum) == typeid(int8_t),
+                            "addRecord(RecordTag." ~ memberName ~ ") expects int8_t, not " ~ typeof(datum)
+                            .stringof);
+                    writeln("Writing key: ", key, " - value: ", datum);
+                    record.type = RecordType.Int8;
+                    encoder = &encodeNumeric;
+                    break;
+                case RecordType.Uint8:
+                    assert(typeid(datum) == typeid(uint8_t),
+                            "addRecord(RecordTag." ~ memberName ~ ") expects uint8_t, not " ~ typeof(datum)
+                            .stringof);
+                    writeln("Writing key: ", key, " - value: ", datum);
+                    record.type = RecordType.Uint8;
+                    encoder = &encodeNumeric;
+                    break;
+
+                case RecordType.Int16:
+                    assert(typeid(datum) == typeid(int16_t),
+                            "addRecord(RecordTag." ~ memberName ~ ") expects int16_t, not " ~ typeof(datum)
+                            .stringof);
+                    writeln("Writing key: ", key, " - value: ", datum);
+                    record.type = RecordType.Int16;
+                    encoder = &encodeNumeric;
+                    break;
+                case RecordType.Uint16:
+                    assert(typeid(datum) == typeid(uint16_t),
+                            "addRecord(RecordTag." ~ memberName ~ ") expects uint16_t, not " ~ typeof(datum)
+                            .stringof);
+                    writeln("Writing key: ", key, " - value: ", datum);
+                    record.type = RecordType.Uint16;
+                    encoder = &encodeNumeric;
+                    break;
                 case RecordType.Int32:
                     assert(typeid(datum) == typeid(int32_t),
                             "addRecord(RecordTag." ~ memberName ~ ") expects int32_t, not " ~ typeof(datum)
