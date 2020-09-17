@@ -25,9 +25,9 @@ module moss.format.binary.writer;
 import std.stdio : File;
 
 import moss.format.binary : MossFormatVersionNumber;
-import moss.format.binary.header;
-
 import moss.format.binary.endianness;
+import moss.format.binary.header;
+import moss.format.binary.record;
 
 /**
  * This class is responsible for writing binary moss packages to disk,
@@ -84,6 +84,51 @@ public:
             _file.flush();
             _file.close();
             _file = File();
+        }
+    }
+
+    /**
+     * Attempt to add a record to the stream. The type of T must be the
+     * type expected in the key type
+     */
+    final void addRecord(R : RecordTag, T)(R key, T datum)
+    {
+        import std.traits;
+        import std.conv : to;
+        import std.stdio;
+
+        static foreach (i, m; EnumMembers!RecordTag)
+        {
+            if (i == key)
+            {
+                mixin("enum memberName = __traits(identifier, EnumMembers!RecordTag[i]);");
+                mixin("enum attrs = __traits(getAttributes, RecordTag." ~ to!string(
+                        memberName) ~ ");");
+                static assert(attrs.length == 1,
+                        "Missing validation tag for RecordTag." ~ to!string(memberName));
+
+                switch (attrs[0])
+                {
+
+                    /* Handle string */
+                case RecordType.String:
+                    assert(typeid(datum) == typeid(string),
+                            "addRecord(RecordTag." ~ memberName ~ ") expects string, not " ~ typeof(datum)
+                            .stringof);
+                    writeln("Writing key: ", key, " - value: ", datum);
+                    break;
+
+                    /* Handle int32_t */
+                case RecordType.Int32:
+                    assert(typeid(datum) == typeid(int32_t),
+                            "addRecord(RecordTag." ~ memberName ~ ") expects int32_t, not " ~ typeof(datum)
+                            .stringof);
+                    writeln("Writing key: ", key, " - value: ", datum);
+                    break;
+                default:
+                    assert(0, "INCOMPLETE SUPPORT");
+                }
+            }
         }
     }
 }

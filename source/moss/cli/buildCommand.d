@@ -38,6 +38,9 @@ static ExitStatus buildExecute(ref Processor p)
         writer.close();
     }
 
+    writer.addRecord(RecordTag.Name, "some-package"); /* Should pass */
+    writer.addRecord(RecordTag.Architecture, 42); /* Shouldn't compile */
+
     stderr.writeln("Writer test");
     return ExitStatus.Failure;
 }

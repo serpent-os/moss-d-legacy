@@ -44,48 +44,43 @@ enum RecordType : uint8_t
     String = 10,
 }
 
-struct validate
-{
-    RecordType expectedType = RecordType.Unknown;
-}
-
 /**
  * We support a predefined set of record types which are additionally
  * tagged for their type.
  */
 enum RecordTag : uint16_t
 {
-    Unknown = 0,
+    @(RecordType.Unknown) Unknown = 0,
 
     /** Name of the package */
-    @validate(RecordType.String) Name = 1,
+    @(RecordType.String) Name = 1,
 
     /** Architecture of the package */
-    @validate(RecordType.String) Architecture = 2,
+    @(RecordType.String) Architecture = 2,
 
     /** Version of the package */
-    @validate(RecordType.String) Version = 3,
+    @(RecordType.String) Version = 3,
 
     /** Summary of the package */
-    @validate(RecordType.String) Summary = 4,
+    @(RecordType.String) Summary = 4,
 
     /** Description of the package */
-    @validate(RecordTag.String) Description = 5,
+    @(RecordType.String) Description = 5,
 
     /** Homepage for the package */
-    @validate(RecordType.String) Homepage = 6,
+    @(RecordType.String) Homepage = 6,
 
     /** ID for the source package, used for grouping */
-    @validate(RecordType.String) SourceID = 7,
+    @(RecordType.String) SourceID = 7,
 
     /** Runtime dependencies */
-    Depends = 8,
+    @(RecordType.Unknown) Depends = 8,
 
     /** Provides some capability or name */
-    Provides = 9,
+    @(RecordType.Unknown) Provides = 9,
 
     /** Conflicts with some capability or name */
-    Conflicts = 10,
+    @(RecordType.Unknown) Conflicts = 10,
 }
 
 /**
