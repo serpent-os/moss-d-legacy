@@ -34,6 +34,18 @@ enum PayloadType : uint16_t
 {
     /** Catch errors: Payload type should be known */
     Unknown = 0,
+
+    /** File store, i.e. hash indexed */
+    Files = 1,
+
+    /** Offsets to files within the payload by their ID */
+    Indices = 2,
+
+    /** Map Files to Disk with basic UNIX permissions + types */
+    Layout = 3,
+
+    /* Attribute storage */
+    Attributes = 4,
 }
 
 /**
@@ -52,6 +64,9 @@ enum PayloadCompression : uint8_t
 
     /** Payload uses ZSTD compression */
     Zstd = 2,
+
+    /** Payload uses zlib decompression */
+    Zlib = 3,
 }
 
 extern (C) struct Payload
