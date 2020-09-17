@@ -39,10 +39,12 @@ static ExitStatus buildExecute(ref Processor p)
     }
 
     writer.addRecord(RecordTag.Name, "nano");
-    writer.addRecord(RecordTag.Summary, "This is an awesome package");
-    writer.addRecord(RecordTag.Description, "This is a REALLY awesome package");
-    writer.addRecord(RecordTag.Homepage, "https://www.nano-editor.org/");
     writer.addRecord(RecordTag.Release, cast(int64_t) 1000);
+    writer.addRecord(RecordTag.Version, "5.2");
+    writer.addRecord(RecordTag.Summary, "Small, friendly text editor inspired by Pico");
+    writer.addRecord(RecordTag.Description, "GNU nano is an easy-to-use text editor originally designed as a replacement for Pico, the ncurses-based editor from the non-free mailer package Pine (itself now available under the Apache License as Alpine).");
+    writer.addRecord(RecordTag.Homepage, "https://www.nano-editor.org/");
+    writer.addRecord(RecordTag.License, "GPL-3.0-or-later");
     stderr.writeln("Writer test");
     return ExitStatus.Failure;
 }
