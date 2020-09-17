@@ -75,8 +75,15 @@ public:
             record.toHostOrder();
             writeln(record);
 
-            /* Skip the value */
-            _file.seek(record.length, SEEK_CUR);
+            if (record.type == RecordType.String)
+            {
+                writeln("\t ", cast(string)(_file.rawRead(new ubyte[record.length])));
+            }
+            else
+            {
+                /* Skip the value */
+                _file.seek(record.length, SEEK_CUR);
+            }
         }
     }
 
