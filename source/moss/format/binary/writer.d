@@ -119,12 +119,17 @@ public:
                 import std.exception : enforce;
                 import std.string : toStringz;
 
+                /* Stash length before writing record to file */
                 auto z = toStringz(datum);
                 assert(datum.length < uint32_t.max, "addRecord(): String Length too long");
                 record.length = cast(uint32_t) datum.length + 1;
+                auto len = record.length;
 
-                enforce(fwrite(z, z[0].sizeof, record.length,
-                        fp) == record.length, "encodeString(): Failed to write");
+                /* Write record to file */
+                record.toNetworkOrder();
+                record.encode(fp);
+
+                enforce(fwrite(z, z[0].sizeof, len, fp) == len, "encodeString(): Failed to write");
             }
         }
 
@@ -136,7 +141,12 @@ public:
                 import std.stdio : fwrite;
                 import std.exception : enforce;
 
+                /* Stash length before writing record to file */
                 record.length = cast(uint32_t) T.sizeof;
+
+                /* Write record to file */
+                record.toNetworkOrder();
+                record.encode(fp);
 
                 /* Ensure we encode big-endian values only */
                 version (BigEndian)
@@ -257,9 +267,6 @@ public:
         }
 
         record.tag = key;
-        record.toNetworkOrder();
-        record.encode(fp);
-
         _header.numRecords++;
 
         assert(encoder !is null, "Missing encoder");
