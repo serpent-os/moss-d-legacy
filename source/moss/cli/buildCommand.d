@@ -33,6 +33,7 @@ static ExitStatus buildExecute(ref Processor p)
     import std.stdio;
 
     auto writer = Writer(File("testpackage.stone", "wb"));
+    writer.fileType = MossFileType.Binary;
 
     writer.addRecord(RecordTag.Name, "nano");
     writer.addRecord(RecordTag.Release, cast(int64_t) 1000);
