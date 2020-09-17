@@ -56,6 +56,7 @@ enum PayloadCompression : uint8_t
 
 struct Payload
 {
+align(1):
     @autoEndian uint64_t length; /* 8 bytes */
     @autoEndian uint32_t payloadVersion; /* 4 bytes  */
     @autoEndian PayloadType type; /* 2 bytes  */

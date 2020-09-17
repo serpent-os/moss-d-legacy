@@ -62,8 +62,7 @@ enum MossFileType : uint8_t
  */
 struct Header
 {
-public:
-
+align(1):
     @autoEndian uint32_t magic; /* 4 bytes */
     @autoEndian uint16_t numRecords; /* 2 bytes */
     ubyte[21] padding;
