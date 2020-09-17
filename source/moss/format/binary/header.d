@@ -25,6 +25,7 @@ module moss.format.binary.header;
 public import std.stdint;
 public import std.stdio : FILE;
 import moss.format.binary.endianness;
+import moss.format.binary : MossFormatVersionNumber;
 
 /**
  * Standard file header: NUL M O S
@@ -107,6 +108,8 @@ align(1):
         enforce(magic == MossFileHeader, "Header.validate(): invalid magic");
         enforce(padding == IntegrityCheck, "Header.validate(): corrupt integrity");
         enforce(type != MossFileType.Unknown, "Header.validate(): unknown package type");
+        enforce(versionNumber <= MossFormatVersionNumber,
+                "Header.validate(): unsupported package version");
     }
 };
 
