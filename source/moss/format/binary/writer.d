@@ -97,6 +97,8 @@ public:
         import std.stdio;
         import std.string : toStringz;
 
+        scope auto fp = _file.getFP();
+
         Record record;
         void delegate() encoder;
 
@@ -234,9 +236,8 @@ public:
         }
 
         record.tag = key;
-
-        /* Insert the header now, we'll rewind and fix number of records */
-        _file.rawWrite((&record)[0 .. Record.sizeof]);
+        record.toNetworkOrder();
+        record.encode(fp);
 
         assert(encoder !is null, "Missing encoder");
         encoder();
