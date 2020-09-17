@@ -34,7 +34,7 @@ enum PayloadType : uint8_t
     Unknown = 0,
 
     /** File store, i.e. hash indexed */
-    Files = 1,
+    Content = 1,
 
     /** Map Files to Disk with basic UNIX permissions + types */
     Layout = 2,
