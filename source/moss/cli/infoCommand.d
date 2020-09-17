@@ -27,9 +27,18 @@ module moss.cli.infoCommand;
 import moss.cli;
 import moss.format.binary.reader;
 
+import std.stdio : writeln;
+
 static ExitStatus infoExecute(ref Processor p)
 {
     auto reader = Reader(File("testpackage.stone", "rb"));
+
+    while (reader.hasNextRecord)
+    {
+        auto rec = reader.nextRecord();
+        writeln(rec);
+    }
+
     return ExitStatus.Failure;
 }
 

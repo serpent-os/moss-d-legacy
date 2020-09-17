@@ -37,6 +37,7 @@ private:
 
     File _file;
     Header _header;
+    uint16_t recordIndex;
 
 public:
     @disable this();
@@ -60,36 +61,48 @@ public:
 
         _header.toHostOrder();
         _header.validate();
-
-        /* Demo code */
-        import std.stdio;
-        import std.conv : to;
-
-        writeln(_header);
-        writeln("Found " ~ to!string(_header.numRecords) ~ " records in the file");
-
-        foreach (recordIndex; 0 .. _header.numRecords)
-        {
-            Record record;
-            fread(&record, Record.sizeof, 1, fp);
-            record.toHostOrder();
-            writeln(record);
-
-            if (record.type == RecordType.String)
-            {
-                writeln("\t ", cast(string)(_file.rawRead(new ubyte[record.length])));
-            }
-            else
-            {
-                /* Skip the value */
-                _file.seek(record.length, SEEK_CUR);
-            }
-        }
     }
 
     ~this() @safe
     {
         close();
+    }
+
+    /**
+     * Return true while the Reader still has more records available
+     */
+    pragma(inline, true) pure @property final bool hasNextRecord() @safe @nogc nothrow
+    {
+        return recordIndex < _header.numRecords;
+    }
+
+    /**
+     * Return the next record in the Reader.
+     */
+    Record nextRecord() @trusted
+    {
+        import std.exception : enforce;
+        import std.stdio : fread, fseek, SEEK_CUR;
+
+        if (!hasNextRecord)
+        {
+            auto ret = Record();
+            ret.type = RecordType.Unknown;
+            ret.tag = RecordTag.Unknown;
+            return ret;
+        }
+
+        scope auto fp = _file.getFP();
+
+        Record ret;
+        enforce(fread(&ret, Record.sizeof, 1, fp) == 1, "nextRecord(): Failed to read");
+        ret.toHostOrder();
+
+        /* TODO: Allow reading the value - skip for now */
+        _file.seek(ret.length, SEEK_CUR);
+        ++recordIndex;
+
+        return ret;
     }
 
     /**
