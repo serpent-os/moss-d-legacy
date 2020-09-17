@@ -25,6 +25,7 @@ module moss.format.binary.reader;
 public import std.stdio : File;
 import moss.format.binary.endianness;
 import moss.format.binary.header;
+import moss.format.binary.record;
 
 /**
  * The Reader is a low-level mechanism for parsing Moss binary packages.
@@ -60,9 +61,23 @@ public:
         _header.toHostOrder();
         _header.validate();
 
+        /* Demo code */
         import std.stdio;
+        import std.conv : to;
 
         writeln(_header);
+        writeln("Found " ~ to!string(_header.numRecords) ~ " records in the file");
+
+        foreach (recordIndex; 0 .. _header.numRecords)
+        {
+            Record record;
+            fread(&record, Record.sizeof, 1, fp);
+            record.toHostOrder();
+            writeln(record);
+
+            /* Skip the value */
+            _file.seek(record.length, SEEK_CUR);
+        }
     }
 
     ~this() @safe

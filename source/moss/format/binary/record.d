@@ -105,7 +105,7 @@ align(1):
     @autoEndian uint32_t length; /** 4 bytes per record length*/
     @autoEndian RecordTag tag; /** 2 bytes for the tag */
     RecordType type; /** 1 byte for the type */
-    ubyte[1] padding;
+    ubyte[1] padding = 0;
 
     /**
      * Encode the Header to the underlying file stream
@@ -120,6 +120,19 @@ align(1):
         enforce(fwrite(&type, type.sizeof, 1, fp) == 1, "Failed to write Record.type");
         enforce(fwrite(padding.ptr, padding[0].sizeof, padding.length, fp) == 1,
                 "Failed to write Record.padding");
+    }
+
+    /**
+     * Ensure Records aren't insane
+     */
+    final void validate() @safe
+    {
+        import std.exception : enforce;
+
+        enforce(length > 0, "Record.validate(): Record has empty data");
+        enforce(tag != RecordTag.Unknown, "Record.validate(): Unknown tag");
+        enforce(type != RecordType.Unknown, "Record.validate(): Unknown type");
+        enforce(padding[0] == 0, "Record.validate(): Corrupt padding");
     }
 };
 
