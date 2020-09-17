@@ -140,11 +140,17 @@ public:
         return curEntry;
     }
 
+    /**
+     * Return true if there are no more entries
+     */
     final pure @property bool empty()
     {
         return !(recordIndex < _header.numRecords);
     }
 
+    /**
+     * Pop the current entry and find the next
+     */
     final @property Entry popFront()
     {
         curEntry.type = EntryType.Record;
