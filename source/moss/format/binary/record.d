@@ -82,7 +82,7 @@ enum RecordTag : uint16_t
     /** Conflicts with some capability or name */
     @(RecordType.Unknown) Conflicts = 10,
 
-    /** Release numer for the package */
+    /** Release number for the package */
     @(RecordType.Int64) Release = 11,
 
     /** SPDX license identifier */
