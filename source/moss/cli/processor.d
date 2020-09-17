@@ -29,6 +29,7 @@ import moss.cli.installCommand;
 import moss.cli.removeCommand;
 import moss.cli.searchCommand;
 import moss.cli.buildCommand;
+import moss.cli.infoCommand;
 
 import std.stdio;
 import std.getopt;
@@ -53,8 +54,8 @@ private:
      * Builtin list of handlers
      */
     static const Command*[] handlers = [
-        &installCommand, &removeCommand, &searchCommand, &buildCommand,
-        &helpCommand, &versionCommand
+        &installCommand, &removeCommand, &infoCommand, &searchCommand,
+        &buildCommand, &helpCommand, &versionCommand
     ];
 
 public:
