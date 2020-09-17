@@ -113,12 +113,31 @@ public:
             }
         }
 
-        void encodeDefault()
+        void encodeNumeric()
         {
             static if (!is(T == string))
             {
+                import std.bitmanip;
+
                 record.length = cast(uint32_t) T.sizeof;
-                _file.rawWrite((&datum)[0 .. T.sizeof]);
+
+                /* Ensure we encode big-endian values only */
+                version (BigEndian)
+                {
+                    _file.rawWrite((&datum)[0 .. T.sizeof]);
+                }
+                else
+                {
+                    static if (T.sizeof > 1)
+                    {
+                        ubyte[T.sizeof] b = nativeToBigEndian(datum);
+                        _file.rawWrite((&b)[0 .. T.sizeof]);
+                    }
+                    else
+                    {
+                        _file.rawWrite((&datum)[0 .. T.sizeof]);
+                    }
+                }
             }
         }
 
@@ -151,7 +170,7 @@ public:
                             .stringof);
                     writeln("Writing key: ", key, " - value: ", datum);
                     record.type = RecordType.Int32;
-                    encoder = &encodeDefault;
+                    encoder = &encodeNumeric;
                     break;
                 case RecordType.Uint32:
                     assert(typeid(datum) == typeid(uint32_t),
@@ -159,7 +178,7 @@ public:
                             .stringof);
                     writeln("Writing key: ", key, " - value: ", datum);
                     record.type = RecordType.Uint32;
-                    encoder = &encodeDefault;
+                    encoder = &encodeNumeric;
                     break;
                 case RecordType.Int64:
                     assert(typeid(datum) == typeid(int64_t),
@@ -167,7 +186,7 @@ public:
                             .stringof);
                     writeln("Writing key: ", key, " - value: ", datum);
                     record.type = RecordType.Int64;
-                    encoder = &encodeDefault;
+                    encoder = &encodeNumeric;
                     break;
                 case RecordType.Uint64:
                     assert(typeid(datum) == typeid(uint64_t),
@@ -175,7 +194,7 @@ public:
                             .stringof);
                     writeln("Writing key: ", key, " - value: ", datum);
                     record.type = RecordType.Uint64;
-                    encoder = &encodeDefault;
+                    encoder = &encodeNumeric;
                     break;
                 default:
                     assert(0, "INCOMPLETE SUPPORT");
