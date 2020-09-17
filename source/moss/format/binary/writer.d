@@ -121,7 +121,6 @@ public:
 
                 auto z = toStringz(datum);
                 assert(datum.length < uint32_t.max, "addRecord(): String Length too long");
-                record.type = RecordType.String;
                 record.length = cast(uint32_t) datum.length + 1;
 
                 enforce(fwrite(z, z[0].sizeof, record.length,
@@ -182,6 +181,7 @@ public:
                             "addRecord(RecordTag." ~ memberName ~ ") expects string, not " ~ typeof(datum)
                             .stringof);
                     writeln("Writing key: ", key, " - value: ", datum);
+                    record.type = RecordType.String;
                     encoder = &encodeString;
                     break;
 
