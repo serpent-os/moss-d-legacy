@@ -26,11 +26,9 @@ public import std.stdint;
 import moss.format.binary.endianness;
 
 /**
- * We deliberately support a high number of payload types to allow
- * other vendors to use a higher range for their custom payloads if
- * they so wish.
+ * Specific payload type
  */
-enum PayloadType : uint16_t
+enum PayloadType : uint8_t
 {
     /** Catch errors: Payload type should be known */
     Unknown = 0,
@@ -70,10 +68,10 @@ extern (C) struct Payload
 {
 align(1):
     @autoEndian uint64_t length; /* 8 bytes */
-    @autoEndian uint32_t payloadVersion; /* 4 bytes  */
-    @autoEndian PayloadType type; /* 2 bytes  */
+    @autoEndian uint32_t count; /* 4 bytes */
+    @autoEndian uint16_t payloadVersion; /* 2 bytes  */
+    @autoEndian PayloadType type; /* 1 byte  */
     PayloadCompression compression; /* 1 byte */
-    uint8_t compressionLevel; /* 1 byte */
 }
 
 static assert(Payload.sizeof == 16,
