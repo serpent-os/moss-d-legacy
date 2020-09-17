@@ -82,7 +82,7 @@ public:
      * Attempt to add a record to the stream. The type of T must be the
      * type expected in the key type
      */
-    final void addRecord(R : RecordTag, T)(R key, T datum)
+    final void addRecord(R : RecordTag, T)(R key, T datum) @trusted
     {
         import std.traits;
         import std.conv : to;
