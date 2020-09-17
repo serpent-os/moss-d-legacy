@@ -84,6 +84,9 @@ enum RecordTag : uint16_t
 
     /** Release numer for the package */
     @(RecordType.Int64) Release = 11,
+
+    /** SPDX license identifier */
+    @(RecordType.String) License = 12,
 }
 
 /**
