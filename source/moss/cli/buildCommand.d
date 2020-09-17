@@ -42,6 +42,7 @@ static ExitStatus buildExecute(ref Processor p)
     writer.addRecord(RecordTag.Summary, "This is an awesome package");
     writer.addRecord(RecordTag.Description, "This is a REALLY awesome package");
     writer.addRecord(RecordTag.Homepage, "https://www.nano-editor.org/");
+    writer.addRecord(RecordTag.Release, cast(int64_t) 1000);
     stderr.writeln("Writer test");
     return ExitStatus.Failure;
 }

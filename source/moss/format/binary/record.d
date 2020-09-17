@@ -81,6 +81,8 @@ enum RecordTag : uint16_t
 
     /** Conflicts with some capability or name */
     @(RecordType.Unknown) Conflicts = 10,
+
+    @(RecordType.Int64) Release = 11,
 }
 
 /**

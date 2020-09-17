@@ -103,8 +103,23 @@ public:
 
         void encodeString()
         {
-            auto z = toStringz(datum);
-            _file.rawWrite(z[0 .. record.length]);
+            static if (is(T == string))
+            {
+                auto z = toStringz(datum);
+                assert(datum.length < uint32_t.max, "addRecord(): String Length too long");
+                record.type = RecordType.String;
+                record.length = cast(uint32_t) datum.length + 1;
+                _file.rawWrite(z[0 .. record.length]);
+            }
+        }
+
+        void encodeDefault()
+        {
+            static if (!is(T == string))
+            {
+                record.length = cast(uint32_t) T.sizeof;
+                _file.rawWrite((&datum)[0 .. T.sizeof]);
+            }
         }
 
         static foreach (i, m; EnumMembers!RecordTag)
@@ -126,10 +141,6 @@ public:
                             "addRecord(RecordTag." ~ memberName ~ ") expects string, not " ~ typeof(datum)
                             .stringof);
                     writeln("Writing key: ", key, " - value: ", datum);
-                    assert(datum.length < uint32_t.max,
-                            "addRecord(RecordTag." ~ memberName ~ "): Length too long");
-                    record.type = RecordType.String;
-                    record.length = cast(uint32_t) datum.length + 1;
                     encoder = &encodeString;
                     break;
 
@@ -140,7 +151,31 @@ public:
                             .stringof);
                     writeln("Writing key: ", key, " - value: ", datum);
                     record.type = RecordType.Int32;
-                    record.length = cast(uint32_t) int32_t.sizeof;
+                    encoder = &encodeDefault;
+                    break;
+                case RecordType.Uint32:
+                    assert(typeid(datum) == typeid(uint32_t),
+                            "addRecord(RecordTag." ~ memberName ~ ") expects uint32_t, not " ~ typeof(datum)
+                            .stringof);
+                    writeln("Writing key: ", key, " - value: ", datum);
+                    record.type = RecordType.Uint32;
+                    encoder = &encodeDefault;
+                    break;
+                case RecordType.Int64:
+                    assert(typeid(datum) == typeid(int64_t),
+                            "addRecord(RecordTag." ~ memberName ~ ") expects int64_t, not " ~ typeof(datum)
+                            .stringof);
+                    writeln("Writing key: ", key, " - value: ", datum);
+                    record.type = RecordType.Int64;
+                    encoder = &encodeDefault;
+                    break;
+                case RecordType.Uint64:
+                    assert(typeid(datum) == typeid(uint64_t),
+                            "addRecord(RecordTag." ~ memberName ~ ") expects uint64_t, not " ~ typeof(datum)
+                            .stringof);
+                    writeln("Writing key: ", key, " - value: ", datum);
+                    record.type = RecordType.Uint64;
+                    encoder = &encodeDefault;
                     break;
                 default:
                     assert(0, "INCOMPLETE SUPPORT");
