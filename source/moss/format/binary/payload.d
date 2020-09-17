@@ -54,7 +54,7 @@ enum PayloadCompression : uint8_t
     Zstd = 2,
 }
 
-struct Payload
+extern (C) struct Payload
 {
 align(1):
     @autoEndian uint64_t length; /* 8 bytes */
