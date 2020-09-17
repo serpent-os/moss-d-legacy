@@ -187,7 +187,7 @@ public:
 
                     /* Handle string */
                 case RecordType.String:
-                    assert(typeid(datum) == typeid(string),
+                    assert(typeid(OriginalType!T) == typeid(string),
                             "addRecord(RecordTag." ~ memberName ~ ") expects string, not " ~ typeof(datum)
                             .stringof);
                     writeln("Writing key: ", key, " - value: ", datum);
@@ -196,7 +196,7 @@ public:
                     break;
 
                 case RecordType.Int8:
-                    assert(typeid(datum) == typeid(int8_t),
+                    assert(typeid(OriginalType!T) == typeid(int8_t),
                             "addRecord(RecordTag." ~ memberName ~ ") expects int8_t, not " ~ typeof(datum)
                             .stringof);
                     writeln("Writing key: ", key, " - value: ", datum);
@@ -204,7 +204,7 @@ public:
                     encoder = &encodeNumeric;
                     break;
                 case RecordType.Uint8:
-                    assert(typeid(datum) == typeid(uint8_t),
+                    assert(typeid(OriginalType!T) == typeid(uint8_t),
                             "addRecord(RecordTag." ~ memberName ~ ") expects uint8_t, not " ~ typeof(datum)
                             .stringof);
                     writeln("Writing key: ", key, " - value: ", datum);
@@ -213,7 +213,7 @@ public:
                     break;
 
                 case RecordType.Int16:
-                    assert(typeid(datum) == typeid(int16_t),
+                    assert(typeid(OriginalType!T) == typeid(int16_t),
                             "addRecord(RecordTag." ~ memberName ~ ") expects int16_t, not " ~ typeof(datum)
                             .stringof);
                     writeln("Writing key: ", key, " - value: ", datum);
@@ -221,7 +221,7 @@ public:
                     encoder = &encodeNumeric;
                     break;
                 case RecordType.Uint16:
-                    assert(typeid(datum) == typeid(uint16_t),
+                    assert(typeid(OriginalType!T) == typeid(uint16_t),
                             "addRecord(RecordTag." ~ memberName ~ ") expects uint16_t, not " ~ typeof(datum)
                             .stringof);
                     writeln("Writing key: ", key, " - value: ", datum);
@@ -229,7 +229,7 @@ public:
                     encoder = &encodeNumeric;
                     break;
                 case RecordType.Int32:
-                    assert(typeid(datum) == typeid(int32_t),
+                    assert(typeid(OriginalType!T) == typeid(int32_t),
                             "addRecord(RecordTag." ~ memberName ~ ") expects int32_t, not " ~ typeof(datum)
                             .stringof);
                     writeln("Writing key: ", key, " - value: ", datum);
@@ -237,7 +237,7 @@ public:
                     encoder = &encodeNumeric;
                     break;
                 case RecordType.Uint32:
-                    assert(typeid(datum) == typeid(uint32_t),
+                    assert(typeid(OriginalType!T) == typeid(uint32_t),
                             "addRecord(RecordTag." ~ memberName ~ ") expects uint32_t, not " ~ typeof(datum)
                             .stringof);
                     writeln("Writing key: ", key, " - value: ", datum);
@@ -245,7 +245,7 @@ public:
                     encoder = &encodeNumeric;
                     break;
                 case RecordType.Int64:
-                    assert(typeid(datum) == typeid(int64_t),
+                    assert(typeid(OriginalType!T) == typeid(int64_t),
                             "addRecord(RecordTag." ~ memberName ~ ") expects int64_t, not " ~ typeof(datum)
                             .stringof);
                     writeln("Writing key: ", key, " - value: ", datum);
@@ -253,7 +253,7 @@ public:
                     encoder = &encodeNumeric;
                     break;
                 case RecordType.Uint64:
-                    assert(typeid(datum) == typeid(uint64_t),
+                    assert(typeid(OriginalType!T) == typeid(uint64_t),
                             "addRecord(RecordTag." ~ memberName ~ ") expects uint64_t, not " ~ typeof(datum)
                             .stringof);
                     writeln("Writing key: ", key, " - value: ", datum);
