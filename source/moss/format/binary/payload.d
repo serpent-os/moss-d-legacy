@@ -39,8 +39,11 @@ enum PayloadType : uint8_t
     /** Map Files to Disk with basic UNIX permissions + types */
     Layout = 2,
 
+    /** For indexing the deduplicated store */
+    Index = 3,
+
     /* Attribute storage */
-    Attributes = 3,
+    Attributes = 4,
 }
 
 /**
