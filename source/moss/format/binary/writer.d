@@ -54,6 +54,23 @@ public:
         _header.numRecords = 0;
         _header.toNetworkOrder();
         _header.encode(fp);
+        _header.toHostOrder();
+    }
+
+    /**
+     * Return the filetype for this Writer
+     */
+    pure final @property MossFileType fileType() @safe @nogc nothrow
+    {
+        return _header.type;
+    }
+
+    /**
+     * Set the filetype for this Writer
+     */
+    final @property void fileType(MossFileType type) @safe @nogc nothrow
+    {
+        _header.type = type;
     }
 
     ~this() @safe
@@ -72,8 +89,10 @@ public:
         }
         _file.seek(0);
         scope auto fp = _file.getFP();
+        _header.toNetworkOrder();
         _header.encode(fp);
         _file.flush();
+        _header.toHostOrder();
         _file.close();
     }
 
