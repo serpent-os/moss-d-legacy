@@ -33,10 +33,19 @@ static ExitStatus infoExecute(ref Processor p)
 {
     auto reader = Reader(File("testpackage.stone", "rb"));
 
-    while (reader.hasNextRecord)
+    foreach (entry; reader)
     {
-        auto rec = reader.nextRecord();
-        writeln(rec);
+        switch (entry.type)
+        {
+        case EntryType.Header:
+            writeln(entry.header);
+            break;
+        case EntryType.Record:
+            writeln(entry.record);
+            break;
+        default:
+            break;
+        }
     }
 
     return ExitStatus.Failure;

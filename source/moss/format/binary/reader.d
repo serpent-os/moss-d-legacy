@@ -28,6 +28,29 @@ import moss.format.binary.header;
 import moss.format.binary.record;
 
 /**
+ * Current entry type in the archive
+ */
+enum EntryType
+{
+    Header = 0,
+    Record = 1,
+    Payload = 2,
+}
+
+/**
+ * Current Entry in the arhive
+ */
+struct Entry
+{
+    union
+    {
+        Record record;
+        Header header;
+    };
+    EntryType type;
+}
+
+/**
  * The Reader is a low-level mechanism for parsing Moss binary packages.
  */
 struct Reader
@@ -38,43 +61,7 @@ private:
     File _file;
     Header _header;
     uint16_t recordIndex;
-
-public:
-    @disable this();
-
-    /**
-     * Construct a new Reader for the given filename
-     */
-    this(File file) @trusted
-    {
-        import std.exception : enforce;
-        import std.stdio : fread;
-
-        scope auto fp = file.getFP();
-
-        _file = file;
-
-        auto size = _file.size;
-        enforce(size != 0, "Reader(): empty file");
-        enforce(size > Header.sizeof, "Reader(): File too small");
-        enforce(fread(&_header, Header.sizeof, 1, fp) == 1, "Reader(): Failed to read Header");
-
-        _header.toHostOrder();
-        _header.validate();
-    }
-
-    ~this() @safe
-    {
-        close();
-    }
-
-    /**
-     * Return true while the Reader still has more records available
-     */
-    pragma(inline, true) pure @property final bool hasNextRecord() @safe @nogc nothrow
-    {
-        return recordIndex < _header.numRecords;
-    }
+    Entry curEntry;
 
     /**
      * Return the next record in the Reader.
@@ -103,6 +90,66 @@ public:
         ++recordIndex;
 
         return ret;
+    }
+
+public:
+    @disable this();
+
+    /**
+     * Construct a new Reader for the given filename
+     */
+    this(File file) @trusted
+    {
+        import std.exception : enforce;
+        import std.stdio : fread;
+
+        scope auto fp = file.getFP();
+
+        _file = file;
+
+        auto size = _file.size;
+        enforce(size != 0, "Reader(): empty file");
+        enforce(size > Header.sizeof, "Reader(): File too small");
+        enforce(fread(&_header, Header.sizeof, 1, fp) == 1, "Reader(): Failed to read Header");
+
+        _header.toHostOrder();
+        _header.validate();
+
+        curEntry.type = EntryType.Header;
+        curEntry.header = _header;
+    }
+
+    ~this() @safe
+    {
+        close();
+    }
+
+    /**
+     * Return true while the Reader still has more records available
+     */
+    pragma(inline, true) pure @property final bool hasNextRecord() @safe @nogc nothrow
+    {
+        return recordIndex < _header.numRecords;
+    }
+
+    /**
+     * Return the current entry in the reader
+     */
+    final @property Entry front()
+    {
+        return curEntry;
+    }
+
+    final pure @property bool empty()
+    {
+        return !(recordIndex < _header.numRecords);
+    }
+
+    final @property Entry popFront()
+    {
+        curEntry.type = EntryType.Record;
+        curEntry.record = nextRecord();
+        return curEntry;
     }
 
     /**
