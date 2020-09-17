@@ -25,9 +25,11 @@
  */
 module moss.cli.infoCommand;
 import moss.cli;
+import moss.format.binary.reader;
 
 static ExitStatus infoExecute(ref Processor p)
 {
+    auto reader = Reader(File("testpackage.stone", "rb"));
     return ExitStatus.Failure;
 }
 
