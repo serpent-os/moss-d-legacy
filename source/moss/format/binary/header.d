@@ -92,8 +92,21 @@ align(1):
                 "Failed to write Header.numRecords");
         enforce(fwrite(padding.ptr, padding[0].sizeof, padding.length,
                 fp) == padding.length, "Failed to write Header.padding");
+        enforce(fwrite(&type, type.sizeof, 1, fp) == 1, "Failed to write Header.type");
         enforce(fwrite(&versionNumber, versionNumber.sizeof, 1, fp) == 1,
                 "Failed to write Header.sizeof");
+    }
+
+    /**
+     * Ensure that a header is actually valid before proceeding
+     */
+    final void validate() @safe
+    {
+        import std.exception : enforce;
+
+        enforce(magic == MossFileHeader, "Header.validate(): invalid magic");
+        enforce(padding == IntegrityCheck, "Header.validate(): corrupt integrity");
+        enforce(type != MossFileType.Unknown, "Header.validate(): unknown package type");
     }
 };
 

@@ -23,6 +23,7 @@
 module moss.format.binary.reader;
 
 public import std.stdio : File;
+import moss.format.binary.endianness;
 import moss.format.binary.header;
 
 /**
@@ -44,7 +45,24 @@ public:
      */
     this(File file) @trusted
     {
+        import std.exception : enforce;
+        import std.stdio : fread;
+
+        scope auto fp = file.getFP();
+
         _file = file;
+
+        auto size = _file.size;
+        enforce(size != 0, "Reader(): empty file");
+        enforce(size > Header.sizeof, "Reader(): File too small");
+        enforce(fread(&_header, Header.sizeof, 1, fp) == 1, "Reader(): Failed to read Header");
+
+        _header.toHostOrder();
+        _header.validate();
+
+        import std.stdio;
+
+        writeln(_header);
     }
 
     ~this() @safe
