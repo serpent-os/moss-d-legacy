@@ -22,7 +22,7 @@
 
 module moss.format.binary.writer;
 
-import std.stdio : File;
+public import std.stdio : File;
 
 import moss.format.binary : MossFormatVersionNumber;
 import moss.format.binary.endianness;
@@ -30,8 +30,7 @@ import moss.format.binary.header;
 import moss.format.binary.record;
 
 /**
- * This class is responsible for writing binary moss packages to disk,
- * setting relevant meta-information and merging a payload.
+ * The Writer is a low-level mechanism for writing Moss binary packages
  */
 struct Writer
 {
