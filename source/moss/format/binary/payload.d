@@ -38,14 +38,11 @@ enum PayloadType : uint16_t
     /** File store, i.e. hash indexed */
     Files = 1,
 
-    /** Offsets to files within the payload by their ID */
-    Indices = 2,
-
     /** Map Files to Disk with basic UNIX permissions + types */
-    Layout = 3,
+    Layout = 2,
 
     /* Attribute storage */
-    Attributes = 4,
+    Attributes = 3,
 }
 
 /**
