@@ -53,12 +53,11 @@ public:
         _filename = filename;
 
         _file = File(filename, "wb");
+        scope auto fp = _file.getFP();
         _header = Header(versionNumber);
         _header.numRecords = 0;
         _header.toNetworkOrder();
-
-        /* Insert the header now, we'll rewind and fix number of records */
-        _file.rawWrite((&_header)[0 .. Header.sizeof]);
+        _header.encode(fp);
     }
 
     ~this() @safe

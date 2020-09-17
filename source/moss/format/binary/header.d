@@ -23,6 +23,7 @@
 module moss.format.binary.header;
 
 public import std.stdint;
+public import std.stdio : FILE;
 import moss.format.binary.endianness;
 
 /**
@@ -60,7 +61,7 @@ enum MossFileType : uint8_t
  * and tagged with the relevant information, ensuring the format doesn't
  * become too restrictive.
  */
-struct Header
+extern (C) struct Header
 {
 align(1):
     @autoEndian uint32_t magic; /* 4 bytes */
@@ -76,6 +77,23 @@ align(1):
         this.padding = IntegrityCheck;
         this.type = MossFileType.Binary;
         this.versionNumber = versionNumber;
+    }
+
+    /**
+     * Encode the Header to the underlying file stream
+     */
+    final void encode(scope FILE* fp) @trusted
+    {
+        import std.stdio : fwrite;
+        import std.exception : enforce;
+
+        enforce(fwrite(&magic, magic.sizeof, 1, fp) == 1, "Failed to write Header.magic");
+        enforce(fwrite(&numRecords, numRecords.sizeof, 1, fp) == 1,
+                "Failed to write Header.numRecords");
+        enforce(fwrite(padding.ptr, padding[0].sizeof, padding.length,
+                fp) == padding.length, "Failed to write Header.padding");
+        enforce(fwrite(&versionNumber, versionNumber.sizeof, 1, fp) == 1,
+                "Failed to write Header.sizeof");
     }
 };
 
