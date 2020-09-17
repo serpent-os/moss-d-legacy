@@ -70,7 +70,7 @@ align(1):
     @autoEndian uint64_t length; /* 8 bytes */
     @autoEndian uint32_t count; /* 4 bytes */
     @autoEndian uint16_t payloadVersion; /* 2 bytes  */
-    @autoEndian PayloadType type; /* 1 byte  */
+    PayloadType type; /* 1 byte  */
     PayloadCompression compression; /* 1 byte */
 }
 
