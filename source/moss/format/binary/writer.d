@@ -95,7 +95,6 @@ public:
         import std.traits;
         import std.conv : to;
         import std.stdio;
-        import std.string : toStringz;
 
         scope auto fp = _file.getFP();
 
@@ -106,11 +105,17 @@ public:
         {
             static if (is(T == string))
             {
+                import std.stdio : fwrite;
+                import std.exception : enforce;
+                import std.string : toStringz;
+
                 auto z = toStringz(datum);
                 assert(datum.length < uint32_t.max, "addRecord(): String Length too long");
                 record.type = RecordType.String;
                 record.length = cast(uint32_t) datum.length + 1;
-                _file.rawWrite(z[0 .. record.length]);
+
+                enforce(fwrite(z, z[0].sizeof, record.length,
+                        fp) == record.length, "encodeString(): Failed to write");
             }
         }
 
@@ -119,24 +124,30 @@ public:
             static if (!is(T == string))
             {
                 import std.bitmanip;
+                import std.stdio : fwrite;
+                import std.exception : enforce;
 
                 record.length = cast(uint32_t) T.sizeof;
 
                 /* Ensure we encode big-endian values only */
                 version (BigEndian)
                 {
-                    _file.rawWrite((&datum)[0 .. T.sizeof]);
+                    enforce(fwrite(&datum, T.sizeof, 1, fp) == 1,
+                            "encodeNumeric(): Failed to write");
                 }
                 else
                 {
                     static if (T.sizeof > 1)
                     {
                         ubyte[T.sizeof] b = nativeToBigEndian(datum);
-                        _file.rawWrite((&b)[0 .. T.sizeof]);
+                        enforce(fwrite(b.ptr, b[0].sizeof, T.sizeof,
+                                fp) == T.sizeof, "encodeNumeric(): Failed to write");
+
                     }
                     else
                     {
-                        _file.rawWrite((&datum)[0 .. T.sizeof]);
+                        enforce(fwrite(&datum, T.sizeof, 1, fp) == 1,
+                                "encodeNumeric(): Failed to write");
                     }
                 }
             }
