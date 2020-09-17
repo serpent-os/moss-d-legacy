@@ -32,11 +32,7 @@ static ExitStatus buildExecute(ref Processor p)
 {
     import std.stdio;
 
-    auto writer = new Writer("testpackage.stone");
-    scope (exit)
-    {
-        writer.close();
-    }
+    auto writer = Writer(File("testpackage.stone", "wb"));
 
     writer.addRecord(RecordTag.Name, "nano");
     writer.addRecord(RecordTag.Release, cast(int64_t) 1000);

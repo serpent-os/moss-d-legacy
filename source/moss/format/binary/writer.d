@@ -33,12 +33,11 @@ import moss.format.binary.record;
  * This class is responsible for writing binary moss packages to disk,
  * setting relevant meta-information and merging a payload.
  */
-class Writer
+struct Writer
 {
 
 private:
 
-    string _filename;
     File _file;
     Header _header;
 
@@ -48,11 +47,9 @@ public:
     /**
      * Construct a new Writer for the given filename
      */
-    this(string filename, uint32_t versionNumber = MossFormatVersionNumber) @trusted
+    this(File file, uint32_t versionNumber = MossFormatVersionNumber) @trusted
     {
-        _filename = filename;
-
-        _file = File(filename, "wb");
+        _file = file;
         scope auto fp = _file.getFP();
         _header = Header(versionNumber);
         _header.numRecords = 0;
@@ -66,14 +63,6 @@ public:
     }
 
     /**
-     * Return the filename for the Writer
-     */
-    pure final @property const(string) filename() @safe @nogc nothrow
-    {
-        return _filename;
-    }
-
-    /**
      * Flush and close the underying file.
      */
     final void close() @safe
@@ -82,7 +71,6 @@ public:
         {
             _file.flush();
             _file.close();
-            _file = File();
         }
     }
 
