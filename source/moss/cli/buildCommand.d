@@ -36,7 +36,7 @@ static ExitStatus buildExecute(ref Processor p)
     writer.fileType = MossFileType.Binary;
 
     writer.addRecord(RecordTag.Name, "nano");
-    writer.addRecord(RecordTag.Release, cast(int64_t) 1000);
+    writer.addRecord(RecordTag.Release, cast(uint64_t) 1000);
     writer.addRecord(RecordTag.Version, "5.2");
     writer.addRecord(RecordTag.Summary, "Small, friendly text editor inspired by Pico");
     writer.addRecord(RecordTag.Description, "GNU nano is an easy-to-use text editor originally designed as a replacement for Pico, the ncurses-based editor from the non-free mailer package Pine (itself now available under the Apache License as Alpine).");
