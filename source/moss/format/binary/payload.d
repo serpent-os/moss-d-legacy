@@ -33,17 +33,20 @@ enum PayloadType : uint8_t
     /** Catch errors: Payload type should be known */
     Unknown = 0,
 
+    /** The Metadata store */
+    Meta = 1,
+
     /** File store, i.e. hash indexed */
-    Content = 1,
+    Content = 2,
 
     /** Map Files to Disk with basic UNIX permissions + types */
-    Layout = 2,
+    Layout = 3,
 
     /** For indexing the deduplicated store */
-    Index = 3,
+    Index = 4,
 
     /* Attribute storage */
-    Attributes = 4,
+    Attributes = 5,
 }
 
 /**
