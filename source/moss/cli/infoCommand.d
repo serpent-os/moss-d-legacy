@@ -27,11 +27,17 @@ module moss.cli.infoCommand;
 import moss.cli;
 import moss.format.binary.reader;
 
-import std.stdio : writeln;
+import std.stdio : writeln, stderr;
 
 static ExitStatus infoExecute(ref Processor p)
 {
-    auto reader = Reader(File("testpackage.stone", "rb"));
+    if (p.argv.length != 1)
+    {
+        stderr.writeln("Requires an argument");
+        return ExitStatus.Failure;
+    }
+
+    auto reader = Reader(File(p.argv[0], "rb"));
 
     foreach (entry; reader)
     {
