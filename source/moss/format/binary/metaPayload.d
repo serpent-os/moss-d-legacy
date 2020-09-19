@@ -226,13 +226,19 @@ public:
     {
         import std.stdio : fwrite;
         import std.exception : enforce;
+        import std.digest.crc;
 
         if (numRecords < 0)
         {
             return;
         }
 
+        /* Write payload header with CRC64ISO */
         Payload us = this;
+        CRC64ISO hash;
+
+        hash.put(binary);
+        us.crc64 = hash.finish();
         us.toNetworkOrder();
         us.encode(fp);
 
