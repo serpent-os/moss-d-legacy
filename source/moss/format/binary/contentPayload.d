@@ -61,14 +61,11 @@ public:
      */
     final void encode(File file)
     {
-        import std.stdio : fwrite;
         import std.exception : enforce;
 
         scope FILE* fp = file.getFP();
 
         Payload us = this;
-        /* Disable compression */
-        us.compression = PayloadCompression.None;
 
         auto pointNow = file.tell();
         us.toNetworkOrder();
@@ -76,6 +73,36 @@ public:
         us.toHostOrder();
 
         import std.stdio;
+
+        switch (us.compression)
+        {
+        case PayloadCompression.None:
+            encodeNoCompression(fp);
+            break;
+        default:
+            assert(0, "ContentPayload.encode: Unsupported compression");
+        }
+
+        file.flush();
+
+        us = this;
+
+        /* Go back and update the payload */
+        file.seek(pointNow, SEEK_SET);
+        us.toNetworkOrder();
+        us.encode(fp);
+
+        /* Back to the end */
+        file.seek(length, SEEK_CUR);
+        file.flush();
+    }
+
+    /**
+     * Write all data with no compression
+     */
+    final void encodeNoCompression(scope FILE* fp)
+    {
+        import std.stdio : fwrite;
 
         /* TODO: Match chunk sizes to the compression */
         const auto ChunkSize = 16 * 1024 * 1024;
@@ -86,7 +113,6 @@ public:
         foreach (k; order)
         {
             auto v = content[k];
-            writeln(k, " = ", v);
 
             /* Open in binary read */
             File input = File(v, "rb");
@@ -96,18 +122,9 @@ public:
                 written += buffer.length;
             }
         }
-        file.flush();
 
-        /* Go back and update the payload */
-        file.seek(pointNow, SEEK_SET);
-        us.length = written;
-        us.size = written;
-        us.toNetworkOrder();
-        us.encode(fp);
-
-        /* Back to the end */
-        file.seek(us.sizeof + written + pointNow, SEEK_SET);
-        file.flush();
+        length = written;
+        size = written;
     }
 
     /**
