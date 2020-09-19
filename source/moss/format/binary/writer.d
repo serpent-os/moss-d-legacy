@@ -134,7 +134,7 @@ public:
                 import moss.format.binary.contentPayload;
 
                 auto c = cast(ContentPayload*) p;
-                c.encode(fp);
+                c.encode(_file);
                 break;
             default:
                 assert(0, "Unsupported type: " ~ p.type.stringof);

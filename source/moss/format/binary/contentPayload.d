@@ -25,6 +25,8 @@ module moss.format.binary.contentPayload;
 import moss.format.binary.endianness;
 import moss.format.binary.payload;
 
+public import std.stdio : File, FILE;
+
 const uint16_t ContentPayloadVersion = 1;
 
 /**
@@ -57,24 +59,55 @@ public:
     /**
      * Encode our data to the archive
      */
-    final void encode(scope FILE* fp)
+    final void encode(File file)
     {
         import std.stdio : fwrite;
         import std.exception : enforce;
 
-        Payload us = this;
+        scope FILE* fp = file.getFP();
 
+        Payload us = this;
+        /* Disable compression */
+        us.compression = PayloadCompression.None;
+
+        auto pointNow = file.tell();
         us.toNetworkOrder();
         us.encode(fp);
+        us.toHostOrder();
 
         import std.stdio;
+
+        /* TODO: Match chunk sizes to the compression */
+        const auto ChunkSize = 16 * 1024 * 1024;
+
+        ulong written = 0;
 
         /* Now read and copy each file into the archive */
         foreach (k; order)
         {
             auto v = content[k];
             writeln(k, " = ", v);
+
+            /* Open in binary read */
+            File input = File(v, "rb");
+            foreach (ubyte[] buffer; input.byChunk(ChunkSize))
+            {
+                fwrite(buffer.ptr, buffer[0].sizeof, buffer.length, fp);
+                written += buffer.length;
+            }
         }
+        file.flush();
+
+        /* Go back and update the payload */
+        file.seek(pointNow, SEEK_SET);
+        us.length = written;
+        us.size = written;
+        us.toNetworkOrder();
+        us.encode(fp);
+
+        /* Back to the end */
+        file.seek(us.sizeof + written + pointNow, SEEK_SET);
+        file.flush();
     }
 
     /**
