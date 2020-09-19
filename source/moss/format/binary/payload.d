@@ -70,15 +70,22 @@ enum PayloadCompression : uint8_t
     Zlib = 3,
 }
 
+/**
+ * Payload is the root type within a moss binary package. Every payload
+ * is expected to contain at least 1 record, with built-in verioning.
+ */
 extern (C) struct Payload
 {
 align(1):
+
     @autoEndian uint64_t length; /* 8 bytes */
+    @autoEndian uint64_t size; /* 8 bytes */
+    ubyte[8] crc64; /* CRC64-ISO */
     @autoEndian uint32_t count; /* 4 bytes */
     @autoEndian uint16_t payloadVersion; /* 2 bytes  */
     PayloadType type; /* 1 byte  */
     PayloadCompression compression; /* 1 byte */
 }
 
-static assert(Payload.sizeof == 16,
+static assert(Payload.sizeof == 32,
         "Payload size must be 16 bytes, not " ~ Payload.sizeof.stringof ~ " bytes");
