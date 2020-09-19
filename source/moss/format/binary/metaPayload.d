@@ -38,6 +38,9 @@ public:
     Payload pt;
     alias pt this;
 
+    /**
+     * Ensure default initialisation is not insane.
+     */
     static MetaPayload opCall()
     {
         MetaPayload r;
