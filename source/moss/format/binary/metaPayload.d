@@ -243,6 +243,7 @@ public:
         hash.put(binary);
         us.crc64 = hash.finish();
         us.length = binary.length;
+        us.size = binary.length; /* No compression atm */
         us.toNetworkOrder();
         us.encode(fp);
 
