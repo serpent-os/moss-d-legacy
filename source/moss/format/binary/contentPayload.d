@@ -79,6 +79,9 @@ public:
         case PayloadCompression.None:
             encodeNoCompression(fp);
             break;
+        case PayloadCompression.Zstd:
+            encodeZstdCompression(fp);
+            break;
         default:
             assert(0, "ContentPayload.encode: Unsupported compression");
         }
@@ -125,6 +128,42 @@ public:
 
         length = written;
         size = written;
+    }
+
+    final void encodeZstdCompression(scope FILE* fp)
+    {
+        import std.stdio : fwrite;
+        import zstd;
+
+        ulong compSize = 0;
+        ulong normSize = 0;
+
+        /* TODO: Get rid of this class and make our helper  */
+        auto comp = new Compressor();
+
+        foreach (k; order)
+        {
+            auto v = content[k];
+
+            File input = File(v, "rb");
+            foreach (ubyte[] buffer; input.byChunk(Compressor.recommendedInSize))
+            {
+                auto comped = comp.compress(buffer);
+                normSize += buffer.length;
+                compSize += comped.length;
+                fwrite(comped.ptr, comped[0].sizeof, comped.length, fp);
+            }
+
+            auto flushed = comp.flush();
+            if (flushed.length > 0)
+            {
+                compSize += flushed.length;
+                fwrite(flushed.ptr, flushed[0].sizeof, flushed.length, fp);
+            }
+        }
+
+        length = compSize;
+        size = normSize;
     }
 
     /**

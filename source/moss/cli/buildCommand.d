@@ -50,6 +50,7 @@ static ExitStatus buildExecute(ref Processor p)
             "README.md");
 
     meta.compression = PayloadCompression.Zlib;
+    content.compression = PayloadCompression.Zstd;
     writer.addPayload(cast(Payload*)&content);
     writer.addPayload(cast(Payload*)&meta);
     writer.flush();
