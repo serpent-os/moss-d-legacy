@@ -106,9 +106,11 @@ public:
     final void encodeNoCompression(scope FILE* fp)
     {
         import std.stdio : fwrite;
+        import std.digest.crc;
 
         /* TODO: Match chunk sizes to the compression */
         const auto ChunkSize = 16 * 1024 * 1024;
+        CRC64ISO hash;
 
         ulong written = 0;
 
@@ -122,9 +124,11 @@ public:
             foreach (ubyte[] buffer; input.byChunk(ChunkSize))
             {
                 fwrite(buffer.ptr, buffer[0].sizeof, buffer.length, fp);
+                hash.put(buffer);
                 written += buffer.length;
             }
         }
+        crc64 = hash.finish();
 
         length = written;
         size = written;
@@ -133,10 +137,12 @@ public:
     final void encodeZstdCompression(scope FILE* fp)
     {
         import std.stdio : fwrite;
+        import std.digest.crc;
         import zstd;
 
         ulong compSize = 0;
         ulong normSize = 0;
+        CRC64ISO hash;
 
         /* TODO: Get rid of this class and make our helper  */
         auto comp = new Compressor();
@@ -151,6 +157,7 @@ public:
                 auto comped = comp.compress(buffer);
                 normSize += buffer.length;
                 compSize += comped.length;
+                hash.put(comped);
                 fwrite(comped.ptr, comped[0].sizeof, comped.length, fp);
             }
 
@@ -158,10 +165,12 @@ public:
             if (flushed.length > 0)
             {
                 compSize += flushed.length;
+                hash.put(flushed);
                 fwrite(flushed.ptr, flushed[0].sizeof, flushed.length, fp);
             }
         }
 
+        crc64 = hash.finish();
         length = compSize;
         size = normSize;
     }
