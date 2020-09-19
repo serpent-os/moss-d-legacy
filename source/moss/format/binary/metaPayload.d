@@ -248,6 +248,8 @@ public:
 
             ubyte[] comp = compress(binary);
             hash.put(comp);
+            us.length = comp.length;
+
             us.crc64 = hash.finish();
             us.toNetworkOrder();
             us.encode(fp);
