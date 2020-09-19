@@ -145,7 +145,7 @@ public:
         CRC64ISO hash;
 
         /* TODO: Get rid of this class and make our helper  */
-        auto comp = new Compressor();
+        auto comp = new Compressor(8);
 
         foreach (k; order)
         {
