@@ -37,13 +37,20 @@ public:
     Payload pt;
     alias pt this;
 
-    @disable this();
+    static MetaPayload opCall()
+    {
+        MetaPayload r;
+        r.type = PayloadType.Meta;
+        r.compression = PayloadCompression.None;
+        return r;
+    }
 
     /**
      * Add Records with their associated data.
      */
-    void addRecord(R : RecordTag, T)(T datum)
+    final void addRecord(R : RecordTag, T)(R key, auto const ref T datum) @trusted
     {
+        numRecords++;
     }
 
 private:

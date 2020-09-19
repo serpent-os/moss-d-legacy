@@ -28,6 +28,7 @@ import moss.format.binary : MossFormatVersionNumber;
 import moss.format.binary.endianness;
 import moss.format.binary.header;
 import moss.format.binary.record;
+import moss.format.binary.payload;
 
 /**
  * The Writer is a low-level mechanism for writing Moss binary packages
@@ -39,6 +40,7 @@ private:
 
     File _file;
     Header _header;
+    Payload*[] payloads;
 
 public:
     @disable this();
@@ -51,7 +53,7 @@ public:
         _file = file;
         scope auto fp = _file.getFP();
         _header = Header(versionNumber);
-        _header.numRecords = 0;
+        _header.numPayloads = 0;
         _header.toNetworkOrder();
         _header.encode(fp);
         _header.toHostOrder();
@@ -94,6 +96,40 @@ public:
         _file.flush();
         _header.toHostOrder();
         _file.close();
+    }
+
+    /**
+     * Add the payload to the archive.
+     */
+    final void addPayload(Payload* payload) @trusted
+    {
+        payloads ~= payload;
+        _header.numPayloads++;
+    }
+
+    /**
+     * Flush all payloads to disk.
+     */
+    final void flush() @trusted
+    {
+        _file.seek(0);
+
+        scope auto fp = _file.getFP();
+        _header.toNetworkOrder();
+        _header.encode(fp);
+        _header.toHostOrder();
+
+        /* Dump all payloads. TODO: Add their records. */
+        foreach (ref p; payloads)
+        {
+            Payload pEnc = *p;
+            pEnc.toNetworkOrder();
+            pEnc.encode(fp);
+
+            /* TODO: Write records here */
+        }
+
+        _file.flush();
     }
 
     /**
@@ -267,7 +303,7 @@ public:
         }
 
         record.tag = key;
-        _header.numRecords++;
+        // _header.numRecords++;
 
         assert(encoder !is null, "Missing encoder");
         encoder();

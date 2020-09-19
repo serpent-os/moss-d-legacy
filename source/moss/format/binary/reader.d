@@ -25,30 +25,7 @@ module moss.format.binary.reader;
 public import std.stdio : File;
 import moss.format.binary.endianness;
 import moss.format.binary.header;
-import moss.format.binary.record;
-
-/**
- * Current entry type in the archive
- */
-enum EntryType
-{
-    Header = 0,
-    Record = 1,
-    Payload = 2,
-}
-
-/**
- * Current Entry in the arhive
- */
-struct Entry
-{
-    union
-    {
-        Record record;
-        Header header;
-    };
-    EntryType type;
-}
+import moss.format.binary.payload;
 
 /**
  * The Reader is a low-level mechanism for parsing Moss binary packages.
@@ -60,34 +37,33 @@ private:
 
     File _file;
     Header _header;
-    uint16_t recordIndex;
-    Entry curEntry;
+    uint16_t payloadIndex;
+    Payload curPayload;
+    bool notRead = true;
 
     /**
      * Return the next record in the Reader.
      */
-    Record nextRecord() @trusted
+    Payload nextPayload() @trusted
     {
         import std.exception : enforce;
         import std.stdio : fread, fseek, SEEK_CUR;
 
-        if (!hasNextRecord)
+        if (!hasNextPayload)
         {
-            auto ret = Record();
-            ret.type = RecordType.Unknown;
-            ret.tag = RecordTag.Unknown;
+            auto ret = Payload();
             return ret;
         }
 
         scope auto fp = _file.getFP();
 
-        Record ret;
-        enforce(fread(&ret, Record.sizeof, 1, fp) == 1, "nextRecord(): Failed to read");
+        Payload ret;
+        enforce(fread(&ret, Payload.sizeof, 1, fp) == 1, "nextPayload(): Failed to read");
         ret.toHostOrder();
 
         /* TODO: Allow reading the value - skip for now */
         _file.seek(ret.length, SEEK_CUR);
-        ++recordIndex;
+        ++payloadIndex;
 
         return ret;
     }
@@ -115,8 +91,7 @@ public:
         _header.toHostOrder();
         _header.validate();
 
-        curEntry.type = EntryType.Header;
-        curEntry.header = _header;
+        curPayload = Payload();
     }
 
     ~this() @safe
@@ -127,17 +102,22 @@ public:
     /**
      * Return true while the Reader still has more records available
      */
-    pragma(inline, true) pure @property final bool hasNextRecord() @safe @nogc nothrow
+    pragma(inline, true) pure @property final bool hasNextPayload() @safe @nogc nothrow
     {
-        return recordIndex < _header.numRecords;
+        return payloadIndex < _header.numPayloads;
     }
 
     /**
      * Return the current entry in the reader
      */
-    final @property Entry front()
+    final @property Payload front()
     {
-        return curEntry;
+        if (notRead)
+        {
+            curPayload = nextPayload();
+            notRead = false;
+        }
+        return curPayload;
     }
 
     /**
@@ -145,17 +125,16 @@ public:
      */
     final pure @property bool empty()
     {
-        return !(recordIndex < _header.numRecords);
+        return !(payloadIndex < _header.numPayloads);
     }
 
     /**
      * Pop the current entry and find the next
      */
-    final @property Entry popFront()
+    final @property Payload popFront()
     {
-        curEntry.type = EntryType.Record;
-        curEntry.record = nextRecord();
-        return curEntry;
+        curPayload = nextPayload();
+        return curPayload;
     }
 
     /**

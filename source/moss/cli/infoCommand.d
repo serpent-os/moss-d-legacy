@@ -39,19 +39,9 @@ static ExitStatus infoExecute(ref Processor p)
 
     auto reader = Reader(File(p.argv[0], "rb"));
 
-    foreach (entry; reader)
+    foreach (payload; reader)
     {
-        switch (entry.type)
-        {
-        case EntryType.Header:
-            writeln(entry.header);
-            break;
-        case EntryType.Record:
-            writeln(entry.record);
-            break;
-        default:
-            break;
-        }
+        writeln(payload);
     }
 
     return ExitStatus.Failure;

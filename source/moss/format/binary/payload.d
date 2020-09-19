@@ -23,6 +23,7 @@
 module moss.format.binary.payload;
 
 public import std.stdint;
+public import std.stdio : FILE;
 import moss.format.binary.endianness;
 
 /**
@@ -78,13 +79,34 @@ extern (C) struct Payload
 {
 align(1):
 
-    @autoEndian uint64_t length; /* 8 bytes */
-    @autoEndian uint64_t size; /* 8 bytes */
-    ubyte[8] crc64; /* CRC64-ISO */
-    @autoEndian uint32_t numRecords; /* 4 bytes */
-    @autoEndian uint16_t payloadVersion; /* 2 bytes  */
-    PayloadType type; /* 1 byte  */
-    PayloadCompression compression; /* 1 byte */
+    @autoEndian uint64_t length = 0; /* 8 bytes */
+    @autoEndian uint64_t size = 0; /* 8 bytes */
+    ubyte[8] crc64 = 0; /* CRC64-ISO */
+    @autoEndian uint32_t numRecords = 0; /* 4 bytes */
+    @autoEndian uint16_t payloadVersion = 0; /* 2 bytes  */
+    PayloadType type = PayloadType.Unknown; /* 1 byte  */
+    PayloadCompression compression = PayloadCompression.Unknown; /* 1 byte */
+
+    /**
+     * Encode the Header to the underlying file stream
+     */
+    final void encode(scope FILE* fp) @trusted
+    {
+        import std.stdio : fwrite;
+        import std.exception : enforce;
+
+        enforce(fwrite(&length, length.sizeof, 1, fp) == 1, "Failed to write Payload.length");
+        enforce(fwrite(&size, size.sizeof, 1, fp) == 1, "Failed to write Payload.size");
+        enforce(fwrite(crc64.ptr, crc64[0].sizeof, crc64.length,
+                fp) == crc64.length, "Failed to write Payload.crc64");
+        enforce(fwrite(&numRecords, numRecords.sizeof, 1, fp) == 1,
+                "Failed to write Payload.numRecords");
+        enforce(fwrite(&payloadVersion, payloadVersion.sizeof, 1, fp) == 1,
+                "Failed to write Payload.payloadVersion");
+        enforce(fwrite(&type, type.sizeof, 1, fp) == 1, "Failed to write Payload.type");
+        enforce(fwrite(&compression, compression.sizeof, 1, fp) == 1,
+                "Failed to write Payload.compression");
+    }
 }
 
 static assert(Payload.sizeof == 32,

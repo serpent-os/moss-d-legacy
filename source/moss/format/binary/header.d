@@ -66,7 +66,7 @@ extern (C) struct Header
 {
 align(1):
     @autoEndian uint32_t magic; /* 4 bytes */
-    @autoEndian uint16_t numRecords; /* 2 bytes */
+    @autoEndian uint16_t numPayloads; /* 2 bytes */
     ubyte[21] padding;
     MossFileType type; /* 1-byte */
     @autoEndian uint32_t versionNumber; /* 4 bytes */
@@ -74,7 +74,7 @@ align(1):
     this(uint32_t versionNumber) @safe @nogc nothrow
     {
         this.magic = MossFileHeader;
-        this.numRecords = 0;
+        this.numPayloads = 0;
         this.padding = IntegrityCheck;
         this.type = MossFileType.Binary;
         this.versionNumber = versionNumber;
@@ -89,8 +89,8 @@ align(1):
         import std.exception : enforce;
 
         enforce(fwrite(&magic, magic.sizeof, 1, fp) == 1, "Failed to write Header.magic");
-        enforce(fwrite(&numRecords, numRecords.sizeof, 1, fp) == 1,
-                "Failed to write Header.numRecords");
+        enforce(fwrite(&numPayloads, numPayloads.sizeof, 1, fp) == 1,
+                "Failed to write Header.numPayloads");
         enforce(fwrite(padding.ptr, padding[0].sizeof, padding.length,
                 fp) == padding.length, "Failed to write Header.padding");
         enforce(fwrite(&type, type.sizeof, 1, fp) == 1, "Failed to write Header.type");
