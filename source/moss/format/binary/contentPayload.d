@@ -67,7 +67,7 @@ public:
 
         Payload us = this;
 
-        auto pointNow = file.tell();
+        auto startPoint = file.tell();
         us.toNetworkOrder();
         us.encode(fp);
         us.toHostOrder();
@@ -91,7 +91,7 @@ public:
         us = this;
 
         /* Go back and update the payload */
-        file.seek(pointNow, SEEK_SET);
+        file.seek(startPoint, SEEK_SET);
         us.toNetworkOrder();
         us.encode(fp);
 
@@ -134,6 +134,9 @@ public:
         size = written;
     }
 
+    /**
+     * Write all data with ZSTD compression
+     */
     final void encodeZstdCompression(scope FILE* fp)
     {
         import std.stdio : fwrite;
