@@ -20,21 +20,34 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module moss.format.binary;
+module moss.format.binary.metaPayload;
 
-public import std.stdint : uint32_t;
-
-public import moss.format.binary.endianness;
-public import moss.format.binary.header;
-public import moss.format.binary.index;
-public import moss.format.binary.layout;
-public import moss.format.binary.metaPayload;
-public import moss.format.binary.payload;
-public import moss.format.binary.reader;
-public import moss.format.binary.record;
-public import moss.format.binary.writer;
+import moss.format.binary.payload;
+import moss.format.binary.record;
 
 /**
- * Current version of the package format that we target.
+ * The MetaPayload type allows us to encode metadata into a payload
+ * trivially.
  */
-const uint32_t MossFormatVersionNumber = 1;
+struct MetaPayload
+{
+
+public:
+
+    Payload pt;
+    alias pt this;
+
+    @disable this();
+
+    /**
+     * Add Records with their associated data.
+     */
+    void addRecord(R : RecordTag, T)(T datum)
+    {
+    }
+
+private:
+
+    /* Dynamically allocated storage */
+    ubyte[] binary;
+}
