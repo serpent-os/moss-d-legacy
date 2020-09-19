@@ -23,7 +23,6 @@
 module moss.format.binary.record;
 
 public import std.stdint;
-public import std.stdio : FILE;
 import moss.format.binary.endianness;
 
 /**
@@ -106,21 +105,6 @@ align(1):
     @autoEndian RecordTag tag; /** 2 bytes for the tag */
     RecordType type; /** 1 byte for the type */
     ubyte[1] padding = 0;
-
-    /**
-     * Encode the Header to the underlying file stream
-     */
-    final void encode(scope FILE* fp) @trusted
-    {
-        import std.stdio : fwrite;
-        import std.exception : enforce;
-
-        enforce(fwrite(&length, length.sizeof, 1, fp) == 1, "Failed to write Record.length");
-        enforce(fwrite(&tag, tag.sizeof, 1, fp) == 1, "Failed to write Record.tag");
-        enforce(fwrite(&type, type.sizeof, 1, fp) == 1, "Failed to write Record.type");
-        enforce(fwrite(padding.ptr, padding[0].sizeof, padding.length, fp) == 1,
-                "Failed to write Record.padding");
-    }
 
     final void encode(scope ref ubyte[] p) @trusted
     {
