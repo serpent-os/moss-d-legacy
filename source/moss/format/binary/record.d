@@ -122,6 +122,14 @@ align(1):
                 "Failed to write Record.padding");
     }
 
+    final void encode(scope ref ubyte[] p) @trusted
+    {
+        p ~= (cast(ubyte*)&length)[0 .. length.sizeof];
+        p ~= (cast(ubyte*)&tag)[0 .. tag.sizeof];
+        p ~= (cast(ubyte*)&type)[0 .. type.sizeof];
+        p ~= (cast(ubyte*)&padding[0])[0 .. padding[0].sizeof];
+    }
+
     /**
      * Ensure Records aren't insane
      */
