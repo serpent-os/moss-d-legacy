@@ -130,6 +130,12 @@ public:
                 auto m = cast(MetaPayload*) p;
                 m.encode(fp);
                 break;
+            case PayloadType.Content:
+                import moss.format.binary.contentPayload;
+
+                auto c = cast(ContentPayload*) p;
+                c.encode(fp);
+                break;
             default:
                 assert(0, "Unsupported type: " ~ p.type.stringof);
             }

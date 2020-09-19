@@ -44,7 +44,10 @@ static ExitStatus buildExecute(ref Processor p)
     meta.addRecord(RecordTag.Homepage, "https://www.nano-editor.org/");
     meta.addRecord(RecordTag.License, "GPL-3.0-or-later");
 
+    auto content = ContentPayload();
+
     writer.addPayload(cast(Payload*)&meta);
+    writer.addPayload(cast(Payload*)&content);
     writer.flush();
 
     stderr.writeln("Writer test");

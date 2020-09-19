@@ -25,6 +25,7 @@ module moss.format.binary;
 public import std.stdint : uint32_t;
 
 public import moss.format.binary.endianness;
+public import moss.format.binary.contentPayload;
 public import moss.format.binary.header;
 public import moss.format.binary.index;
 public import moss.format.binary.layout;
