@@ -260,7 +260,7 @@ public:
         case PayloadCompression.Zstd:
             import zstd;
 
-            ubyte[] comp = compress(binary);
+            ubyte[] comp = compress(binary, 8);
             hash.put(comp);
             us.length = comp.length;
 
