@@ -39,8 +39,17 @@ enum FileType : uint8_t
     /** Directory */
     Directory = 3,
 
-    /* mknod special device file */
-    Node = 4,
+    /** Character Device */
+    CharacterDevice = 4,
+
+    /** Block device */
+    BlockDevice = 5,
+
+    /** Fifo pipe */
+    Fifo = 6,
+
+    /** Socket */
+    Socket = 7,
 }
 
 /**

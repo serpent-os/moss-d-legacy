@@ -67,4 +67,60 @@ public:
         us.toNetworkOrder();
         us.encode(fp);
     }
+
+    /**
+     * Add directory entry
+     */
+    final void addEntry(ref LayoutEntry entry, string target)
+    {
+        import std.exception : enforce;
+
+        enforce(entry.type == FileType.Directory, "Unsupported file type for directory variant");
+
+        addEntryInternal(entry, null, target);
+    }
+
+    /**
+     * Add typical string entry (symlink, file)
+     */
+    final void addEntry(ref LayoutEntry entry, string source, string target)
+    {
+        import std.exception : enforce;
+
+        addEntryInternal(entry, cast(ubyte[]) source, target);
+    }
+
+    /**
+     * Add special device entry
+     */
+    final void addEntry(ref LayoutEntry entry, uint32_t source, string target)
+    {
+        import std.exception : enforce;
+        import std.bitmanip;
+
+        ubyte[4] bytes = 0;
+        enforce(entry.type >= FileType.CharacterDevice
+                && entry.type <= FileType.Socket, "Unsupported file type for uint32_t source");
+        version (LittleEndian)
+        {
+            bytes = nativeToBigEndian(source);
+        }
+        else
+        {
+            bytes = cast(ubyte[]) source;
+        }
+        addEntryInternal(entry, bytes, target);
+    }
+
+private:
+
+    /**
+     * Handle encoding datum
+     */
+    final void addEntryInternal(ref LayoutEntry entry, ubyte[] source, string target)
+    {
+
+    }
+
+    ubyte[] binary;
 }
