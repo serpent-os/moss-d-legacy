@@ -81,7 +81,7 @@ align(1):
     @autoEndian uint64_t length; /* 8 bytes */
     @autoEndian uint64_t size; /* 8 bytes */
     ubyte[8] crc64; /* CRC64-ISO */
-    @autoEndian uint32_t count; /* 4 bytes */
+    @autoEndian uint32_t numRecords; /* 4 bytes */
     @autoEndian uint16_t payloadVersion; /* 2 bytes  */
     PayloadType type; /* 1 byte  */
     PayloadCompression compression; /* 1 byte */
