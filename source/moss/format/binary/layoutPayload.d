@@ -62,7 +62,6 @@ public:
     {
         auto scope fp = file.getFP();
         Payload us = this;
-        us.numRecords = 0;
 
         us.toNetworkOrder();
         us.encode(fp);
@@ -71,7 +70,7 @@ public:
     /**
      * Add directory entry
      */
-    final void addEntry(ref LayoutEntry entry, string target)
+    final void addEntry(ref LayoutEntry entry, string target) @trusted
     {
         import std.exception : enforce;
 
@@ -93,7 +92,7 @@ public:
     /**
      * Add special device entry
      */
-    final void addEntry(ref LayoutEntry entry, uint32_t source, string target)
+    final void addEntry(ref LayoutEntry entry, uint32_t source, string target) @trusted
     {
         import std.exception : enforce;
         import std.bitmanip;
@@ -117,8 +116,24 @@ private:
     /**
      * Handle encoding datum
      */
-    final void addEntryInternal(ref LayoutEntry entry, ubyte[] source, string target)
+    final void addEntryInternal(ref LayoutEntry entry, ubyte[] source, string target) @trusted
     {
+        import std.string : toStringz;
+
+        entry.sourceLength = cast(uint16_t)(source == null ? 0 : source.length);
+        entry.targetLength = cast(uint16_t)(target.length + 1); /* + nul terminator */
+
+        entry.encode(binary);
+        numRecords++;
+
+        /* Encode source + target */
+        if (entry.sourceLength > 0)
+        {
+            binary ~= source;
+        }
+
+        auto z = toStringz(target);
+        binary ~= (cast(ubyte*) z)[0 .. entry.targetLength];
 
     }
 

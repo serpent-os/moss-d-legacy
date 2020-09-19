@@ -23,7 +23,6 @@
 module moss.format.binary.layout;
 
 public import std.stdint;
-public import std.stdio : FILE;
 
 enum FileType : uint8_t
 {
@@ -91,23 +90,17 @@ align(1):
     /**
      * Encode the Header to the underlying file stream
      */
-    final void encode(scope FILE* fp) @trusted
+    final void encode(ref ubyte[] p) @trusted nothrow
     {
-        import std.stdio : fwrite;
-        import std.exception : enforce;
 
-        enforce(fwrite(&time, time.sizeof, 1, fp) == 1, "Failed to write LayoutEntry.time");
-        enforce(fwrite(&uid, uid.sizeof, 1, fp) == 1, "Failed to write LayoutEntry.uid");
-        enforce(fwrite(&mode, mode.sizeof, 1, fp) == 1, "Failed to write LayoutEntry.mode");
-        enforce(fwrite(&tag, tag.sizeof, 1, fp) == 1, "Failed to write LayoutEntry.tag");
-        enforce(fwrite(&sourceLength, sourceLength.sizeof, 1, fp) == 1,
-                "Failed to write LayoutEntry.sourceLength");
-        enforce(fwrite(&targetLength, targetLength.sizeof, 1, fp) == 1,
-                "Failed to write LayoutEntry.targetLength");
-        enforce(fwrite(&type, type.sizeof, 1, fp) == 1, "Failed to write LayoutEntry.type");
-
-        enforce(fwrite(padding.ptr, padding[0].sizeof, padding.length,
-                fp) == padding.length, "Failed to write LayoutEntry.padding");
+        p ~= (cast(ubyte*)&time)[0 .. time.sizeof];
+        p ~= (cast(ubyte*)&uid)[0 .. uid.sizeof];
+        p ~= (cast(ubyte*)&mode)[0 .. mode.sizeof];
+        p ~= (cast(ubyte*)&tag)[0 .. tag.sizeof];
+        p ~= (cast(ubyte*)&sourceLength)[0 .. sourceLength.sizeof];
+        p ~= (cast(ubyte*)&targetLength)[0 .. targetLength.sizeof];
+        p ~= (cast(ubyte*)&type)[0 .. type.sizeof];
+        p ~= padding;
     }
 }
 

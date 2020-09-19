@@ -50,6 +50,11 @@ static ExitStatus buildExecute(ref Processor p)
             "README.md");
 
     auto layout = LayoutPayload();
+    auto entry = LayoutEntry();
+    entry.type = FileType.Regular;
+    layout.addEntry(entry, "6aad886e25795d06dfe468782caac1d4991a9b4fca7f003d754d0b326abb43dc",
+            "/usr/share/some-pkg/LICENSE");
+
     meta.compression = PayloadCompression.Zlib;
     content.compression = PayloadCompression.Zstd;
     writer.addPayload(cast(Payload*)&content);
