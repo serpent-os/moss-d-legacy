@@ -46,8 +46,8 @@ static ExitStatus buildExecute(ref Processor p)
 
     auto content = ContentPayload();
 
-    writer.addPayload(cast(Payload*)&meta);
     writer.addPayload(cast(Payload*)&content);
+    writer.addPayload(cast(Payload*)&meta);
     writer.flush();
 
     stderr.writeln("Writer test");
