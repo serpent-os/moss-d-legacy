@@ -26,6 +26,8 @@ import moss.format.binary.endianness;
 import moss.format.binary.payload;
 import moss.format.binary.record;
 
+const uint16_t MetaPayloadVersion = 1;
+
 /**
  * The MetaPayload type allows us to encode metadata into a payload
  * trivially.
@@ -46,6 +48,7 @@ public:
         MetaPayload r;
         r.type = PayloadType.Meta;
         r.compression = PayloadCompression.None;
+        r.payloadVersion = MetaPayloadVersion;
         return r;
     }
 
@@ -239,6 +242,7 @@ public:
 
         hash.put(binary);
         us.crc64 = hash.finish();
+        us.length = binary.length;
         us.toNetworkOrder();
         us.encode(fp);
 
