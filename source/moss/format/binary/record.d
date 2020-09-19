@@ -40,8 +40,7 @@ enum RecordType : uint8_t
     Uint32 = 6,
     Int64 = 7,
     Uint64 = 8,
-    Binary = 9,
-    String = 10,
+    String = 9,
 }
 
 /**
