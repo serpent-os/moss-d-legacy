@@ -45,6 +45,9 @@ static ExitStatus buildExecute(ref Processor p)
     meta.addRecord(RecordTag.License, "GPL-3.0-or-later");
 
     auto content = ContentPayload();
+    content.addFile("6aad886e25795d06dfe468782caac1d4991a9b4fca7f003d754d0b326abb43dc", "LICENSE");
+    content.addFile("7ae82e48f6a61aacf94e3b56172e292bcfe9d19d1b45ea31ae5354b0bf8f2802",
+            "README.md");
 
     meta.compression = PayloadCompression.Zlib;
     writer.addPayload(cast(Payload*)&content);

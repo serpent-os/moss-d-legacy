@@ -66,5 +66,31 @@ public:
 
         us.toNetworkOrder();
         us.encode(fp);
+
+        import std.stdio;
+
+        /* Now read and copy each file into the archive */
+        foreach (k; order)
+        {
+            auto v = content[k];
+            writeln(k, " = ", v);
+        }
     }
+
+    /**
+     * Add a file to the content payload. It will not be loaded or
+     * written until the archive is being flushed.
+     */
+    final void addFile(string hashID, string sourcePath)
+    {
+        assert(!(hashID in content), "addFile(): must be a unique hash");
+        content[hashID] = sourcePath;
+        order ~= hashID;
+        numRecords++;
+    }
+
+private:
+
+    string[string] content;
+    string[] order;
 }
