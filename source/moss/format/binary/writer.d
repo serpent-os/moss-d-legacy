@@ -122,10 +122,6 @@ public:
         /* Dump all payloads. TODO: Add their records. */
         foreach (ref p; payloads)
         {
-            Payload pEnc = *p;
-            pEnc.toNetworkOrder();
-            pEnc.encode(fp);
-
             switch (p.type)
             {
             case PayloadType.Meta:

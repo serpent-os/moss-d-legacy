@@ -232,6 +232,10 @@ public:
             return;
         }
 
+        Payload us = this;
+        us.toNetworkOrder();
+        us.encode(fp);
+
         /* Dump our data */
         enforce(fwrite(binary.ptr, binary[0].sizeof, binary.length,
                 fp) == binary.length, "MetaPayload.encode(): Failed to write data");
