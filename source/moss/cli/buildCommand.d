@@ -46,6 +46,7 @@ static ExitStatus buildExecute(ref Processor p)
 
     auto content = ContentPayload();
 
+    meta.compression = PayloadCompression.Zlib;
     writer.addPayload(cast(Payload*)&content);
     writer.addPayload(cast(Payload*)&meta);
     writer.flush();

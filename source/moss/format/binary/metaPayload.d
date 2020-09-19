@@ -239,17 +239,50 @@ public:
         /* Write payload header with CRC64ISO */
         Payload us = this;
         CRC64ISO hash;
+        us.size = binary.length; /* Decompressed size */
 
-        hash.put(binary);
-        us.crc64 = hash.finish();
-        us.length = binary.length;
-        us.size = binary.length; /* No compression atm */
-        us.toNetworkOrder();
-        us.encode(fp);
+        switch (compression)
+        {
+        case PayloadCompression.Zlib:
+            import std.zlib;
 
-        /* Dump our data */
-        enforce(fwrite(binary.ptr, binary[0].sizeof, binary.length,
-                fp) == binary.length, "MetaPayload.encode(): Failed to write data");
+            ubyte[] comp = compress(binary);
+            hash.put(comp);
+            us.crc64 = hash.finish();
+            us.toNetworkOrder();
+            us.encode(fp);
+
+            enforce(fwrite(comp.ptr, comp[0].sizeof, comp.length,
+                    fp) == comp.length, "MetaPayload.encode(): Failed to write data");
+            break;
+        case PayloadCompression.Zstd:
+            import zstd;
+
+            ubyte[] comp = compress(binary);
+            hash.put(comp);
+            us.length = comp.length;
+
+            us.crc64 = hash.finish();
+            us.toNetworkOrder();
+            us.encode(fp);
+
+            enforce(fwrite(comp.ptr, comp[0].sizeof, comp.length,
+                    fp) == comp.length, "MetaPayload.encode(): Failed to write data");
+            break;
+        case PayloadCompression.None:
+            hash.put(binary);
+            us.length = binary.length;
+
+            us.crc64 = hash.finish();
+            us.toNetworkOrder();
+            us.encode(fp);
+
+            enforce(fwrite(binary.ptr, binary[0].sizeof, binary.length,
+                    fp) == binary.length, "MetaPayload.encode(): Failed to write data");
+            break;
+        default:
+            assert(0, "Unsupported compression");
+        }
     }
 
 private:
