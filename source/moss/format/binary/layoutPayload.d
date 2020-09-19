@@ -26,6 +26,7 @@ import moss.format.binary.endianness;
 import moss.format.binary.payload;
 
 public import std.stdio : File, FILE;
+public import moss.format.binary.layout;
 
 const uint16_t LayoutPayloadVersion = 1;
 

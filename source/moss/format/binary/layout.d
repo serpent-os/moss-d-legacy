@@ -23,6 +23,7 @@
 module moss.format.binary.layout;
 
 public import std.stdint;
+public import std.stdio : FILE;
 
 enum FileType : uint8_t
 {
@@ -77,6 +78,28 @@ align(1):
     FileType type; /* 1 byte */
 
     ubyte[3] padding;
+
+    /**
+     * Encode the Header to the underlying file stream
+     */
+    final void encode(scope FILE* fp) @trusted
+    {
+        import std.stdio : fwrite;
+        import std.exception : enforce;
+
+        enforce(fwrite(&time, time.sizeof, 1, fp) == 1, "Failed to write LayoutEntry.time");
+        enforce(fwrite(&uid, uid.sizeof, 1, fp) == 1, "Failed to write LayoutEntry.uid");
+        enforce(fwrite(&mode, mode.sizeof, 1, fp) == 1, "Failed to write LayoutEntry.mode");
+        enforce(fwrite(&tag, tag.sizeof, 1, fp) == 1, "Failed to write LayoutEntry.tag");
+        enforce(fwrite(&sourceLength, sourceLength.sizeof, 1, fp) == 1,
+                "Failed to write LayoutEntry.sourceLength");
+        enforce(fwrite(&targetLength, targetLength.sizeof, 1, fp) == 1,
+                "Failed to write LayoutEntry.targetLength");
+        enforce(fwrite(&type, type.sizeof, 1, fp) == 1, "Failed to write LayoutEntry.type");
+
+        enforce(fwrite(padding.ptr, padding[0].sizeof, padding.length,
+                fp) == padding.length, "Failed to write LayoutEntry.padding");
+    }
 }
 
 static assert(LayoutEntry.sizeof == 32,
