@@ -39,21 +39,15 @@ private:
     Header _header;
     uint16_t payloadIndex;
     Payload curPayload;
-    bool notRead = true;
+    bool loaded = false;
 
     /**
-     * Return the next record in the Reader.
+     * Load the current payload
      */
-    Payload nextPayload() @trusted
+    Payload loadPayload() @trusted
     {
+        import std.stdio : fread;
         import std.exception : enforce;
-        import std.stdio : fread, fseek, SEEK_CUR;
-
-        if (!hasNextPayload)
-        {
-            auto ret = Payload();
-            return ret;
-        }
 
         scope auto fp = _file.getFP();
 
@@ -61,11 +55,17 @@ private:
         enforce(fread(&ret, Payload.sizeof, 1, fp) == 1, "nextPayload(): Failed to read");
         ret.toHostOrder();
 
-        /* TODO: Allow reading the value - skip for now */
-        _file.seek(ret.length, SEEK_CUR);
-        ++payloadIndex;
-
         return ret;
+    }
+
+    /**
+     * Skip the contents of the payload completely
+     */
+    void skipPayload() @trusted
+    {
+        import std.stdio : fseek, SEEK_CUR;
+
+        _file.seek(curPayload.length, SEEK_CUR);
     }
 
 public:
@@ -92,6 +92,12 @@ public:
         _header.validate();
 
         curPayload = Payload();
+        loaded = true;
+
+        if (_header.numPayloads > 0)
+        {
+            curPayload = loadPayload();
+        }
     }
 
     ~this() @safe
@@ -100,22 +106,15 @@ public:
     }
 
     /**
-     * Return true while the Reader still has more records available
-     */
-    pragma(inline, true) pure @property final bool hasNextPayload() @safe @nogc nothrow
-    {
-        return payloadIndex < _header.numPayloads;
-    }
-
-    /**
      * Return the current entry in the reader
      */
     final @property Payload front()
     {
-        if (notRead)
+        if (!loaded)
         {
-            curPayload = nextPayload();
-            notRead = false;
+            skipPayload();
+            curPayload = loadPayload();
+            loaded = true;
         }
         return curPayload;
     }
@@ -123,9 +122,9 @@ public:
     /**
      * Return true if there are no more entries
      */
-    final pure @property bool empty()
+    final @property bool empty()
     {
-        return !(payloadIndex < _header.numPayloads);
+        return payloadIndex >= _header.numPayloads;
     }
 
     /**
@@ -133,7 +132,8 @@ public:
      */
     final @property Payload popFront()
     {
-        curPayload = nextPayload();
+        payloadIndex++;
+        loaded = false;
         return curPayload;
     }
 
