@@ -49,10 +49,12 @@ static ExitStatus buildExecute(ref Processor p)
     content.addFile("7ae82e48f6a61aacf94e3b56172e292bcfe9d19d1b45ea31ae5354b0bf8f2802",
             "README.md");
 
+    auto layout = LayoutPayload();
     meta.compression = PayloadCompression.Zlib;
     content.compression = PayloadCompression.Zstd;
     writer.addPayload(cast(Payload*)&content);
     writer.addPayload(cast(Payload*)&meta);
+    writer.addPayload(cast(Payload*)&layout);
     writer.flush();
 
     stderr.writeln("Writer test");
