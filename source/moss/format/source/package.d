@@ -21,3 +21,5 @@
  */
 
 module moss.format.source;
+
+public import moss.format.source.spec;
