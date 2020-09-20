@@ -23,6 +23,7 @@
 module moss.format.source.spec;
 
 public import std.stdint;
+public import std.stdio : File;
 
 /**
  * UDA to help unmarshall the correct values.
@@ -140,6 +141,8 @@ struct SourceDefinition
 struct Spec
 {
 
+public:
+
     /**
      * Source definition
      */
@@ -164,4 +167,15 @@ struct Spec
      * Per package definitions */
     PackageDefinition[string] subPackages;
 
+    /**
+     * Construct a Spec from the given file
+     */
+    this(File _file) @safe
+    {
+        this._file = _file;
+    }
+
+private:
+
+    File _file;
 };
