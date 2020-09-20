@@ -192,9 +192,30 @@ public:
 
         /* Parse the rootContext source */
         parseSection(root, source);
+
+        import std.stdio;
+
+        writeln(source);
     }
 
 private:
+
+    /**
+     * Set value appropriately.
+     */
+    final void setValue(T)(ref Node node, ref T value)
+    {
+        import std.traits;
+
+        static if (is(T == int64_t))
+        {
+            value = node.as!int64_t;
+        }
+        else
+        {
+            value = node.as!string;
+        }
+    }
 
     final void parseSection(T)(ref Node node, ref T section) @system
     {
@@ -221,7 +242,7 @@ private:
                 if (node.containsKey(yamlName))
                 {
                     auto yamlNode = node[yamlName];
-                    writeln(yamlNode);
+                    mixin("setValue(yamlNode, section." ~ member ~ ");");
                 }
             }
         }
