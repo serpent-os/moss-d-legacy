@@ -44,6 +44,10 @@ struct BuildDefinition
     @YamlID("builddeps") string[] buildDependencies;
 };
 
+/**
+ * A Package Definition allows overriding of specific values from the
+ * root context for a sub package.
+ */
 struct PackageDefinition
 {
     @YamlID("summary") string summary;
