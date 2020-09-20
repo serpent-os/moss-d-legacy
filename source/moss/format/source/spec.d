@@ -25,22 +25,30 @@ module moss.format.source.spec;
 public import std.stdint;
 
 /**
+ * UDA to help unmarshall the correct values.
+ */
+struct YamlID
+{
+    string name;
+}
+
+/**
  * A Build Definition provides the relevant steps to complete production
  * of a package. All steps are optional.
  */
 struct BuildDefinition
 {
-    string stepSetup;
-    string stepBuild;
-    string stepInstall;
-    string[] buildDependencies;
+    @YamlID("setup") string stepSetup;
+    @YamlID("build") string stepBuild;
+    @YamlID("install") string stepInstall;
+    @YamlID("builddeps") string[] buildDependencies;
 };
 
 struct PackageDefinition
 {
-    string summary;
-    string description;
-    string[] runtimeDependencies;
+    @YamlID("summary") string summary;
+    @YamlID("description") string description;
+    @YamlID("rundeps") string[] runtimeDependencies;
 };
 
 /**
@@ -49,9 +57,9 @@ struct PackageDefinition
  */
 struct SourceDefinition
 {
-    string name;
-    string versionIdentifier;
-    int64_t release;
+    @YamlID("name") string name;
+    @YamlID("version") string versionIdentifier;
+    @YamlID("release") int64_t release;
 };
 
 /**
