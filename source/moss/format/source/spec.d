@@ -180,14 +180,25 @@ public:
     /**
      * Attempt to parse the input fiel
      */
-    final void parse() @safe
+    final void parse() @system
     {
         import std.exception : enforce;
 
         enforce(_file.isOpen(), "Spec.parse(): File is not open");
+
+        auto loader = Loader.fromFile(_file);
+        auto root = loader.load();
+
+        /* Parse the rootContext source */
+        parseSection(root, source);
     }
 
 private:
+
+    final void parseSection(T)(ref Node node, ref T section)
+    {
+
+    }
 
     File _file;
 };
