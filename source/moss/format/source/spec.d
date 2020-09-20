@@ -197,7 +197,19 @@ private:
 
     final void parseSection(T)(ref Node node, ref T section)
     {
+        import std.traits;
+        import std.stdio;
 
+        /* Walk members */
+        static foreach (member; __traits(allMembers, T))
+        {
+            {
+                mixin("auto udaID = getUDAs!(" ~ T.stringof ~ "." ~ member ~ ", YamlID);");
+                static assert(udaID.length == 1, "Missing YamlID for " ~ T.stringof ~ "." ~ member);
+                auto yamlName = udaID[0].name;
+                writeln(yamlName);
+            }
+        }
     }
 
     File _file;
