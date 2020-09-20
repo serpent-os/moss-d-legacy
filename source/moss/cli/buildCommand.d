@@ -61,9 +61,9 @@ static ExitStatus buildExecute(ref Processor p)
     content.compression = PayloadCompression.Zstd;
 
     writer.addPayload(cast(Payload*)&content);
+    writer.addPayload(cast(Payload*)&index);
     writer.addPayload(cast(Payload*)&meta);
     writer.addPayload(cast(Payload*)&layout);
-    writer.addPayload(cast(Payload*)&index);
     writer.flush();
 
     stderr.writeln("Writer test");
