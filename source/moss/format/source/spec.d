@@ -53,6 +53,7 @@ struct PackageDefinition
     @YamlID("summary") string summary;
     @YamlID("description") string description;
     @YamlID("rundeps") string[] runtimeDependencies;
+    @YamlID("paths") string[] paths;
 };
 
 /**
