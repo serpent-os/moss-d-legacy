@@ -140,7 +140,7 @@ public:
                 import moss.format.binary.layoutPayload;
 
                 auto l = cast(LayoutPayload*) p;
-                l.encode(_file);
+                l.encode(fp);
                 break;
             default:
                 assert(0, "Unsupported type: " ~ p.type.stringof);

@@ -23,6 +23,7 @@
 module moss.format.binary.layoutPayload;
 
 import moss.format.binary.endianness;
+import moss.format.binary.encoder;
 import moss.format.binary.payload;
 
 public import std.stdio : File, FILE;
@@ -56,15 +57,6 @@ public:
         r.size = 0;
         r.numRecords = 0;
         return r;
-    }
-
-    final void encode(File file) @trusted
-    {
-        auto scope fp = file.getFP();
-        Payload us = this;
-
-        us.toNetworkOrder();
-        us.encode(fp);
     }
 
     /**
@@ -109,6 +101,14 @@ public:
             bytes = cast(ubyte[]) source;
         }
         addEntryInternal(entry, bytes, target);
+    }
+
+    /**
+     * Encode our data to the archive
+     */
+    final void encode(scope FILE* fp)
+    {
+        encodeLayoutBinary(fp, this, binary);
     }
 
 private:

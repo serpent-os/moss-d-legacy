@@ -23,6 +23,7 @@
 module moss.format.binary.metaPayload;
 
 import moss.format.binary.endianness;
+import moss.format.binary.encoder;
 import moss.format.binary.payload;
 import moss.format.binary.record;
 
@@ -227,64 +228,7 @@ public:
      */
     final void encode(scope FILE* fp)
     {
-        import std.stdio : fwrite;
-        import std.exception : enforce;
-        import std.digest.crc;
-
-        if (numRecords < 0)
-        {
-            return;
-        }
-
-        /* Write payload header with CRC64ISO */
-        Payload us = this;
-        CRC64ISO hash;
-        us.size = binary.length; /* Decompressed size */
-
-        switch (compression)
-        {
-        case PayloadCompression.Zlib:
-            import std.zlib;
-
-            ubyte[] comp = compress(binary);
-            hash.put(comp);
-            us.length = comp.length;
-
-            us.crc64 = hash.finish();
-            us.toNetworkOrder();
-            us.encode(fp);
-
-            enforce(fwrite(comp.ptr, comp[0].sizeof, comp.length,
-                    fp) == comp.length, "MetaPayload.encode(): Failed to write data");
-            break;
-        case PayloadCompression.Zstd:
-            import zstd;
-
-            ubyte[] comp = compress(binary, 8);
-            hash.put(comp);
-            us.length = comp.length;
-
-            us.crc64 = hash.finish();
-            us.toNetworkOrder();
-            us.encode(fp);
-
-            enforce(fwrite(comp.ptr, comp[0].sizeof, comp.length,
-                    fp) == comp.length, "MetaPayload.encode(): Failed to write data");
-            break;
-        case PayloadCompression.None:
-            hash.put(binary);
-            us.length = binary.length;
-
-            us.crc64 = hash.finish();
-            us.toNetworkOrder();
-            us.encode(fp);
-
-            enforce(fwrite(binary.ptr, binary[0].sizeof, binary.length,
-                    fp) == binary.length, "MetaPayload.encode(): Failed to write data");
-            break;
-        default:
-            assert(0, "Unsupported compression");
-        }
+        encodeLayoutBinary(fp, this, binary);
     }
 
 private:
