@@ -227,6 +227,33 @@ private:
         }
     }
 
+    /**
+     * Set value according to maps.
+     */
+    final void setValueArray(T)(ref Node node, ref T value)
+    {
+        import std.stdio;
+        import std.exception : enforce;
+
+        /* We can support a single value *or* a list. */
+        enforce(node.nodeID != NodeID.mapping, "Expected " ~ T.stringof ~ " for " ~ node.tag);
+
+        switch (node.nodeID)
+        {
+        case NodeID.scalar:
+            value ~= node.as!(typeof(value[0]));
+            break;
+        case NodeID.sequence:
+            foreach (ref Node v; node)
+            {
+                value ~= v.as!(typeof(value[0]));
+            }
+            break;
+        default:
+            break;
+        }
+    }
+
     final void parseSection(T)(ref Node node, ref T section) @system
     {
         import std.traits;
@@ -257,6 +284,14 @@ private:
                         {
                             auto yamlNode = node[yamlName];
                             mixin("setValue(yamlNode, section." ~ member ~ ");");
+                        }
+                    }
+                    else static if (type == YamlType.Array)
+                    {
+                        if (node.containsKey(yamlName))
+                        {
+                            auto yamlNode = node[yamlName];
+                            mixin("setValueArray(yamlNode, section." ~ member ~ ");");
                         }
                     }
                 }
