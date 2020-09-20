@@ -25,49 +25,22 @@
  */
 module moss.cli.buildCommand;
 import moss.cli;
+import std.stdio;
 
-import moss.format.binary;
+import moss.format.source;
 
 static ExitStatus buildExecute(ref Processor p)
 {
-    import std.stdio;
+    if (p.argv.length != 1)
+    {
+        stderr.writeln("Requires an argument");
+        return ExitStatus.Failure;
+    }
 
-    auto writer = Writer(File("testpackage.stone", "wb"));
-    writer.fileType = MossFileType.Binary;
+    /* try to open a spec file */
+    auto spec = Spec(File(p.argv[0], "r"));
 
-    auto meta = MetaPayload();
-    meta.addRecord(RecordTag.Name, "nano");
-    meta.addRecord(RecordTag.Release, cast(uint64_t) 1000);
-    meta.addRecord(RecordTag.Version, "5.2");
-    meta.addRecord(RecordTag.Summary, "Small, friendly text editor inspired by Pico");
-    meta.addRecord(RecordTag.Description, "GNU nano is an easy-to-use text editor originally designed as a replacement for Pico, the ncurses-based editor from the non-free mailer package Pine (itself now available under the Apache License as Alpine).");
-    meta.addRecord(RecordTag.Homepage, "https://www.nano-editor.org/");
-    meta.addRecord(RecordTag.License, "GPL-3.0-or-later");
-
-    auto content = ContentPayload();
-    content.addFile("6aad886e25795d06dfe468782caac1d4991a9b4fca7f003d754d0b326abb43dc", "LICENSE");
-    content.addFile("7ae82e48f6a61aacf94e3b56172e292bcfe9d19d1b45ea31ae5354b0bf8f2802",
-            "README.md");
-
-    auto layout = LayoutPayload();
-    auto entry = LayoutEntry();
-    entry.type = FileType.Regular;
-    layout.addEntry(entry, "6aad886e25795d06dfe468782caac1d4991a9b4fca7f003d754d0b326abb43dc",
-            "/usr/share/some-pkg/LICENSE");
-
-    auto index = IndexPayload();
-
-    meta.compression = PayloadCompression.Zlib;
-    content.compression = PayloadCompression.Zstd;
-
-    writer.addPayload(cast(Payload*)&content);
-    writer.addPayload(cast(Payload*)&index);
-    writer.addPayload(cast(Payload*)&meta);
-    writer.addPayload(cast(Payload*)&layout);
-    writer.flush();
-
-    stderr.writeln("Writer test");
-    return ExitStatus.Failure;
+    return ExitStatus.Success;
 }
 
 const Command buildCommand = {
