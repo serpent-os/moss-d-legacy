@@ -207,7 +207,8 @@ private:
                 mixin("auto udaID = getUDAs!(" ~ T.stringof ~ "." ~ member ~ ", YamlID);");
                 static assert(udaID.length == 1, "Missing YamlID for " ~ T.stringof ~ "." ~ member);
                 auto yamlName = udaID[0].name;
-                writeln(yamlName);
+
+                auto yamlNode = node[yamlName];
             }
         }
     }
