@@ -108,7 +108,6 @@ public:
         import std.stdio : fwrite;
         import std.digest.crc;
 
-        /* TODO: Match chunk sizes to the compression */
         const auto ChunkSize = 16 * 1024 * 1024;
         CRC64ISO hash;
 
