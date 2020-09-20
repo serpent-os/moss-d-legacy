@@ -204,6 +204,7 @@ public:
         parseSection(root, rootPackage);
 
         parsePackages(root);
+        parseBuilds(root);
 
         import std.stdio;
 
@@ -224,8 +225,10 @@ private:
         {
             return;
         }
+
         Node root = node["packages"];
-        enforce(root.nodeID == NodeID.sequence, "packages should be a sequence of packages");
+        enforce(root.nodeID == NodeID.sequence,
+                "packages key should be a sequence of package definitions");
 
         /* Step through all items in root */
         foreach (ref Node k; root)
@@ -237,6 +240,37 @@ private:
                 auto name = c.as!string;
                 parseSection(v, pk);
                 subPackages[name] = pk;
+            }
+        }
+    }
+
+    /**
+     * Find all BuildDefinition instances and set them up
+     */
+    final void parseBuilds(ref Node node)
+    {
+        import std.exception : enforce;
+        import std.stdio;
+
+        if (!node.containsKey("profiles"))
+        {
+            return;
+        }
+
+        Node root = node["profiles"];
+        enforce(root.nodeID == NodeID.sequence,
+                "profiles key should be a sequence of build definitions");
+
+        /* Step through all items in root */
+        foreach (ref Node k; root)
+        {
+            assert(k.nodeID == NodeID.mapping, "Each item in profiles must be a mapping");
+            foreach (ref Node c, ref Node v; k)
+            {
+                BuildDefinition bd;
+                auto name = c.as!string;
+                parseSection(v, bd);
+                profileBuilds[name] = bd;
             }
         }
     }
