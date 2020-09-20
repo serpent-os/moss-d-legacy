@@ -228,7 +228,7 @@ public:
      */
     final void encode(scope FILE* fp)
     {
-        encodeLayoutBinary(fp, this, binary);
+        encodePayloadBuffer(fp, this, binary);
     }
 
 private:

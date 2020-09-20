@@ -30,7 +30,7 @@ public import std.stdio : FILE;
 /**
  * Utility function to encode a Payload and ubyte[] payload to the stream
  */
-package void encodeLayoutBinary(scope FILE* fp, Payload us, ref ubyte[] binary)
+package void encodePayloadBuffer(scope FILE* fp, Payload us, ref ubyte[] binary)
 {
     import std.stdio : fwrite;
     import std.exception : enforce;
