@@ -73,7 +73,7 @@ struct BuildDefinition
      * We list build dependencies in a format suitable for consumption
      * by the package manager.
      */
-    @YamlSchema("builddeps") string[] buildDependencies;
+    string[] buildDependencies;
 };
 
 /**
@@ -98,7 +98,7 @@ struct PackageDefinition
      * A list of other "things" (symbols, names) to depend on for
      * installation to be functionally complete.
      */
-    @YamlSchema("rundeps") string[] runtimeDependencies;
+    string[] runtimeDependencies;
 
     /**
      * A series of paths that should be included within this subpackage
@@ -106,7 +106,7 @@ struct PackageDefinition
      * main package. This overrides automatic collection and allows
      * custom subpackages to be created.
      */
-    @YamlSchema("paths") string[] paths;
+    string[] paths;
 };
 
 /**
@@ -192,10 +192,12 @@ public:
 
         /* Parse the rootContext source */
         parseSection(root, source);
+        parseSection(root, rootBuild);
+        parseSection(root, rootPackage);
 
         import std.stdio;
 
-        writeln(source);
+        writeln(this);
     }
 
 private:
@@ -228,21 +230,24 @@ private:
         {
             {
                 mixin("enum udaID = getUDAs!(" ~ T.stringof ~ "." ~ member ~ ", YamlSchema);");
-                static assert(udaID.length == 1, "Missing YamlSchema for " ~ T.stringof
-                        ~ "." ~ member);
-                enum yamlName = udaID[0].name;
-                enum mandatory = udaID[0].required;
-
-                static if (mandatory)
+                static if (udaID.length == 1)
                 {
-                    enforce(node.containsKey(yamlName), "Missing mandatory key: " ~ yamlName);
-                }
+                    static assert(udaID.length == 1,
+                            "Missing YamlSchema for " ~ T.stringof ~ "." ~ member);
+                    enum yamlName = udaID[0].name;
+                    enum mandatory = udaID[0].required;
 
-                /* Got it? */
-                if (node.containsKey(yamlName))
-                {
-                    auto yamlNode = node[yamlName];
-                    mixin("setValue(yamlNode, section." ~ member ~ ");");
+                    static if (mandatory)
+                    {
+                        enforce(node.containsKey(yamlName), "Missing mandatory key: " ~ yamlName);
+                    }
+
+                    /* Got it? */
+                    if (node.containsKey(yamlName))
+                    {
+                        auto yamlNode = node[yamlName];
+                        mixin("setValue(yamlNode, section." ~ member ~ ");");
+                    }
                 }
             }
         }
