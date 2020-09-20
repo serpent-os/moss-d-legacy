@@ -25,6 +25,8 @@ module moss.format.source.spec;
 public import std.stdint;
 public import std.stdio : File;
 
+import dyaml;
+
 /**
  * UDA to help unmarshall the correct values.
  */
