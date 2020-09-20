@@ -30,9 +30,10 @@ import dyaml;
 /**
  * UDA to help unmarshall the correct values.
  */
-struct YamlID
+struct YamlSchema
 {
     string name;
+    bool required = false;
 }
 
 /**
@@ -47,7 +48,7 @@ struct BuildDefinition
      * These instructions should perform any required setup work such
      * as patching, configuration, etc.
      */
-    @YamlID("setup") string stepSetup;
+    @YamlSchema("setup") string stepSetup;
 
     /**
      * Build step.
@@ -55,7 +56,7 @@ struct BuildDefinition
      * These instructions should begin compilation of the source, such
      * as with "make".
      */
-    @YamlID("build") string stepBuild;
+    @YamlSchema("build") string stepBuild;
 
     /**
      * Install step.
@@ -64,7 +65,7 @@ struct BuildDefinition
      * files produced by the previous steps into the target "collection"
      * area, ready to be converted into a package.
      */
-    @YamlID("install") string stepInstall;
+    @YamlSchema("install") string stepInstall;
 
     /**
      * Build dependencies
@@ -72,7 +73,7 @@ struct BuildDefinition
      * We list build dependencies in a format suitable for consumption
      * by the package manager.
      */
-    @YamlID("builddeps") string[] buildDependencies;
+    @YamlSchema("builddeps") string[] buildDependencies;
 };
 
 /**
@@ -85,19 +86,19 @@ struct PackageDefinition
     /**
      * A brief summary of the what the package is.
      */
-    @YamlID("summary") string summary;
+    @YamlSchema("summary") string summary;
 
     /**
      * A longer description of the package, i.e. its aims, use cases,
      * etc.
      */
-    @YamlID("description") string description;
+    @YamlSchema("description") string description;
 
     /**
      * A list of other "things" (symbols, names) to depend on for
      * installation to be functionally complete.
      */
-    @YamlID("rundeps") string[] runtimeDependencies;
+    @YamlSchema("rundeps") string[] runtimeDependencies;
 
     /**
      * A series of paths that should be included within this subpackage
@@ -105,7 +106,7 @@ struct PackageDefinition
      * main package. This overrides automatic collection and allows
      * custom subpackages to be created.
      */
-    @YamlID("paths") string[] paths;
+    @YamlSchema("paths") string[] paths;
 };
 
 /**
@@ -118,21 +119,21 @@ struct SourceDefinition
      * The base name of the software package. This should follow both
      * the upstream name and the packaging policies.
      */
-    @YamlID("name") string name;
+    @YamlSchema("name", true) string name;
 
     /**
      * A version identifier for this particular release of the software.
      * This has no bearing on selections, and is only provided to allow
      * humans to understand the version of software being included.
      */
-    @YamlID("version") string versionIdentifier;
+    @YamlSchema("version", true) string versionIdentifier;
 
     /**
      * Releases help determine priority of updates for packages of the
      * same origin. Bumping the release number will ensure an update
      * is performed.
      */
-    @YamlID("release") int64_t release;
+    @YamlSchema("release", true) int64_t release;
 };
 
 /**
@@ -195,20 +196,33 @@ public:
 
 private:
 
-    final void parseSection(T)(ref Node node, ref T section)
+    final void parseSection(T)(ref Node node, ref T section) @system
     {
         import std.traits;
         import std.stdio;
+        import std.exception : enforce;
 
         /* Walk members */
         static foreach (member; __traits(allMembers, T))
         {
             {
-                mixin("auto udaID = getUDAs!(" ~ T.stringof ~ "." ~ member ~ ", YamlID);");
-                static assert(udaID.length == 1, "Missing YamlID for " ~ T.stringof ~ "." ~ member);
-                auto yamlName = udaID[0].name;
+                mixin("enum udaID = getUDAs!(" ~ T.stringof ~ "." ~ member ~ ", YamlSchema);");
+                static assert(udaID.length == 1, "Missing YamlSchema for " ~ T.stringof
+                        ~ "." ~ member);
+                enum yamlName = udaID[0].name;
+                enum mandatory = udaID[0].required;
 
-                auto yamlNode = node[yamlName];
+                static if (mandatory)
+                {
+                    enforce(node.containsKey(yamlName), "Missing mandatory key: " ~ yamlName);
+                }
+
+                /* Got it? */
+                if (node.containsKey(yamlName))
+                {
+                    auto yamlNode = node[yamlName];
+                    writeln(yamlNode);
+                }
             }
         }
     }
