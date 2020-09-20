@@ -175,6 +175,16 @@ public:
         this._file = _file;
     }
 
+    /**
+     * Attempt to parse the input fiel
+     */
+    final void parse() @safe
+    {
+        import std.exception : enforce;
+
+        enforce(_file.isOpen(), "Spec.parse(): File is not open");
+    }
+
 private:
 
     File _file;

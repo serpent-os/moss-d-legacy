@@ -39,6 +39,7 @@ static ExitStatus buildExecute(ref Processor p)
 
     /* try to open a spec file */
     auto spec = Spec(File(p.argv[0], "r"));
+    spec.parse();
 
     return ExitStatus.Success;
 }
