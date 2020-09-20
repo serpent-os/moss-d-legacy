@@ -142,6 +142,12 @@ public:
                 auto l = cast(LayoutPayload*) p;
                 l.encode(fp);
                 break;
+            case PayloadType.Index:
+                import moss.format.binary.indexPayload;
+
+                auto i = cast(IndexPayload*) p;
+                p.encode(fp);
+                break;
             default:
                 assert(0, "Unsupported type: " ~ p.type.stringof);
             }

@@ -55,11 +55,15 @@ static ExitStatus buildExecute(ref Processor p)
     layout.addEntry(entry, "6aad886e25795d06dfe468782caac1d4991a9b4fca7f003d754d0b326abb43dc",
             "/usr/share/some-pkg/LICENSE");
 
+    auto index = IndexPayload();
+
     meta.compression = PayloadCompression.Zlib;
     content.compression = PayloadCompression.Zstd;
+
     writer.addPayload(cast(Payload*)&content);
     writer.addPayload(cast(Payload*)&meta);
     writer.addPayload(cast(Payload*)&layout);
+    writer.addPayload(cast(Payload*)&index);
     writer.flush();
 
     stderr.writeln("Writer test");

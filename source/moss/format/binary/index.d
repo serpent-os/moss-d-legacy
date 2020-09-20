@@ -39,6 +39,9 @@ align(1):
     /** File size, in bytes */
     uint64_t size; /* 8 bytes */
 
+    uint64_t start; /* 8 bytes */
+    uint64_t end; /* 8 bytes */
+
     /* Length of the name/ID */
     uint16_t length; /* 2 bytes */
 
@@ -46,7 +49,21 @@ align(1):
     uint32_t refcount; /* 4 bytes */
 
     ubyte[2] padding; /* 2 bytes */
+
+    /**
+     * Encode the Header to the underlying file stream
+     */
+    final void encode(ref ubyte[] p) @trusted nothrow
+    {
+
+        p ~= (cast(ubyte*)&size)[0 .. size.sizeof];
+        p ~= (cast(ubyte*)&start)[0 .. start.sizeof];
+        p ~= (cast(ubyte*)&end)[0 .. end.sizeof];
+        p ~= (cast(ubyte*)&length)[0 .. length.sizeof];
+        p ~= (cast(ubyte*)&refcount)[0 .. refcount.sizeof];
+        p ~= padding;
+    }
 }
 
-static assert(IndexEntry.sizeof == 16,
-        "IndexEntry size must be 16 bytes, not " ~ IndexEntry.sizeof.stringof ~ " bytes");
+static assert(IndexEntry.sizeof == 32,
+        "IndexEntry size must be 32 bytes, not " ~ IndexEntry.sizeof.stringof ~ " bytes");
