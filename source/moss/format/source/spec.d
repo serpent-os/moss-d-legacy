@@ -203,12 +203,43 @@ public:
         parseSection(root, rootBuild);
         parseSection(root, rootPackage);
 
+        parsePackages(root);
+
         import std.stdio;
 
         writeln(this);
     }
 
 private:
+
+    /**
+     * Find all PackageDefinition instances and set them up
+     */
+    final void parsePackages(ref Node node)
+    {
+        import std.exception : enforce;
+        import std.stdio;
+
+        if (!node.containsKey("packages"))
+        {
+            return;
+        }
+        Node root = node["packages"];
+        enforce(root.nodeID == NodeID.sequence, "packages should be a sequence of packages");
+
+        /* Step through all items in root */
+        foreach (ref Node k; root)
+        {
+            assert(k.nodeID == NodeID.mapping, "Each item in packages must be a mapping");
+            foreach (ref Node c, ref Node v; k)
+            {
+                PackageDefinition pk;
+                auto name = c.as!string;
+                parseSection(v, pk);
+                subPackages[name] = pk;
+            }
+        }
+    }
 
     /**
      * Set value appropriately.
