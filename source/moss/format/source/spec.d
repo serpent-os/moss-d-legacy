@@ -208,7 +208,21 @@ public:
 
         import std.stdio;
 
-        writeln(this);
+        writeln(source);
+        writeln(rootBuild);
+        writeln(rootPackage);
+
+        foreach (k, v; subPackages)
+        {
+            writeln("Subpackage: " ~ k);
+            writeln(v);
+        }
+
+        foreach (k, v; profileBuilds)
+        {
+            writeln("Profile: " ~ k);
+            writeln(v);
+        }
     }
 
 private:
