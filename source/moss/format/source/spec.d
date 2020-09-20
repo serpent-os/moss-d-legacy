@@ -38,9 +38,37 @@ struct YamlID
  */
 struct BuildDefinition
 {
+    /**
+     * Setup step.
+     *
+     * These instructions should perform any required setup work such
+     * as patching, configuration, etc.
+     */
     @YamlID("setup") string stepSetup;
+
+    /**
+     * Build step.
+     *
+     * These instructions should begin compilation of the source, such
+     * as with "make".
+     */
     @YamlID("build") string stepBuild;
+
+    /**
+     * Install step.
+     *
+     * This is the final step, and should be used to install the
+     * files produced by the previous steps into the target "collection"
+     * area, ready to be converted into a package.
+     */
     @YamlID("install") string stepInstall;
+
+    /**
+     * Build dependencies
+     *
+     * We list build dependencies in a format suitable for consumption
+     * by the package manager.
+     */
     @YamlID("builddeps") string[] buildDependencies;
 };
 
@@ -50,9 +78,30 @@ struct BuildDefinition
  */
 struct PackageDefinition
 {
+
+    /**
+     * A brief summary of the what the package is.
+     */
     @YamlID("summary") string summary;
+
+    /**
+     * A longer description of the package, i.e. its aims, use cases,
+     * etc.
+     */
     @YamlID("description") string description;
+
+    /**
+     * A list of other "things" (symbols, names) to depend on for
+     * installation to be functionally complete.
+     */
     @YamlID("rundeps") string[] runtimeDependencies;
+
+    /**
+     * A series of paths that should be included within this subpackage
+     * instead of being collected into automatic subpackages or the
+     * main package. This overrides automatic collection and allows
+     * custom subpackages to be created.
+     */
     @YamlID("paths") string[] paths;
 };
 
@@ -62,8 +111,24 @@ struct PackageDefinition
  */
 struct SourceDefinition
 {
+    /**
+     * The base name of the software package. This should follow both
+     * the upstream name and the packaging policies.
+     */
     @YamlID("name") string name;
+
+    /**
+     * A version identifier for this particular release of the software.
+     * This has no bearing on selections, and is only provided to allow
+     * humans to understand the version of software being included.
+     */
     @YamlID("version") string versionIdentifier;
+
+    /**
+     * Releases help determine priority of updates for packages of the
+     * same origin. Bumping the release number will ensure an update
+     * is performed.
+     */
     @YamlID("release") int64_t release;
 };
 
