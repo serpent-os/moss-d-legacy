@@ -98,7 +98,7 @@ public:
         }
         else
         {
-            bytes = cast(ubyte[]) source;
+            bytes = (cast(ubyte*)&source)[0 .. uint32_t.sizeof];
         }
         addEntryInternal(entry, bytes, target);
     }
