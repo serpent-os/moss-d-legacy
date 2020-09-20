@@ -27,6 +27,13 @@ public import std.stdio : File;
 
 import dyaml;
 
+enum YamlType
+{
+    Single = 0,
+    Array = 1,
+    Map = 2,
+}
+
 /**
  * UDA to help unmarshall the correct values.
  */
@@ -34,6 +41,7 @@ struct YamlSchema
 {
     string name;
     bool required = false;
+    YamlType type = YamlType.Single;
 }
 
 /**
@@ -73,7 +81,7 @@ struct BuildDefinition
      * We list build dependencies in a format suitable for consumption
      * by the package manager.
      */
-    string[] buildDependencies;
+    @YamlSchema("builddeps", false, YamlType.Array) string[] buildDependencies;
 };
 
 /**
@@ -98,7 +106,7 @@ struct PackageDefinition
      * A list of other "things" (symbols, names) to depend on for
      * installation to be functionally complete.
      */
-    string[] runtimeDependencies;
+    @YamlSchema("rundeps", false, YamlType.Array) string[] runtimeDependencies;
 
     /**
      * A series of paths that should be included within this subpackage
@@ -106,7 +114,7 @@ struct PackageDefinition
      * main package. This overrides automatic collection and allows
      * custom subpackages to be created.
      */
-    string[] paths;
+    @YamlSchema("paths", false, YamlType.Array) string[] paths;
 };
 
 /**
@@ -236,17 +244,20 @@ private:
                             "Missing YamlSchema for " ~ T.stringof ~ "." ~ member);
                     enum yamlName = udaID[0].name;
                     enum mandatory = udaID[0].required;
+                    enum type = udaID[0].type;
 
                     static if (mandatory)
                     {
                         enforce(node.containsKey(yamlName), "Missing mandatory key: " ~ yamlName);
                     }
 
-                    /* Got it? */
-                    if (node.containsKey(yamlName))
+                    static if (type == YamlType.Single)
                     {
-                        auto yamlNode = node[yamlName];
-                        mixin("setValue(yamlNode, section." ~ member ~ ");");
+                        if (node.containsKey(yamlName))
+                        {
+                            auto yamlNode = node[yamlName];
+                            mixin("setValue(yamlNode, section." ~ member ~ ");");
+                        }
                     }
                 }
             }
