@@ -40,9 +40,6 @@ enum UpstreamType
  */
 struct PlainUpstreamDefinition
 {
-    /** Origin URI, set from the YAML key automatically */
-    string uri;
-
     /** Checksum for the origin */
     @YamlSchema("hash", true) string hash;
 
@@ -59,9 +56,6 @@ struct PlainUpstreamDefinition
  */
 struct GitUpstreamDefinition
 {
-    /** Origin URI, set from the YAML key automatically */
-    string uri;
-
     /** The ref to clone (i.e. branch, commit) */
     @YamlSchema("ref", true) string refID;
 }
@@ -73,6 +67,9 @@ struct GitUpstreamDefinition
 struct UpstreamDefinition
 {
     UpstreamType type = UpstreamType.Plain;
+
+    /** Origin URI, set from the YAML key automatically */
+    string uri;
 
     union
     {
