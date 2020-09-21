@@ -95,6 +95,7 @@ public:
 
         parsePackages(root);
         parseBuilds(root);
+        parseUpstreams(root);
 
         import std.stdio;
 
@@ -169,7 +170,6 @@ private:
     final void parseBuilds(ref Node node)
     {
         import std.exception : enforce;
-        import std.stdio;
 
         if (!node.containsKey("profiles"))
         {
@@ -195,6 +195,68 @@ private:
     }
 
     /**
+     * Find all UpstreamDefinition instances and set them up
+     */
+    final void parseUpstreams(ref Node node)
+    {
+        import std.exception : enforce;
+        import std.stdio;
+        import std.algorithm : startsWith;
+
+        if (!node.containsKey("upstreams"))
+        {
+            return;
+        }
+
+        Node root = node["upstreams"];
+        enforce(root.nodeID == NodeID.sequence,
+                "upstreams key should be a sequence of upstream definitions");
+
+        foreach (ref Node k; root)
+        {
+            foreach (ref Node c, ref Node v; k)
+            {
+                UpstreamDefinition ups;
+                ups.uri = c.as!string;
+
+                if (ups.uri.startsWith("git|"))
+                {
+                    ups.uri = ups.uri[4 .. $];
+                    ups.type = UpstreamType.Git;
+                }
+
+                enforce(v.nodeID == NodeID.scalar || v.nodeID == NodeID.mapping,
+                        "upstream definition should be a single value or mapping");
+                final switch (ups.type)
+                {
+                case UpstreamType.Plain:
+                    if (v.nodeID == NodeID.scalar)
+                    {
+                        ups.plain.hash = v.as!string;
+                    }
+                    else
+                    {
+                        parseSection(v, ups.plain);
+                    }
+                    break;
+                case UpstreamType.Git:
+                    if (v.nodeID == NodeID.scalar)
+                    {
+                        ups.git.refID = v.as!string;
+                    }
+                    else
+                    {
+                        parseSection(v, ups.git);
+                    }
+                    break;
+                }
+
+                upstreams[ups.uri] = ups;
+            }
+        }
+    }
+
+    /**
      * Set value appropriately.
      */
     final void setValue(T)(ref Node node, ref T value)
@@ -204,6 +266,10 @@ private:
         static if (is(T == int64_t))
         {
             value = node.as!int64_t;
+        }
+        else static if (is(T == bool))
+        {
+            value = node.as!bool;
         }
         else
         {

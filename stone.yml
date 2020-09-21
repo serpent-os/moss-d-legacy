@@ -5,7 +5,12 @@ summary     : GNU Text Editor
 description : |
     The GNU Text Editor
 upstreams   :
-    - https://www.nano-editor.org/dist/v5/nano-5.2.tar.xz: 32c2da43e1ae9a5e43437d8c6e1ec0388af870c7762c479e5bffb5f292bda7e1
+    - https://www.nano-editor.org/dist/v5/nano-5.2.tar.xz:
+        hash: 32c2da43e1ae9a5e43437d8c6e1ec0388af870c7762c479e5bffb5f292bda7e1
+        unpack: false
+    - git|someupstream:
+        ref: someref
+    - git|inlineupstream : inlineref
 packages    :
     - bin:
         summary: Binary component of the package
