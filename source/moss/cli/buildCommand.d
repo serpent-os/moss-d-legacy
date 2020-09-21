@@ -42,6 +42,8 @@ static ExitStatus buildExecute(ref Processor p)
             "Building " ~ builder.specFile.source.name ~ " "
             ~ builder.specFile.source.versionIdentifier);
 
+    builder.build();
+
     return ExitStatus.Success;
 }
 

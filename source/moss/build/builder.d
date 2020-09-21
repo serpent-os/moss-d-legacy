@@ -45,6 +45,10 @@ public:
         auto f = File(filename, "r");
         specFile = Spec(f);
         specFile.parse();
+
+        /* TODO: UNHACK ME */
+        addArchitecture("x86_64");
+        addArchitecture("ia32");
     }
 
     /**
@@ -75,6 +79,9 @@ public:
         foreach (ref a; architectures)
         {
             auto context = BuildContext(&_specFile, a);
+            import std.stdio;
+
+            writeln(context);
         }
     }
 
