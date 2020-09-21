@@ -1,0 +1,26 @@
+name        : "nano"
+version     : "5.2"
+release     : 12
+summary     : GNU Text Editor
+description : |
+    The GNU Text Editor
+packages    :
+    - bin:
+        summary: Binary component of the package
+        description: |
+            Seriously, so binary. You couldn't binary any more than this.
+        paths:
+            - /usr/bin/nano
+            - /usr/share/man*
+        rundeps:
+            - some-package
+profiles    :
+    - ia32:
+        setup: |
+            %configure --some-32bit-flag
+setup       : |
+    %configure
+build       : |
+    %make
+install     : |
+    %make_install
