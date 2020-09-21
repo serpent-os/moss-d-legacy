@@ -24,49 +24,10 @@ module moss.format.source.spec;
 
 public import std.stdint;
 public import std.stdio : File;
+public import moss.format.source.buildDefinition;
 public import moss.format.source.schema;
 
 import dyaml;
-
-/**
- * A Build Definition provides the relevant steps to complete production
- * of a package. All steps are optional.
- */
-struct BuildDefinition
-{
-    /**
-     * Setup step.
-     *
-     * These instructions should perform any required setup work such
-     * as patching, configuration, etc.
-     */
-    @YamlSchema("setup") string stepSetup;
-
-    /**
-     * Build step.
-     *
-     * These instructions should begin compilation of the source, such
-     * as with "make".
-     */
-    @YamlSchema("build") string stepBuild;
-
-    /**
-     * Install step.
-     *
-     * This is the final step, and should be used to install the
-     * files produced by the previous steps into the target "collection"
-     * area, ready to be converted into a package.
-     */
-    @YamlSchema("install") string stepInstall;
-
-    /**
-     * Build dependencies
-     *
-     * We list build dependencies in a format suitable for consumption
-     * by the package manager.
-     */
-    @YamlSchema("builddeps", false, YamlType.Array) string[] buildDependencies;
-};
 
 /**
  * A Package Definition allows overriding of specific values from the
