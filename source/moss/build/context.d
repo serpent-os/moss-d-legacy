@@ -23,6 +23,7 @@
 module moss.build.context;
 
 import moss.format.source.spec;
+import moss.build.stage;
 
 /**
  * The build context is responsible for building information on the
@@ -40,6 +41,13 @@ public:
     {
         this._spec = spec;
         this._architecture = architecture;
+
+        /* Construct stages based on available BuildDefinitions */
+        insertStage("setup");
+        insertStage("build");
+        insertStage("install");
+
+        import std.stdio;
     }
 
     /**
@@ -52,6 +60,55 @@ public:
 
 private:
 
+    final void insertStage(string name)
+    {
+        auto stage = ExecutionStage();
+        stage.name = name;
+        stage.workDir = "stage-" ~ name;
+        stage.script = "";
+        BuildDefinition buildDef = _spec.rootBuild;
+
+        if (architecture in _spec.profileBuilds)
+        {
+            buildDef = _spec.profileBuilds[architecture];
+        }
+
+        switch (name)
+        {
+        case "setup":
+            stage.script = buildDef.stepSetup;
+            if (stage.script is null || stage.script == "null")
+            {
+                stage.script = _spec.rootBuild.stepSetup;
+            }
+            break;
+        case "build":
+            stage.script = buildDef.stepBuild;
+            if (stage.script is null || stage.script == "null")
+            {
+                stage.script = _spec.rootBuild.stepBuild;
+            }
+            break;
+        case "install":
+            stage.script = buildDef.stepInstall;
+            if (stage.script is null || stage.script == "null")
+            {
+                stage.script = _spec.rootBuild.stepInstall;
+            }
+            break;
+        default:
+            break;
+        }
+
+        if (stage.script is null || stage.script == "null")
+        {
+            return;
+        }
+
+        stages ~= stage;
+    }
+
     Spec* _spec;
     string _architecture;
+    ExecutionStage[] stages;
 }

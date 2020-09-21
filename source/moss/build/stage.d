@@ -20,8 +20,22 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module moss.build;
+module moss.build.stage;
 
-public import moss.build.builder;
-public import moss.build.context;
-public import moss.build.stage;
+/**
+ * An ExecutionStage is a single step within the build process.
+ * It contains the execution script required to run as well as the name,
+ * working directory, etc.
+ */
+struct ExecutionStage
+{
+
+    /** Name of this stage */
+    string name;
+
+    /** Script contents */
+    string script;
+
+    /** Relative working directory */
+    string workDir;
+}
