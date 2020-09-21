@@ -24,25 +24,9 @@ module moss.format.source.spec;
 
 public import std.stdint;
 public import std.stdio : File;
+public import moss.format.source.schema;
 
 import dyaml;
-
-enum YamlType
-{
-    Single = 0,
-    Array = 1,
-    Map = 2,
-}
-
-/**
- * UDA to help unmarshall the correct values.
- */
-struct YamlSchema
-{
-    string name;
-    bool required = false;
-    YamlType type = YamlType.Single;
-}
 
 /**
  * A Build Definition provides the relevant steps to complete production

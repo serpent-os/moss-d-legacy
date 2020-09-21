@@ -20,7 +20,30 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module moss.format.source;
+module moss.format.source.schema;
 
-public import moss.format.source.schema;
-public import moss.format.source.spec;
+/**
+ * To simplify internal type unmarshalling we have our own basic
+ * types of yaml keys
+ */
+enum YamlType
+{
+    Single = 0,
+    Array = 1,
+    Map = 2,
+}
+
+/**
+ * UDA to help unmarshall the correct values.
+ */
+struct YamlSchema
+{
+    /** Name of the YAML key */
+    string name;
+
+    /** Is this a mandatory key? */
+    bool required = false;
+
+    /** Type of value to expect */
+    YamlType type = YamlType.Single;
+}
