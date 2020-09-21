@@ -25,42 +25,10 @@ module moss.format.source.spec;
 public import std.stdint;
 public import std.stdio : File;
 public import moss.format.source.buildDefinition;
+public import moss.format.source.packageDefinition;
 public import moss.format.source.schema;
 
 import dyaml;
-
-/**
- * A Package Definition allows overriding of specific values from the
- * root context for a sub package.
- */
-struct PackageDefinition
-{
-
-    /**
-     * A brief summary of the what the package is.
-     */
-    @YamlSchema("summary") string summary;
-
-    /**
-     * A longer description of the package, i.e. its aims, use cases,
-     * etc.
-     */
-    @YamlSchema("description") string description;
-
-    /**
-     * A list of other "things" (symbols, names) to depend on for
-     * installation to be functionally complete.
-     */
-    @YamlSchema("rundeps", false, YamlType.Array) string[] runtimeDependencies;
-
-    /**
-     * A series of paths that should be included within this subpackage
-     * instead of being collected into automatic subpackages or the
-     * main package. This overrides automatic collection and allows
-     * custom subpackages to be created.
-     */
-    @YamlSchema("paths", false, YamlType.Array) string[] paths;
-};
 
 /**
  * Source definition details the root name, version, etc, and where

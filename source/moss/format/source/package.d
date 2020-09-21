@@ -23,5 +23,6 @@
 module moss.format.source;
 
 public import moss.format.source.buildDefinition;
+public import moss.format.source.packageDefinition;
 public import moss.format.source.schema;
 public import moss.format.source.spec;
