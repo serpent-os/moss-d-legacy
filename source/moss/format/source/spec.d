@@ -139,7 +139,6 @@ private:
     final void parsePackages(ref Node node)
     {
         import std.exception : enforce;
-        import std.stdio;
 
         if (!node.containsKey("packages"))
         {
@@ -200,7 +199,6 @@ private:
     final void parseUpstreams(ref Node node)
     {
         import std.exception : enforce;
-        import std.stdio;
         import std.algorithm : startsWith;
 
         if (!node.containsKey("upstreams"))
@@ -282,7 +280,6 @@ private:
      */
     final void setValueArray(T)(ref Node node, ref T value)
     {
-        import std.stdio;
         import std.exception : enforce;
 
         /* We can support a single value *or* a list. */
@@ -307,7 +304,6 @@ private:
     final void parseSection(T)(ref Node node, ref T section) @system
     {
         import std.traits;
-        import std.stdio;
         import std.exception : enforce;
 
         /* Walk members */
