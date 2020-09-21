@@ -27,7 +27,7 @@ module moss.cli.buildCommand;
 import moss.cli;
 import std.stdio;
 
-import moss.format.source;
+import moss.build;
 
 static ExitStatus buildExecute(ref Processor p)
 {
@@ -37,9 +37,10 @@ static ExitStatus buildExecute(ref Processor p)
         return ExitStatus.Failure;
     }
 
-    /* try to open a spec file */
-    auto spec = Spec(File(p.argv[0], "r"));
-    spec.parse();
+    auto builder = Builder(p.argv[0]);
+    writeln(
+            "Building " ~ builder.specFile.source.name ~ " "
+            ~ builder.specFile.source.versionIdentifier);
 
     return ExitStatus.Success;
 }

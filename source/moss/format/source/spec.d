@@ -76,6 +76,14 @@ public:
         this._file = _file;
     }
 
+    ~this()
+    {
+        if (_file.isOpen())
+        {
+            _file.close();
+        }
+    }
+
     /**
      * Attempt to parse the input fiel
      */
@@ -96,39 +104,6 @@ public:
         parsePackages(root);
         parseBuilds(root);
         parseUpstreams(root);
-
-        import std.stdio;
-
-        writeln(source);
-        writeln(rootBuild);
-        writeln(rootPackage);
-
-        /* Emit all upstreams */
-        foreach (k, v; upstreams)
-        {
-            writeln("Upstream: " ~ k);
-            final switch (v.type)
-            {
-            case UpstreamType.Plain:
-                writeln(v.plain);
-                break;
-            case UpstreamType.Git:
-                writeln(v.git);
-                break;
-            }
-        }
-
-        foreach (k, v; subPackages)
-        {
-            writeln("Subpackage: " ~ k);
-            writeln(v);
-        }
-
-        foreach (k, v; profileBuilds)
-        {
-            writeln("Profile: " ~ k);
-            writeln(v);
-        }
     }
 
 private:

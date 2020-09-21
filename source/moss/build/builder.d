@@ -20,6 +20,49 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module moss.build;
+module moss.build.builder;
 
-public import moss.build.builder;
+import moss.format.source.spec;
+
+/**
+ * The Builder is responsible for the full build of a source package
+ * and emitting a binary package.
+ */
+struct Builder
+{
+
+public:
+
+    @disable this();
+
+    /**
+     * Construct a new Builder with the given input file. It must be
+     * a stone.yml formatted file and actually be valid.
+     */
+    this(string filename)
+    {
+        auto f = File(filename, "r");
+        specFile = Spec(f);
+        specFile.parse();
+    }
+
+    /**
+     * Return the underlying spec file
+     */
+    pure final @property ref Spec specFile()
+    {
+        return _specFile;
+    }
+
+private:
+
+    /**
+     * Update the underlying spec file
+     */
+    final @property void specFile(ref Spec s)
+    {
+        _specFile = s;
+    }
+
+    Spec _specFile;
+}
