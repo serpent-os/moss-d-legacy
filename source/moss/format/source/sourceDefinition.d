@@ -20,10 +20,34 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module moss.format.source;
+module moss.format.source.sourceDefinition;
 
-public import moss.format.source.buildDefinition;
-public import moss.format.source.packageDefinition;
 public import moss.format.source.schema;
-public import moss.format.source.sourceDefinition;
-public import moss.format.source.spec;
+public import std.stdint : int64_t;
+
+/**
+ * Source definition details the root name, version, etc, and where
+ * to get sources
+ */
+struct SourceDefinition
+{
+    /**
+     * The base name of the software package. This should follow both
+     * the upstream name and the packaging policies.
+     */
+    @YamlSchema("name", true) string name;
+
+    /**
+     * A version identifier for this particular release of the software.
+     * This has no bearing on selections, and is only provided to allow
+     * humans to understand the version of software being included.
+     */
+    @YamlSchema("version", true) string versionIdentifier;
+
+    /**
+     * Releases help determine priority of updates for packages of the
+     * same origin. Bumping the release number will ensure an update
+     * is performed.
+     */
+    @YamlSchema("release", true) int64_t release;
+};
