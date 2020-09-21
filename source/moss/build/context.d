@@ -20,7 +20,38 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module moss.build;
+module moss.build.context;
 
-public import moss.build.builder;
-public import moss.build.context;
+import moss.format.source.spec;
+
+/**
+ * The build context is responsible for building information on the
+ * full build.
+ */
+struct BuildContext
+{
+
+public:
+
+    /**
+     * Construct a new BuildContext using the given (parsed) spec file.
+     */
+    this(Spec* spec, string architecture)
+    {
+        this._spec = spec;
+        this._architecture = architecture;
+    }
+
+    /**
+     * Return the architecture for this Build Context
+     */
+    pure final @property string architecture() @safe @nogc nothrow
+    {
+        return _architecture;
+    }
+
+private:
+
+    Spec* _spec;
+    string _architecture;
+}

@@ -23,6 +23,7 @@
 module moss.build.builder;
 
 import moss.format.source.spec;
+import moss.build.context;
 
 /**
  * The Builder is responsible for the full build of a source package
@@ -54,6 +55,29 @@ public:
         return _specFile;
     }
 
+    /**
+     * Add an architecture to the build list
+     */
+    final void addArchitecture(string name)
+    {
+        architectures ~= name;
+    }
+
+    /**
+     * Full build cycle
+     */
+    final void build()
+    {
+        /**
+         * Construct new build context for each architecture that is
+         * enabled, and in future, build with it.
+         */
+        foreach (ref a; architectures)
+        {
+            auto context = BuildContext(&_specFile, a);
+        }
+    }
+
 private:
 
     /**
@@ -65,4 +89,5 @@ private:
     }
 
     Spec _specFile;
+    string[] architectures;
 }
