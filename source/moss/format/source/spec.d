@@ -28,6 +28,7 @@ public import moss.format.source.buildDefinition;
 public import moss.format.source.packageDefinition;
 public import moss.format.source.schema;
 public import moss.format.source.sourceDefinition;
+public import moss.format.source.upstreamDefinition;
 
 import dyaml;
 
@@ -65,6 +66,8 @@ public:
      * Per package definitions */
     PackageDefinition[string] subPackages;
 
+    UpstreamDefinition[string] upstreams;
+
     /**
      * Construct a Spec from the given file
      */
@@ -98,6 +101,21 @@ public:
         writeln(source);
         writeln(rootBuild);
         writeln(rootPackage);
+
+        /* Emit all upstreams */
+        foreach (k, v; upstreams)
+        {
+            writeln("Upstream: " ~ k);
+            final switch (v.type)
+            {
+            case UpstreamType.Plain:
+                writeln(v.plain);
+                break;
+            case UpstreamType.Git:
+                writeln(v.git);
+                break;
+            }
+        }
 
         foreach (k, v; subPackages)
         {

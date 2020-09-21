@@ -27,3 +27,4 @@ public import moss.format.source.packageDefinition;
 public import moss.format.source.schema;
 public import moss.format.source.sourceDefinition;
 public import moss.format.source.spec;
+public import moss.format.source.upstreamDefinition;
