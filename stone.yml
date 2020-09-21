@@ -1,5 +1,5 @@
-name        : "nano"
-version     : "5.2"
+name        : nano
+version     : 5.2
 release     : 12
 summary     : GNU Text Editor
 description : |
