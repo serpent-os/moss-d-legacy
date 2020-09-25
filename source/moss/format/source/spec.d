@@ -240,6 +240,10 @@ private:
         {
             value = node.as!int64_t;
         }
+        else static if (is(T == uint64_t))
+        {
+            value = node.as!uint64_t;
+        }
         else static if (is(T == bool))
         {
             value = node.as!bool;

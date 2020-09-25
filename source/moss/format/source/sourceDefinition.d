@@ -23,7 +23,7 @@
 module moss.format.source.sourceDefinition;
 
 public import moss.format.source.schema;
-public import std.stdint : int64_t;
+public import std.stdint : uint64_t;
 
 /**
  * Source definition details the root name, version, etc, and where
@@ -49,5 +49,5 @@ struct SourceDefinition
      * same origin. Bumping the release number will ensure an update
      * is performed.
      */
-    @YamlSchema("release", true) int64_t release;
+    @YamlSchema("release", true) uint64_t release;
 };
