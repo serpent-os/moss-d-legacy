@@ -234,7 +234,9 @@ private:
      */
     final void setValue(T)(ref Node node, ref T value)
     {
-        import std.traits;
+        import std.exception : enforce;
+
+        enforce(node.nodeID == NodeID.scalar, "Expected " ~ T.stringof ~ " for " ~ node.tag);
 
         static if (is(T == int64_t))
         {
