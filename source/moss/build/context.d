@@ -23,6 +23,7 @@
 module moss.build.context;
 
 import moss.format.source.spec;
+import moss.format.source.script;
 import moss.build.stage;
 
 /**
@@ -41,6 +42,17 @@ public:
     {
         this._spec = spec;
         this._architecture = architecture;
+
+        sbuilder.addDefinition("name", spec.source.name);
+        sbuilder.addDefinition("version", spec.source.versionIdentifier);
+        sbuilder.addDefinition("release", spec.source.versionIdentifier);
+        sbuilder.addDefinition("arch", _architecture);
+        sbuilder.bake();
+
+        /* Add necessary exports */
+        sbuilder.addExport("name", "PACKAGE_NAME");
+        sbuilder.addExport("version", "PACKAGE_VERSION");
+        sbuilder.addExport("release", "PACKAGE_RELEASE");
 
         /* Construct stages based on available BuildDefinitions */
         insertStage("setup");
@@ -111,4 +123,5 @@ private:
     Spec* _spec;
     string _architecture;
     ExecutionStage[] stages;
+    ScriptBuilder sbuilder;
 }
