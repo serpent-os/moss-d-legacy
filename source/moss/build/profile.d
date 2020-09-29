@@ -20,23 +20,26 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module moss.build.context;
+module moss.build.profile;
 
 import moss.format.source.spec;
 import moss.format.source.script;
 import moss.build.stage;
 
 /**
- * The build context is responsible for building information on the
- * full build.
+ * A build profile is generated for each major build profile in the
+ * source configuration, i.e. x86_64, emul32, etc.
+ *
+ * It is tied to a specific architecture and will be seeded from
+ * the architecture-specific build options.
  */
-struct BuildContext
+struct BuildProfile
 {
 
 public:
 
     /**
-     * Construct a new BuildContext using the given (parsed) spec file.
+     * Construct a new BuildProfile using the given (parsed) spec file.
      */
     this(Spec* spec, string architecture)
     {

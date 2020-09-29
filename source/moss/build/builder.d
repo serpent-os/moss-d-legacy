@@ -23,7 +23,7 @@
 module moss.build.builder;
 
 import moss.format.source.spec;
-import moss.build.context;
+import moss.build.profile;
 
 /**
  * The Builder is responsible for the full build of a source package
@@ -78,7 +78,7 @@ public:
          */
         foreach (ref a; architectures)
         {
-            auto context = BuildContext(&_specFile, a);
+            auto context = BuildProfile(&_specFile, a);
             import std.stdio;
 
             writeln(context);

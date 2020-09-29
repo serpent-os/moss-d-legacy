@@ -23,5 +23,5 @@
 module moss.build;
 
 public import moss.build.builder;
-public import moss.build.context;
+public import moss.build.profile;
 public import moss.build.stage;
