@@ -47,6 +47,25 @@ public:
         sbuilder.addDefinition("version", spec.source.versionIdentifier);
         sbuilder.addDefinition("release", spec.source.versionIdentifier);
         sbuilder.addDefinition("arch", _architecture);
+
+        // TODO: Take from file.
+        sbuilder.addDefinition("libsuffix", "");
+        sbuilder.addDefinition("prefix", "/usr");
+        sbuilder.addDefinition("bindir", "%(prefix)/bin");
+        sbuilder.addDefinition("sbindir", "%(prefix)/sbin");
+        sbuilder.addDefinition("includedir", "%(prefix)/include");
+        sbuilder.addDefinition("datadir", "%(prefix)/share");
+        sbuilder.addDefinition("localedir", "%(datadir)/locale");
+        sbuilder.addDefinition("infodir", "%(datadir)/info");
+        sbuilder.addDefinition("mandir", "%(datadir)/man");
+        sbuilder.addDefinition("docdir", "%(datadir)/doc");
+        sbuilder.addDefinition("localstatedir", "/var");
+        sbuilder.addDefinition("runstatedir", "/run");
+        sbuilder.addDefinition("sysconfdir", "/etc");
+        sbuilder.addDefinition("osconfdir", "%(datadir)/defaults");
+        sbuilder.addDefinition("libdir", "%(prefix)/lib%(libsuffix)");
+        sbuilder.addDefinition("libexecdir", "%(libdir)/%(name)");
+
         sbuilder.bake();
 
         /* Add necessary exports */
