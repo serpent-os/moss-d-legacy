@@ -1,0 +1,11 @@
+# Provides -m32 builds for i686 build-hosts
+
+definitions:
+
+    - libsuffix      : "32"
+    - build          : i686-%(vendorID)
+    - host           : i686-%(vendorID)
+
+flags:
+
+    - base           : -m32
