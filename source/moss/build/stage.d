@@ -44,6 +44,8 @@ public:
         _parent = parent;
         _name = name;
         _script = null;
+        _installRoot = parent.installRoot();
+        _buildRoot = parent.buildRoot();
     }
 
     /**
@@ -78,9 +80,31 @@ public:
         _script = sc;
     }
 
+    /**
+     * Return the build root directory for this execution stage
+     *
+     * Most stages follow their profile-specific buildRoot
+     */
+    pure final @property string buildRoot() @safe @nogc nothrow
+    {
+        return _buildRoot;
+    }
+
+    /**
+     * Return the installation root directory for this execution stage
+     *
+     * Most stages follow their profile-specific installRoot
+     */
+    pure final @property string installRoot() @safe @nogc nothrow
+    {
+        return _installRoot;
+    }
+
 private:
 
     BuildProfile* _parent = null;
     string _name = null;
     string _script = null;
+    string _installRoot = null;
+    string _buildRoot = null;
 }

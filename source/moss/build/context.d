@@ -31,10 +31,6 @@ import moss.format.source.script;
  */
 struct BuildContext
 {
-    /** Root of all build operations */
-    string rootDir;
-    Spec* spec;
-
     /**
      * Construct a new BuildContect
      */
@@ -42,8 +38,8 @@ struct BuildContext
     {
         import std.conv : to;
 
-        this.spec = spec;
-        this.rootDir = rootDir;
+        this._spec = spec;
+        this._rootDir = rootDir;
 
         /* Basic metadata exposed only */
         sbuilder.addDefinition("name", spec.source.name);
@@ -78,7 +74,25 @@ struct BuildContext
         return sbuilder;
     }
 
+    /**
+     * Return the root directory
+     */
+    pure final @property const string rootDir() @safe @nogc nothrow
+    {
+        return _rootDir;
+    }
+
+    /**
+     * Return the underlying specfile
+     */
+    pure final @property Spec* spec() @safe @nogc nothrow
+    {
+        return _spec;
+    }
+
 private:
 
     ScriptBuilder sbuilder;
+    string _rootDir;
+    Spec* _spec;
 }

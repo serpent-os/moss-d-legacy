@@ -26,6 +26,8 @@ import moss.format.source.spec;
 import moss.build.context;
 import moss.build.stage;
 
+import std.path : buildPath;
+
 /**
  * A build profile is generated for each major build profile in the
  * source configuration, i.e. x86_64, emul32, etc.
@@ -45,6 +47,8 @@ public:
     {
         this._context = context;
         this._architecture = architecture;
+        this._buildRoot = context.rootDir.buildPath("build", architecture);
+        this._installRoot = context.rootDir.buildPath("install", architecture);
 
         /* Construct stages based on available BuildDefinitions */
         insertStage("setup");
@@ -66,6 +70,22 @@ public:
     pure final @property string architecture() @safe @nogc nothrow
     {
         return _architecture;
+    }
+
+    /**
+     * Return the build root directory for this profile
+     */
+    pure final @property string buildRoot() @safe @nogc nothrow
+    {
+        return _buildRoot;
+    }
+
+    /**
+     * Return the installation root directory for this profile
+     */
+    pure final @property string installRoot() @safe @nogc nothrow
+    {
+        return _installRoot;
     }
 
 private:
@@ -118,4 +138,6 @@ private:
     BuildContext* _context;
     string _architecture;
     ExecutionStage[] stages;
+    string _buildRoot;
+    string _installRoot;
 }
