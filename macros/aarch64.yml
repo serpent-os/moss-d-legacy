@@ -1,0 +1,11 @@
+# Provides -m64 builds for aarch64 build-hosts
+
+definitions:
+
+    - libsuffix      : ""
+    - build          : aarch64-%(vendorID)
+    - host           : aarch64-%(vendorID)
+
+flags:
+
+    - base           : -m64
