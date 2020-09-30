@@ -13,6 +13,18 @@ actions:
     - make_install: |
         %make install DESTDIR="%(installdir)"
 
+
+    # Re autotools-configure a project without an autogen.sh script
+    - reconfigure: |
+        autoreconf -vfi || ( echo "%%reconfigure: Failed to run autoreconf"; exit 1 )
+        %configure
+
+    # Run autogen.sh script, attempting to only configure once
+    - autogen: |
+        NOCONFIGURE="noconfigure"; export NOCONFIGURE;
+        sh ./autogen.sh %(configureOptions);
+        ./configure %(configureOptions);
+
 definitions:
 
     # Default configuration options as passed to configure
@@ -28,14 +40,3 @@ definitions:
         --localstatedir=%(localstatedir) \
         --sharedstatedir=%(sharedstatedir) \
         --libexecdir=%(libexecdir)
-
-    # Re autotools-configure a project without an autogen.sh script
-    - reconfigure: |
-        autoreconf -vfi || ( echo "%%reconfigure: Failed to run autoreconf"; exit 1 )
-        %configure
-
-    # Run autogen.sh script, attempting to only configure once
-    - autogen: |
-        NOCONFIGURE="noconfigure"; export NOCONFIGURE;
-        sh ./autogen.sh %(configureOptions);
-        ./configure %(configureOptions);
