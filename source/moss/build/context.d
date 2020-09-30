@@ -64,10 +64,6 @@ struct BuildContext
         sbuilder.addDefinition("osconfdir", "%(datadir)/defaults");
         sbuilder.addDefinition("libdir", "%(prefix)/lib%(libsuffix)");
         sbuilder.addDefinition("libexecdir", "%(libdir)/%(name)");
-
-        sbuilder.addAction("configure", "");
-        sbuilder.addAction("make", "");
-        sbuilder.addAction("make_install", "");
     }
 
     /**
