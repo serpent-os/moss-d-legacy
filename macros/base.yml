@@ -33,4 +33,4 @@ actions              :
 
 flags:
 
-    - base           : -m32
+    - base           : ""
