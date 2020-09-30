@@ -23,7 +23,7 @@ definitions:
 actions              :
 
     # scriptBase is merged to the top of all newly generated build scripts.
-    scriptBase       : |
+    - scriptBase       : |
         set -e
         set -x
         TERM="dumb"; export TERM
@@ -31,6 +31,16 @@ actions              :
         CXXFLAGS="%(cxxflags)"; export CXXFLAGS
         LDFLAGS="%(ldflags)"; export LDFLAGS
 
+# Each flag set can be overriden on a per architecture basis, but at minimum
+# the BASE flagset must be defined. As well as the normal language specific
+# flags, we can set "_gcc" for compatibility with GCC builds, i.e.:
+#
+#   c_gcc: "-some-gcc-flag"
+#   c: "-some-clang-flang"
 flags:
 
-    - base           : ""
+    # Base set of flags
+    - base:
+        c: ""
+        cxx: ""
+        ld: ""

@@ -8,4 +8,7 @@ definitions:
 
 flags:
 
-    - base           : -m32
+    # Base set of flags
+    - base:
+        c: "-m32"
+        cxx: "-m32"
