@@ -1,0 +1,25 @@
+# Provides core definitions which each profile may override
+
+definitions:
+
+    - libsuffix      : "" 
+    - prefix         :  /usr
+    - bindir         :  %(prefix)/bin
+    - sbindir        :  %(prefix)/sbin
+    - includedir     :  %(prefix)/include
+    - datadir        :  %(prefix)/share
+    - localedir      :  %(datadir)/locale
+    - infodir        :  %(datadir)/info
+    - mandir         :  %(datadir)/man
+    - docdir         :  %(datadir)/doc
+    - localstatedir  :  /var
+    - sharedstatedir : %(localstatedir)/lib
+    - runstatedir    :  /run
+    - sysconfdir     :  /etc
+    - libdir         :  %(prefix)/lib%(libsuffix)
+    - libexecdir     :  %(libdir)/%(name)
+    - vendorID       : serpent-linux
+
+flags:
+
+    - base          : -m32

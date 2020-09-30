@@ -1,0 +1,11 @@
+# Provides -m64 builds for x86_64 build-hosts
+
+definitions:
+
+    - libsuffix      : ""
+    - build          : x86_64-%(vendorID)
+    - host           : x86_64-%(vendorID)
+
+flags:
+
+    - base           : -m64
