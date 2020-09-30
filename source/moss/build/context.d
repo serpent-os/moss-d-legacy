@@ -40,12 +40,15 @@ struct BuildContext
      */
     this(Spec* spec, string rootDir)
     {
+        import std.conv : to;
+
         this.spec = spec;
         this.rootDir = rootDir;
 
+        /* Basic metadata exposed only */
         sbuilder.addDefinition("name", spec.source.name);
         sbuilder.addDefinition("version", spec.source.versionIdentifier);
-        sbuilder.addDefinition("release", spec.source.versionIdentifier);
+        sbuilder.addDefinition("release", to!string(spec.source.release));
 
         // TODO: Take from file.
         sbuilder.addDefinition("libsuffix", "");
