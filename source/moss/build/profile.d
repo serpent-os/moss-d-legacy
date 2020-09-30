@@ -23,7 +23,7 @@
 module moss.build.profile;
 
 import moss.format.source.spec;
-import moss.format.source.script;
+import moss.build.context;
 import moss.build.stage;
 
 /**
@@ -41,47 +41,23 @@ public:
     /**
      * Construct a new BuildProfile using the given (parsed) spec file.
      */
-    this(Spec* spec, string architecture)
+    this(BuildContext* context, string architecture)
     {
-        this._spec = spec;
+        this._context = context;
         this._architecture = architecture;
-
-        sbuilder.addDefinition("name", spec.source.name);
-        sbuilder.addDefinition("version", spec.source.versionIdentifier);
-        sbuilder.addDefinition("release", spec.source.versionIdentifier);
-        sbuilder.addDefinition("arch", _architecture);
-
-        // TODO: Take from file.
-        sbuilder.addDefinition("libsuffix", "");
-        sbuilder.addDefinition("prefix", "/usr");
-        sbuilder.addDefinition("bindir", "%(prefix)/bin");
-        sbuilder.addDefinition("sbindir", "%(prefix)/sbin");
-        sbuilder.addDefinition("includedir", "%(prefix)/include");
-        sbuilder.addDefinition("datadir", "%(prefix)/share");
-        sbuilder.addDefinition("localedir", "%(datadir)/locale");
-        sbuilder.addDefinition("infodir", "%(datadir)/info");
-        sbuilder.addDefinition("mandir", "%(datadir)/man");
-        sbuilder.addDefinition("docdir", "%(datadir)/doc");
-        sbuilder.addDefinition("localstatedir", "/var");
-        sbuilder.addDefinition("runstatedir", "/run");
-        sbuilder.addDefinition("sysconfdir", "/etc");
-        sbuilder.addDefinition("osconfdir", "%(datadir)/defaults");
-        sbuilder.addDefinition("libdir", "%(prefix)/lib%(libsuffix)");
-        sbuilder.addDefinition("libexecdir", "%(libdir)/%(name)");
-
-        sbuilder.bake();
-
-        /* Add necessary exports */
-        sbuilder.addExport("name", "PACKAGE_NAME");
-        sbuilder.addExport("version", "PACKAGE_VERSION");
-        sbuilder.addExport("release", "PACKAGE_RELEASE");
 
         /* Construct stages based on available BuildDefinitions */
         insertStage("setup");
         insertStage("build");
         insertStage("install");
+    }
 
-        import std.stdio;
+    /**
+     * Return the underlying context
+     */
+    pure final @property BuildContext* context() @safe @nogc nothrow
+    {
+        return _context;
     }
 
     /**
@@ -96,15 +72,12 @@ private:
 
     final void insertStage(string name)
     {
-        auto stage = ExecutionStage();
-        stage.name = name;
-        stage.workDir = "stage-" ~ name;
-        stage.script = "";
-        BuildDefinition buildDef = _spec.rootBuild;
+        auto stage = ExecutionStage(&this, name);
+        BuildDefinition buildDef = context.spec.rootBuild;
 
-        if (architecture in _spec.profileBuilds)
+        if (architecture in context.spec.profileBuilds)
         {
-            buildDef = _spec.profileBuilds[architecture];
+            buildDef = context.spec.profileBuilds[architecture];
         }
 
         switch (name)
@@ -113,21 +86,21 @@ private:
             stage.script = buildDef.stepSetup;
             if (stage.script is null || stage.script == "null")
             {
-                stage.script = _spec.rootBuild.stepSetup;
+                stage.script = context.spec.rootBuild.stepSetup;
             }
             break;
         case "build":
             stage.script = buildDef.stepBuild;
             if (stage.script is null || stage.script == "null")
             {
-                stage.script = _spec.rootBuild.stepBuild;
+                stage.script = context.spec.rootBuild.stepBuild;
             }
             break;
         case "install":
             stage.script = buildDef.stepInstall;
             if (stage.script is null || stage.script == "null")
             {
-                stage.script = _spec.rootBuild.stepInstall;
+                stage.script = context.spec.rootBuild.stepInstall;
             }
             break;
         default:
@@ -142,8 +115,7 @@ private:
         stages ~= stage;
     }
 
-    Spec* _spec;
+    BuildContext* _context;
     string _architecture;
     ExecutionStage[] stages;
-    ScriptBuilder sbuilder;
 }

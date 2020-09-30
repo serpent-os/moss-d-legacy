@@ -22,6 +22,8 @@
 
 module moss.build.stage;
 
+import moss.build.profile : BuildProfile;
+
 /**
  * An ExecutionStage is a single step within the build process.
  * It contains the execution script required to run as well as the name,
@@ -30,12 +32,55 @@ module moss.build.stage;
 struct ExecutionStage
 {
 
-    /** Name of this stage */
-    string name;
+public:
 
-    /** Script contents */
-    string script;
+    @disable this();
 
-    /** Relative working directory */
-    string workDir;
+    /**
+     * Construct a new ExecutionStage from the given parent profile
+     */
+    this(BuildProfile* parent, string name)
+    {
+        _parent = parent;
+        _name = name;
+        _script = null;
+    }
+
+    /**
+     * Return the name for this stage
+     */
+    pure final @property string name() @safe @nogc nothrow
+    {
+        return _name;
+    }
+
+    /**
+     * Return the parent build profile
+     */
+    pure final @property BuildProfile* parent() @safe @nogc nothrow
+    {
+        return _parent;
+    }
+
+    /**
+     * Return the underlying script.
+     */
+    pure final @property string script() @safe @nogc nothrow
+    {
+        return _script;
+    }
+
+    /**
+     * Set the script to a new string
+     */
+    final @property void script(in string sc) @safe nothrow
+    {
+        _script = sc;
+    }
+
+private:
+
+    BuildProfile* _parent = null;
+    string _name = null;
+    string _script = null;
 }

@@ -23,6 +23,7 @@
 module moss.build.builder;
 
 import moss.format.source.spec;
+import moss.build.context;
 import moss.build.profile;
 
 /**
@@ -45,6 +46,9 @@ public:
         auto f = File(filename, "r");
         specFile = Spec(f);
         specFile.parse();
+
+        /* TODO: Add functions to grab home directory, etc. */
+        context = BuildContext(&_specFile, "BuildRoot");
 
         /* TODO: UNHACK ME */
         addArchitecture("x86_64");
@@ -78,7 +82,7 @@ public:
          */
         foreach (ref a; architectures)
         {
-            auto context = BuildProfile(&_specFile, a);
+            auto context = BuildProfile(&context, a);
             import std.stdio;
 
             writeln(context);
@@ -97,4 +101,5 @@ private:
 
     Spec _specFile;
     string[] architectures;
+    BuildContext context;
 }
