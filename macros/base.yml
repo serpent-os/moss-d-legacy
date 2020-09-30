@@ -3,23 +3,34 @@
 definitions:
 
     - libsuffix      : "" 
-    - prefix         :  /usr
-    - bindir         :  %(prefix)/bin
-    - sbindir        :  %(prefix)/sbin
-    - includedir     :  %(prefix)/include
-    - datadir        :  %(prefix)/share
-    - localedir      :  %(datadir)/locale
-    - infodir        :  %(datadir)/info
-    - mandir         :  %(datadir)/man
-    - docdir         :  %(datadir)/doc
-    - localstatedir  :  /var
+    - prefix         : /usr
+    - bindir         : %(prefix)/bin
+    - sbindir        : %(prefix)/sbin
+    - includedir     : %(prefix)/include
+    - datadir        : %(prefix)/share
+    - localedir      : %(datadir)/locale
+    - infodir        : %(datadir)/info
+    - mandir         : %(datadir)/man
+    - docdir         : %(datadir)/doc
+    - localstatedir  : /var
     - sharedstatedir : %(localstatedir)/lib
-    - runstatedir    :  /run
-    - sysconfdir     :  /etc
-    - libdir         :  %(prefix)/lib%(libsuffix)
-    - libexecdir     :  %(libdir)/%(name)
+    - runstatedir    : /run
+    - sysconfdir     : /etc
+    - libdir         : %(prefix)/lib%(libsuffix)
+    - libexecdir     : %(libdir)/%(name)
     - vendorID       : serpent-linux
+
+actions              :
+
+    # scriptBase is merged to the top of all newly generated build scripts.
+    scriptBase       : |
+        set -e
+        set -x
+        TERM="dumb"; export TERM
+        CFLAGS="%(cflags)"; export CFLAGS
+        CXXFLAGS="%(cxxflags)"; export CXXFLAGS
+        LDFLAGS="%(ldflags)"; export LDFLAGS
 
 flags:
 
-    - base          : -m32
+    - base           : -m32
