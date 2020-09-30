@@ -20,9 +20,9 @@ actions:
 
     # Run autogen.sh script, attempting to only configure once
     - autogen: |
-        NOCONFIGURE="noconfigure"; export NOCONFIGURE;
-        sh ./autogen.sh %(configureOptions);
-        ./configure %(configureOptions);
+        NOCONFIGURE="noconfigure"; export NOCONFIGURE
+        sh ./autogen.sh %(configureOptions)
+        ./configure %(configureOptions)
 
 definitions:
 
