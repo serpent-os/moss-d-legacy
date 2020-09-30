@@ -13,7 +13,6 @@ actions:
     - make_install: |
         %make install DESTDIR="%(installdir)"
 
-
     # Re autotools-configure a project without an autogen.sh script
     - reconfigure: |
         autoreconf -vfi || ( echo "%%reconfigure: Failed to run autoreconf"; exit 1 )
