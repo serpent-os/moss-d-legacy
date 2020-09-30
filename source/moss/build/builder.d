@@ -69,6 +69,7 @@ public:
     final void addArchitecture(string name)
     {
         architectures ~= name;
+        profiles ~= new BuildProfile(&context, name);
     }
 
     /**
@@ -76,16 +77,11 @@ public:
      */
     final void build()
     {
-        /**
-         * Construct new build context for each architecture that is
-         * enabled, and in future, build with it.
-         */
-        foreach (ref a; architectures)
-        {
-            auto context = BuildProfile(&context, a);
-            import std.stdio;
+        import std.stdio;
 
-            writeln(context);
+        foreach (ref p; profiles)
+        {
+            writeln(*p);
         }
     }
 
@@ -101,5 +97,6 @@ private:
 
     Spec _specFile;
     string[] architectures;
+    BuildProfile*[] profiles;
     BuildContext context;
 }

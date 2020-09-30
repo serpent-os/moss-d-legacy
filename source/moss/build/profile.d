@@ -92,7 +92,7 @@ private:
 
     final void insertStage(string name)
     {
-        auto stage = ExecutionStage(&this, name);
+        auto stage = new ExecutionStage(&this, name);
         BuildDefinition buildDef = context.spec.rootBuild;
 
         if (architecture in context.spec.profileBuilds)
@@ -137,7 +137,7 @@ private:
 
     BuildContext* _context;
     string _architecture;
-    ExecutionStage[] stages;
+    ExecutionStage*[] stages;
     string _buildRoot;
     string _installRoot;
 }
