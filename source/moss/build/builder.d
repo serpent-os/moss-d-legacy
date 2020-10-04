@@ -97,6 +97,7 @@ public:
         foreach (ref p; profiles)
         {
             writeln(*p);
+            p.build();
         }
     }
 

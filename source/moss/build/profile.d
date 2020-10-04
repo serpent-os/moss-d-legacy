@@ -88,6 +88,18 @@ public:
         return _installRoot;
     }
 
+    /**
+     * Request for this profile to now build
+     */
+    final void build()
+    {
+        foreach (ref e ; stages)
+        {
+            import std.stdio;
+            writeln(*e);
+        }
+    }
+
 private:
 
     final void insertStage(string name)
