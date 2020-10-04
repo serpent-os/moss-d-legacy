@@ -11,6 +11,9 @@ upstreams   :
     - git|someupstream:
         ref: someref
     - git|inlineupstream : inlineref
+architectures :
+    - x86_64
+    - emul32/x86_64
 packages    :
     - bin:
         summary: Binary component of the package
@@ -22,9 +25,12 @@ packages    :
         rundeps:
             - some-package
 profiles    :
-    - ia32:
+    - emul32/x86_64:
         setup: |
             %configure --some-32bit-flag
+    - emul32:
+        build: |
+            I DO THIS FOR ALL EMUL32s
 setup       : |
     %configure
 build       : |
