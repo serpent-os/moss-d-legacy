@@ -107,8 +107,11 @@ private:
     final void prepareRoot() @safe
     {
         import std.stdio;
+        import std.file;
 
         writeln("Preparing root tree");
+
+        mkdirRecurse(context.rootDir);
     }
 
     /**

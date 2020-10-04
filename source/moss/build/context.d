@@ -38,9 +38,12 @@ struct BuildContext
     this(Spec* spec, string rootDir)
     {
         import std.conv : to;
+        import std.string : format;
+        import std.path : buildPath;
 
         this._spec = spec;
-        this._rootDir = rootDir;
+        this._rootDir = rootDir.buildPath("%s-%s".format(spec.source.name,
+                to!string(spec.source.release)));
 
         this.loadMacros();
     }
