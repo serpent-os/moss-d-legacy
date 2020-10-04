@@ -93,9 +93,10 @@ public:
      */
     final void build()
     {
-        foreach (ref e ; stages)
+        foreach (ref e; stages)
         {
             import std.stdio;
+
             writeln(*e);
         }
     }
@@ -104,12 +105,21 @@ private:
 
     final void insertStage(string name)
     {
+        import std.string : startsWith;
+
         auto stage = new ExecutionStage(&this, name);
         BuildDefinition buildDef = context.spec.rootBuild;
+        BuildDefinition altDef = context.spec.rootBuild;
 
         if (architecture in context.spec.profileBuilds)
         {
             buildDef = context.spec.profileBuilds[architecture];
+        }
+
+        /* Special case handling emul32 */
+        if ("emul32" in context.spec.profileBuilds && architecture.startsWith("emul32/"))
+        {
+            altDef = context.spec.profileBuilds["emul32"];
         }
 
         switch (name)
@@ -118,21 +128,33 @@ private:
             stage.script = buildDef.stepSetup;
             if (stage.script is null || stage.script == "null")
             {
-                stage.script = context.spec.rootBuild.stepSetup;
+                stage.script = altDef.stepSetup;
+                if (stage.script is null || stage.script == "null")
+                {
+                    stage.script = context.spec.rootBuild.stepSetup;
+                }
             }
             break;
         case "build":
             stage.script = buildDef.stepBuild;
             if (stage.script is null || stage.script == "null")
             {
-                stage.script = context.spec.rootBuild.stepBuild;
+                stage.script = altDef.stepBuild;
+                if (stage.script is null || stage.script == "null")
+                {
+                    stage.script = context.spec.rootBuild.stepBuild;
+                }
             }
             break;
         case "install":
             stage.script = buildDef.stepInstall;
             if (stage.script is null || stage.script == "null")
             {
-                stage.script = context.spec.rootBuild.stepInstall;
+                stage.script = altDef.stepInstall;
+                if (stage.script is null || stage.script == "null")
+                {
+                    stage.script = context.spec.rootBuild.stepInstall;
+                }
             }
             break;
         default:
