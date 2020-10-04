@@ -24,6 +24,7 @@ actions              :
 
     # scriptBase is merged to the top of all newly generated build scripts.
     - scriptBase       : |
+        #!/bin/sh
         set -e
         set -x
         TERM="dumb"; export TERM
