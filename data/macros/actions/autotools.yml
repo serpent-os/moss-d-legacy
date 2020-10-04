@@ -7,7 +7,7 @@ actions:
 
     # Perform a make
     - make: |
-        make V=1 VERBOSE=1 -j%(jobs)
+        make V=1 VERBOSE=1 -j %(jobs)
 
     # Install results of build to the destination directory
     - make_install: |
