@@ -62,6 +62,22 @@ struct BuildContext
     }
 
     /**
+     * Return the number of build jobs
+     */
+    pure final @property int jobs() @safe @nogc nothrow
+    {
+        return _jobs;
+    }
+
+    /**
+     * Set the number of build jobs
+     */
+    final @property void jobs(int j) @safe @nogc nothrow
+    {
+        _jobs = j;
+    }
+
+    /**
      * Prepare a ScriptBuilder
      */
     final void prepareScripts(ref ScriptBuilder sbuilder, string architecture)
@@ -74,6 +90,7 @@ struct BuildContext
         sbuilder.addDefinition("name", spec.source.name);
         sbuilder.addDefinition("version", spec.source.versionIdentifier);
         sbuilder.addDefinition("release", to!string(spec.source.release));
+        sbuilder.addDefinition("jobs", to!string(jobs));
 
         foreach (ref arch; arches)
         {
@@ -170,4 +187,5 @@ private:
     Spec* _spec;
     MacroFile*[string] defFiles;
     MacroFile*[] actionFiles;
+    int _jobs = 1;
 }

@@ -51,12 +51,21 @@ public:
         this._buildRoot = context.rootDir.buildPath("build", architecture);
         this._installRoot = context.rootDir.buildPath("install", architecture);
 
+        sbuilder.addDefinition("installdir", installRoot);
+        sbuilder.addDefinition("builddir", buildRoot);
+
+        /* TODO: Fix to not suck */
+        sbuilder.addDefinition("cflags", "");
+        sbuilder.addDefinition("cxxflags", "");
+        sbuilder.addDefinition("ldflags", "");
+
         context.prepareScripts(sbuilder, architecture);
 
         /* Construct stages based on available BuildDefinitions */
         insertStage("setup");
         insertStage("build");
         insertStage("install");
+
     }
 
     /**
@@ -108,7 +117,7 @@ public:
         {
             import std.stdio;
 
-            writeln(*e);
+            writeln(e.script);
         }
     }
 

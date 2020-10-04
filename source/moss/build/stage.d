@@ -75,7 +75,9 @@ public:
      */
     final @property void script(in string sc) @safe
     {
-        _script = _parent.script.process(sc);
+        import std.string : strip;
+
+        _script = _parent.script.process(sc.strip);
     }
 
 private:

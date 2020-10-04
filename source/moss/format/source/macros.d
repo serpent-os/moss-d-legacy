@@ -89,6 +89,7 @@ private:
     final void parseMacros(string name, ref string[string] target, ref Node root)
     {
         import std.exception : enforce;
+        import std.string;
 
         if (!root.containsKey(name))
         {
@@ -121,6 +122,11 @@ private:
             auto skey = key.as!string;
             auto sval = val.as!string;
 
+            sval = sval.strip();
+            if (sval.endsWith('\n'))
+            {
+                sval = sval[0 .. $ - 1];
+            }
             target[skey] = sval;
         }
     }

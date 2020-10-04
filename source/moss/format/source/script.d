@@ -25,6 +25,7 @@ module moss.format.source.script;
 import std.string : format, splitLines, startsWith, endsWith;
 import std.exception : enforce;
 import moss.format.source.macros : MacroFile;
+import std.string : strip;
 
 /**
  * The private ParseContext is used by the Script to step through
@@ -84,7 +85,7 @@ public:
     void addAction(string id, string action) @safe
     {
         enforce(!baked, "Cannot addAction to baked ScriptSubstituter");
-        mapping["%s%s".format(macroStart, id)] = action;
+        mapping["%s%s".format(macroStart, id)] = action.strip();
     }
 
     /**
@@ -96,7 +97,7 @@ public:
     void addDefinition(string id, string define) @safe
     {
         enforce(!baked, "Cannot addDefinition to baked ScriptSubstituter");
-        mapping["%s%s%s".format(defineStart, id, defineEnd)] = define;
+        mapping["%s%s%s".format(defineStart, id, defineEnd)] = define.strip();
     }
 
     /**
@@ -114,11 +115,11 @@ public:
         enforce(realID in mapping, "addExport: Unknown macro: " ~ realID);
         if (altName !is null)
         {
-            exports[altName] = mapping[realID];
+            exports[altName.strip()] = mapping[realID.strip()];
         }
         else
         {
-            exports[id] = mapping[realID];
+            exports[id.strip()] = mapping[realID.strip()];
         }
     }
 
@@ -161,7 +162,7 @@ public:
         }
         foreach (ref k, v; mapping)
         {
-            mapping[k] = process(v);
+            mapping[k] = process(v).strip();
         }
         baked = true;
     }
@@ -175,6 +176,11 @@ public:
         string lastLine;
         char lastChar = '\0';
         string ret = "";
+
+        if (input.length < 3)
+        {
+            return input;
+        }
 
         void handleMacro()
         {
@@ -216,15 +222,23 @@ public:
         foreach (const ref line; lines)
         {
             lastLine = line;
+            size_t len = line.length;
             foreach (size_t i, const char c; line)
             {
                 switch (c)
                 {
                 case '%':
                     context.inMacro = !context.inMacro;
-                    if (!context.inMacro && lastChar == '%')
+                    if (i <= len && line[i + 1] == '%')
                     {
                         ret ~= "%";
+                        context.reset();
+                        break;
+                    }
+                    if (lastChar == '%')
+                    {
+                        ret ~= "%";
+                        context.inMacro = false;
                         context.reset();
                         break;
                     }
@@ -298,6 +312,10 @@ public:
             {
                 ret ~= "\n";
             }
+        }
+        if (ret.endsWith('\n'))
+        {
+            ret = ret[0 .. $ - 1];
         }
         return ret;
     }

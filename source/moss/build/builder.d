@@ -96,7 +96,7 @@ public:
 
         foreach (ref p; profiles)
         {
-            writeln(*p);
+            writefln(" > Building: %s", p.architecture);
             p.build();
         }
     }
