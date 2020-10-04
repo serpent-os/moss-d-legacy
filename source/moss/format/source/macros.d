@@ -38,6 +38,9 @@ struct MacroFile
 
 public:
 
+    string[string] actions;
+    string[string] definitions;
+
     /**
      * Construct a Spec from the given file
      */
@@ -64,7 +67,17 @@ public:
         enforce(_file.isOpen(), "MacoFile.parse(): File is not open");
 
         auto loader = Loader.fromFile(_file);
-        auto root = loader.load();
+        try
+        {
+            auto root = loader.load();
+        }
+        catch (Exception ex)
+        {
+            import std.stdio;
+
+            stderr.writefln("Failed to parse: %s", _file.name);
+            throw ex;
+        }
     }
 
 private:

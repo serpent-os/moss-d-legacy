@@ -22,6 +22,7 @@
 
 module moss.build.context;
 
+import moss.format.source.macros;
 import moss.format.source.spec;
 import moss.format.source.script;
 
@@ -40,6 +41,8 @@ struct BuildContext
 
         this._spec = spec;
         this._rootDir = rootDir;
+
+        this.loadMacros();
 
         /* Basic metadata exposed only */
         sbuilder.addDefinition("name", spec.source.name);
@@ -90,9 +93,85 @@ struct BuildContext
         return _spec;
     }
 
+    /**
+     * Prepare a ScriptBuilder
+     */
+    final void prepareScripts(ref ScriptBuilder builder, string architecture)
+    {
+        import std.stdio : writefln;
+
+        foreach (ref k, v; macroFiles)
+        {
+            writefln("Inserting macro file: %s", k);
+        }
+    }
+
 private:
+
+    /**
+     * Load all supportable macros
+     */
+    final void loadMacros()
+    {
+        import std.file : exists, thisExePath;
+        import std.path : buildPath, dirName;
+        import moss.platform;
+        import std.string : format;
+        import std.exception : enforce;
+
+        MacroFile* file = null;
+
+        string resourceDir = "/usr/share/moss/macros";
+        string actionDir = null;
+        string localDir = dirName(thisExePath).buildPath("..", "data", "macros");
+
+        /* Prefer local macros */
+        if (localDir.exists())
+        {
+            resourceDir = localDir;
+        }
+
+        auto plat = platform();
+        actionDir = resourceDir.buildPath("actions");
+
+        /* Architecture specific YMLs that MUST exist */
+        string baseYml = resourceDir.buildPath("base.yml");
+        string nativeYml = resourceDir.buildPath("%s.yml".format(plat.name));
+        string emulYml = resourceDir.buildPath("emul32", "%s.yml".format(plat.name));
+
+        enforce(baseYml.exists, baseYml ~ " file cannot be found");
+        enforce(nativeYml.exists, nativeYml ~ " cannot be found");
+        if (plat.emul32)
+        {
+            enforce(emulYml.exists, emulYml ~ " cannot be found");
+        }
+
+        /* Load base YML */
+        file = new MacroFile(File(baseYml));
+        file.parse();
+        macroFiles["base"] = file;
+
+        /* Load arch specific */
+        file = new MacroFile(File(nativeYml));
+        file.parse();
+        macroFiles[plat.name] = file;
+
+        /* emul32? */
+        if (plat.emul32)
+        {
+            file = new MacroFile(File(emulYml));
+            file.parse();
+            macroFiles["emul32/%s".format(plat.name)] = file;
+        }
+
+        if (!actionDir.exists)
+        {
+            return;
+        }
+    }
 
     ScriptBuilder sbuilder;
     string _rootDir;
     Spec* _spec;
+    MacroFile*[string] macroFiles;
 }
