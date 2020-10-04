@@ -65,9 +65,12 @@ public:
     /**
      * Return the underlying script.
      */
-    pure final @property string script() @safe @nogc nothrow
+    pure final @property string script() @safe nothrow
     {
-        return _script;
+        /* For visual reasons, now return without escaping */
+        import std.array;
+
+        return _script.replace("%%", "%");
     }
 
     /**
