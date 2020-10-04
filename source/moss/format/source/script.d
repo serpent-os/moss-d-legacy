@@ -125,7 +125,7 @@ public:
     /**
      * Insert definitions, exports + actions from a macro file.
      */
-    final void addFrom(in MacroFile *f) @system
+    final void addFrom(in MacroFile* f) @system
     {
         /* Add all definitions */
         foreach (ref k, v; f.definitions)

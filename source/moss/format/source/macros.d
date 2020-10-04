@@ -71,6 +71,9 @@ public:
         try
         {
             auto root = loader.load();
+            parseMacros("actions", actions, root);
+            parseMacros("definitions", definitions, root);
+            parseMacros("exports", exports, root);
         }
         catch (Exception ex)
         {
@@ -82,6 +85,45 @@ public:
     }
 
 private:
+
+    final void parseMacros(string name, ref string[string] target, ref Node root)
+    {
+        import std.exception : enforce;
+
+        if (!root.containsKey(name))
+        {
+            return;
+        }
+
+        /* Grab root sequence */
+        Node node = root[name];
+        enforce(node.nodeID == NodeID.sequence, "parseMacros(): Expected sequence for " ~ name);
+
+        /* Grab each map */
+        foreach (ref Node k; node)
+        {
+            enforce(k.nodeID == NodeID.mapping,
+                    "parseMaros(): Expected mapping in sequence for " ~ name);
+            import std.stdio;
+
+            auto mappingKeys = k.mappingKeys;
+            auto mappingValues = k.mappingValues;
+
+            enforce(mappingKeys.length == 1, "parseMacros(): Expect only ONE key for " ~ name);
+            enforce(mappingValues.length == 1, "parseMacros(): Expect only ONE value for " ~ name);
+
+            Node key = mappingKeys[0];
+            Node val = mappingValues[0];
+
+            enforce(key.nodeID == NodeID.scalar, "parseMacros: Expected scalar key for " ~ name);
+            enforce(val.nodeID == NodeID.scalar, "parseMacros: Expected scalar key for " ~ name);
+
+            auto skey = key.as!string;
+            auto sval = val.as!string;
+
+            target[skey] = sval;
+        }
+    }
 
     File _file;
 };
