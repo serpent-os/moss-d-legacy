@@ -40,6 +40,7 @@ public:
 
     string[string] actions;
     string[string] definitions;
+    string[string] exports;
 
     /**
      * Construct a Spec from the given file

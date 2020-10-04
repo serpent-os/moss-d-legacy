@@ -24,6 +24,7 @@ module moss.format.source.script;
 
 import std.string : format, splitLines, startsWith, endsWith;
 import std.exception : enforce;
+import moss.format.source.macros : MacroFile;
 
 /**
  * The private ParseContext is used by the Script to step through
@@ -118,6 +119,30 @@ public:
         else
         {
             exports[id] = mapping[realID];
+        }
+    }
+
+    /**
+     * Insert definitions, exports + actions from a macro file.
+     */
+    final void addFrom(in MacroFile *f) @system
+    {
+        /* Add all definitions */
+        foreach (ref k, v; f.definitions)
+        {
+            addDefinition(k, v);
+        }
+
+        /* Add all actions */
+        foreach (ref k, v; f.actions)
+        {
+            addAction(k, v);
+        }
+
+        /* Add all exports */
+        foreach (ref k, v; f.exports)
+        {
+            addExport(k, v);
         }
     }
 

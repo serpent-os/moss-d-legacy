@@ -78,14 +78,12 @@ struct BuildContext
         foreach (ref arch; arches)
         {
             auto archFile = defFiles[arch];
-            writefln("Inserting macro file: %s", arch);
+            sbuilder.addFrom(archFile);
         }
 
         foreach (ref action; actionFiles)
         {
-            import std.conv : to;
-
-            writefln("Inserting action file: %s", to!string(*action));
+            sbuilder.addFrom(action);
         }
 
         sbuilder.bake();
