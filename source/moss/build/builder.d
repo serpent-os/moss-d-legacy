@@ -92,7 +92,43 @@ public:
      */
     final void build()
     {
+        prepareRoot();
+        prepareSources();
+        buildProfiles();
+        collectAssets();
+        emitPackages();
+    }
+
+private:
+
+    /**
+     * Prepare our root filesystem for building on
+     */
+    final void prepareRoot() @safe
+    {
         import std.stdio;
+
+        writeln("Preparing root tree");
+    }
+
+    /**
+     * Prepare and fetch any required sources
+     */
+    final void prepareSources() @safe
+    {
+        import std.stdio;
+
+        writeln("Preparing sources");
+    }
+
+    /**
+     * Build all of the given profiles
+     */
+    final void buildProfiles() @system
+    {
+        import std.stdio;
+
+        writeln("Building profiles");
 
         foreach (ref p; profiles)
         {
@@ -101,7 +137,25 @@ public:
         }
     }
 
-private:
+    /**
+     * Collect and analyse all assets
+     */
+    final void collectAssets() @safe
+    {
+        import std.stdio;
+
+        writeln("Collecting assets");
+    }
+
+    /**
+     * Emit all binary packages
+     */
+    final void emitPackages() @safe
+    {
+        import std.stdio;
+
+        writeln("Emitting packages");
+    }
 
     /**
      * Safely get the home root tree
