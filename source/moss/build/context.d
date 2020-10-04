@@ -69,13 +69,23 @@ struct BuildContext
         import std.stdio : writefln;
         import std.conv : to;
 
+        string[] arches = ["base", architecture];
+
         sbuilder.addDefinition("name", spec.source.name);
         sbuilder.addDefinition("version", spec.source.versionIdentifier);
         sbuilder.addDefinition("release", to!string(spec.source.release));
 
-        foreach (ref k, v; macroFiles)
+        foreach (ref arch; arches)
         {
-            writefln("Inserting macro file: %s", k);
+            auto archFile = defFiles[arch];
+            writefln("Inserting macro file: %s", arch);
+        }
+
+        foreach (ref action; actionFiles)
+        {
+            import std.conv : to;
+
+            writefln("Inserting action file: %s", to!string(*action));
         }
 
         sbuilder.bake();
@@ -88,8 +98,8 @@ private:
      */
     final void loadMacros()
     {
-        import std.file : exists, thisExePath;
-        import std.path : buildPath, dirName;
+        import std.file;
+        import std.path : buildPath, dirName, baseName;
         import moss.platform;
         import std.string : format;
         import std.exception : enforce;
@@ -124,28 +134,42 @@ private:
         /* Load base YML */
         file = new MacroFile(File(baseYml));
         file.parse();
-        macroFiles["base"] = file;
+        defFiles["base"] = file;
 
         /* Load arch specific */
         file = new MacroFile(File(nativeYml));
         file.parse();
-        macroFiles[plat.name] = file;
+        defFiles[plat.name] = file;
 
         /* emul32? */
         if (plat.emul32)
         {
             file = new MacroFile(File(emulYml));
             file.parse();
-            macroFiles["emul32/%s".format(plat.name)] = file;
+            defFiles["emul32/%s".format(plat.name)] = file;
         }
 
         if (!actionDir.exists)
         {
             return;
         }
+
+        /* Load all the action files in */
+        foreach (nom; dirEntries(actionDir, "*.yml", SpanMode.shallow, false))
+        {
+            if (!nom.isFile)
+            {
+                continue;
+            }
+            auto name = nom.name.baseName[0 .. $ - 4];
+            file = new MacroFile(File(nom.name));
+            file.parse();
+            actionFiles ~= file;
+        }
     }
 
     string _rootDir;
     Spec* _spec;
-    MacroFile*[string] macroFiles;
+    MacroFile*[string] defFiles;
+    MacroFile*[] actionFiles;
 }
