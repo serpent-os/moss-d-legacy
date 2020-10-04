@@ -139,12 +139,6 @@ public:
         {
             addAction(k, v);
         }
-
-        /* Add all exports */
-        foreach (ref k, v; f.exports)
-        {
-            addExport(k, v);
-        }
     }
 
     /**

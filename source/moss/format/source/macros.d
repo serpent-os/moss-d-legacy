@@ -40,7 +40,6 @@ public:
 
     string[string] actions;
     string[string] definitions;
-    string[string] exports;
 
     /**
      * Construct a Spec from the given file
@@ -73,7 +72,6 @@ public:
             auto root = loader.load();
             parseMacros("actions", actions, root);
             parseMacros("definitions", definitions, root);
-            parseMacros("exports", exports, root);
         }
         catch (Exception ex)
         {
