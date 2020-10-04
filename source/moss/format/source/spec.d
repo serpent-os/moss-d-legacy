@@ -68,6 +68,8 @@ public:
 
     UpstreamDefinition[string] upstreams;
 
+    string[] architectures;
+
     /**
      * Construct a Spec from the given file
      */
@@ -104,6 +106,17 @@ public:
         parsePackages(root);
         parseBuilds(root);
         parseUpstreams(root);
+        parseArchitectures(root);
+    }
+
+    /**
+     * Returns true if the architecture is supported by this spec
+     */
+    pure final bool supportedArchitecture(string architecture)
+    {
+        import std.algorithm : canFind;
+
+        return architectures.canFind(architecture);
     }
 
 private:
@@ -136,6 +149,39 @@ private:
                 subPackages[name] = pk;
             }
         }
+    }
+
+    final void parseArchitectures(ref Node node)
+    {
+        import std.exception : enforce;
+
+        if (!node.containsKey("architectures"))
+        {
+            import moss.platform;
+
+            auto plat = platform();
+            auto emul32name = "emul32/" ~ plat.name;
+
+            /* If "emul32" is enabled, add the emul32 architecture */
+            if (node.containsKey("emul32"))
+            {
+                Node emul32n = node["emul32"];
+                enforce(emul32n.nodeID == NodeID.scalar, "emul32 must be a boolean scalar value");
+
+                /* Enable the host architecture + emul32 */
+                if (emul32n.as!bool == true)
+                {
+                    architectures ~= emul32name;
+                }
+            }
+
+            /* Add native architecture */
+            architectures ~= plat.name;
+            return;
+        }
+
+        /* Fine grained control, requiring "emul32/x86_64", etc */
+        setValueArray(node["architectures"], architectures);
     }
 
     /**

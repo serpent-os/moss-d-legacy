@@ -27,6 +27,8 @@ import core.stdc.stdlib : EXIT_FAILURE, EXIT_SUCCESS;
 /** Current Moss Version */
 const Version = "0.0.1";
 
+public import moss.platform;
+
 /**
  * Currently just wraps the two well known exit codes from the
  * C standard library. We will flesh this out with specific exit

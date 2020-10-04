@@ -25,6 +25,7 @@ module moss.build.builder;
 import moss.format.source.spec;
 import moss.build.context;
 import moss.build.profile;
+import moss.platform;
 
 /**
  * The Builder is responsible for the full build of a source package
@@ -50,9 +51,23 @@ public:
         /* TODO: Add functions to grab home directory, etc. */
         context = BuildContext(&_specFile, "BuildRoot");
 
-        /* TODO: UNHACK ME */
-        addArchitecture("x86_64");
-        addArchitecture("ia32");
+        auto plat = platform();
+
+        /* Is emul32 supported for 64-bit OS? */
+        if (plat.emul32)
+        {
+            auto emul32name = "emul32/" ~ plat.name;
+            if (specFile.supportedArchitecture(emul32name))
+            {
+                addArchitecture(emul32name);
+            }
+        }
+
+        /* Add builds if this is a supported platform */
+        if (specFile.supportedArchitecture(plat.name))
+        {
+            addArchitecture(plat.name);
+        }
     }
 
     /**
