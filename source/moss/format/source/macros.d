@@ -91,6 +91,11 @@ private:
         import std.exception : enforce;
         import std.string;
 
+        scope (exit)
+        {
+            _file.close();
+        }
+
         if (!root.containsKey(name))
         {
             return;
