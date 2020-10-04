@@ -62,7 +62,6 @@ public:
         context.prepareScripts(sbuilder, architecture);
 
         /* Construct stages based on available BuildDefinitions */
-        insertStage("prepare");
         insertStage("setup");
         insertStage("build");
         insertStage("install");
@@ -118,7 +117,7 @@ public:
         {
             import std.stdio;
 
-            writeln(e.script);
+            writefln("Generating script: %s\n%s\n", e.name, e.script);
         }
     }
 
@@ -145,9 +144,6 @@ private:
 
         switch (name)
         {
-        case "prepare":
-            stage.script = "%scriptBase";
-            break;
         case "setup":
             stage.script = buildDef.stepSetup;
             if (stage.script is null || stage.script == "null")

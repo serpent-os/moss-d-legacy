@@ -80,7 +80,7 @@ public:
     {
         import std.string : strip;
 
-        _script = _parent.script.process(sc.strip);
+        _script = _parent.script.process("%scriptBase\n" ~ sc.strip);
     }
 
 private:
