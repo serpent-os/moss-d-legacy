@@ -43,38 +43,6 @@ struct BuildContext
         this._rootDir = rootDir;
 
         this.loadMacros();
-
-        /* Basic metadata exposed only */
-        sbuilder.addDefinition("name", spec.source.name);
-        sbuilder.addDefinition("version", spec.source.versionIdentifier);
-        sbuilder.addDefinition("release", to!string(spec.source.release));
-
-        // TODO: Take from file.
-        sbuilder.addDefinition("libsuffix", "");
-        sbuilder.addDefinition("prefix", "/usr");
-        sbuilder.addDefinition("bindir", "%(prefix)/bin");
-        sbuilder.addDefinition("sbindir", "%(prefix)/sbin");
-        sbuilder.addDefinition("includedir", "%(prefix)/include");
-        sbuilder.addDefinition("datadir", "%(prefix)/share");
-        sbuilder.addDefinition("localedir", "%(datadir)/locale");
-        sbuilder.addDefinition("infodir", "%(datadir)/info");
-        sbuilder.addDefinition("mandir", "%(datadir)/man");
-        sbuilder.addDefinition("docdir", "%(datadir)/doc");
-        sbuilder.addDefinition("localstatedir", "/var");
-        sbuilder.addDefinition("runstatedir", "/run");
-        sbuilder.addDefinition("sysconfdir", "/etc");
-        sbuilder.addDefinition("osconfdir", "%(datadir)/defaults");
-        sbuilder.addDefinition("libdir", "%(prefix)/lib%(libsuffix)");
-        sbuilder.addDefinition("libexecdir", "%(libdir)/%(name)");
-    }
-
-    /**
-     * Return reference to underlying ScriptBuilder so that it may be
-     * cloned.
-     */
-    pure final @property ref auto script() @safe @nogc nothrow
-    {
-        return sbuilder;
     }
 
     /**
@@ -96,14 +64,21 @@ struct BuildContext
     /**
      * Prepare a ScriptBuilder
      */
-    final void prepareScripts(ref ScriptBuilder builder, string architecture)
+    final void prepareScripts(ref ScriptBuilder sbuilder, string architecture)
     {
         import std.stdio : writefln;
+        import std.conv : to;
+
+        sbuilder.addDefinition("name", spec.source.name);
+        sbuilder.addDefinition("version", spec.source.versionIdentifier);
+        sbuilder.addDefinition("release", to!string(spec.source.release));
 
         foreach (ref k, v; macroFiles)
         {
             writefln("Inserting macro file: %s", k);
         }
+
+        sbuilder.bake();
     }
 
 private:
@@ -170,7 +145,6 @@ private:
         }
     }
 
-    ScriptBuilder sbuilder;
     string _rootDir;
     Spec* _spec;
     MacroFile*[string] macroFiles;

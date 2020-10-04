@@ -73,9 +73,9 @@ public:
     /**
      * Set the script to a new string
      */
-    final @property void script(in string sc) @safe nothrow
+    final @property void script(in string sc) @safe
     {
-        _script = sc;
+        _script = _parent.script.process(sc);
     }
 
 private:

@@ -23,6 +23,7 @@
 module moss.build.profile;
 
 import moss.format.source.spec;
+import moss.format.source.script;
 import moss.build.context;
 import moss.build.stage;
 
@@ -49,6 +50,8 @@ public:
         this._architecture = architecture;
         this._buildRoot = context.rootDir.buildPath("build", architecture);
         this._installRoot = context.rootDir.buildPath("install", architecture);
+
+        context.prepareScripts(sbuilder, architecture);
 
         /* Construct stages based on available BuildDefinitions */
         insertStage("setup");
@@ -86,6 +89,14 @@ public:
     pure final @property string installRoot() @safe @nogc nothrow
     {
         return _installRoot;
+    }
+
+    /**
+     * Return our ScriptBuilder
+     */
+    pure final @property ref ScriptBuilder script() @safe @nogc nothrow
+    {
+        return sbuilder;
     }
 
     /**
@@ -174,4 +185,5 @@ private:
     ExecutionStage*[] stages;
     string _buildRoot;
     string _installRoot;
+    ScriptBuilder sbuilder;
 }
