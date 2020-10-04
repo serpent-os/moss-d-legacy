@@ -31,6 +31,7 @@ public import moss.format.source.sourceDefinition;
 public import moss.format.source.upstreamDefinition;
 
 import dyaml;
+import moss.format.source.ymlHelper;
 
 /**
  * A Spec is a stone specification file. It is used to parse a "stone.yml"
@@ -271,103 +272,6 @@ private:
                 }
 
                 upstreams[ups.uri] = ups;
-            }
-        }
-    }
-
-    /**
-     * Set value appropriately.
-     */
-    final void setValue(T)(ref Node node, ref T value)
-    {
-        import std.exception : enforce;
-
-        enforce(node.nodeID == NodeID.scalar, "Expected " ~ T.stringof ~ " for " ~ node.tag);
-
-        static if (is(T == int64_t))
-        {
-            value = node.as!int64_t;
-        }
-        else static if (is(T == uint64_t))
-        {
-            value = node.as!uint64_t;
-        }
-        else static if (is(T == bool))
-        {
-            value = node.as!bool;
-        }
-        else
-        {
-            value = node.as!string;
-        }
-    }
-
-    /**
-     * Set value according to maps.
-     */
-    final void setValueArray(T)(ref Node node, ref T value)
-    {
-        import std.exception : enforce;
-
-        /* We can support a single value *or* a list. */
-        enforce(node.nodeID != NodeID.mapping, "Expected " ~ T.stringof ~ " for " ~ node.tag);
-
-        switch (node.nodeID)
-        {
-        case NodeID.scalar:
-            value ~= node.as!(typeof(value[0]));
-            break;
-        case NodeID.sequence:
-            foreach (ref Node v; node)
-            {
-                value ~= v.as!(typeof(value[0]));
-            }
-            break;
-        default:
-            break;
-        }
-    }
-
-    final void parseSection(T)(ref Node node, ref T section) @system
-    {
-        import std.traits;
-        import std.exception : enforce;
-
-        /* Walk members */
-        static foreach (member; __traits(allMembers, T))
-        {
-            {
-                mixin("enum udaID = getUDAs!(" ~ T.stringof ~ "." ~ member ~ ", YamlSchema);");
-                static if (udaID.length == 1)
-                {
-                    static assert(udaID.length == 1,
-                            "Missing YamlSchema for " ~ T.stringof ~ "." ~ member);
-                    enum yamlName = udaID[0].name;
-                    enum mandatory = udaID[0].required;
-                    enum type = udaID[0].type;
-
-                    static if (mandatory)
-                    {
-                        enforce(node.containsKey(yamlName), "Missing mandatory key: " ~ yamlName);
-                    }
-
-                    static if (type == YamlType.Single)
-                    {
-                        if (node.containsKey(yamlName))
-                        {
-                            auto yamlNode = node[yamlName];
-                            mixin("setValue(yamlNode, section." ~ member ~ ");");
-                        }
-                    }
-                    else static if (type == YamlType.Array)
-                    {
-                        if (node.containsKey(yamlName))
-                        {
-                            auto yamlNode = node[yamlName];
-                            mixin("setValueArray(yamlNode, section." ~ member ~ ");");
-                        }
-                    }
-                }
             }
         }
     }
