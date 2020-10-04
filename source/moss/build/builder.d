@@ -48,8 +48,8 @@ public:
         specFile = Spec(f);
         specFile.parse();
 
-        /* TODO: Add functions to grab home directory, etc. */
-        context = BuildContext(&_specFile, "BuildRoot");
+        auto buildRoot = getBuildRoot();
+        context = BuildContext(&_specFile, buildRoot);
 
         auto plat = platform();
 
@@ -102,6 +102,21 @@ public:
     }
 
 private:
+
+    /**
+     * Safely get the home root tree
+     */
+    final string getBuildRoot() @safe
+    {
+        import std.path;
+        import std.file : exists;
+        import std.exception : enforce;
+
+        auto hdir = expandTilde("~");
+        enforce(hdir.exists, "Home directory not found!");
+
+        return hdir.buildPath("moss/buildRoot");
+    }
 
     /**
      * Update the underlying spec file

@@ -49,7 +49,7 @@ public:
         this._context = context;
         this._architecture = architecture;
         this._buildRoot = context.rootDir.buildPath("build", architecture);
-        this._installRoot = context.rootDir.buildPath("install", architecture);
+        this._installRoot = context.rootDir.buildPath("install");
 
         sbuilder.addDefinition("installdir", installRoot);
         sbuilder.addDefinition("builddir", buildRoot);
