@@ -62,6 +62,7 @@ public:
         context.prepareScripts(sbuilder, architecture);
 
         /* Construct stages based on available BuildDefinitions */
+        insertStage("prepare");
         insertStage("setup");
         insertStage("build");
         insertStage("install");
@@ -144,6 +145,9 @@ private:
 
         switch (name)
         {
+        case "prepare":
+            stage.script = "%scriptBase";
+            break;
         case "setup":
             stage.script = buildDef.stepSetup;
             if (stage.script is null || stage.script == "null")
