@@ -36,7 +36,7 @@ struct BuildDefinition
      * These instructions should perform any required setup work such
      * as patching, configuration, etc.
      */
-    @YamlSchema("setup") string stepSetup;
+    @YamlSchema("setup") string stepSetup = null;
 
     /**
      * Build step.
@@ -44,7 +44,7 @@ struct BuildDefinition
      * These instructions should begin compilation of the source, such
      * as with "make".
      */
-    @YamlSchema("build") string stepBuild;
+    @YamlSchema("build") string stepBuild = null;
 
     /**
      * Install step.
@@ -53,7 +53,7 @@ struct BuildDefinition
      * files produced by the previous steps into the target "collection"
      * area, ready to be converted into a package.
      */
-    @YamlSchema("install") string stepInstall;
+    @YamlSchema("install") string stepInstall = null;
 
     /**
      * Build dependencies
@@ -65,4 +65,58 @@ struct BuildDefinition
 
     /** Parent definition to permit lookups */
     BuildDefinition* parent = null;
+
+    /**
+     * Return the relevant setup step
+     */
+    final string setup() @safe
+    {
+        BuildDefinition* node = &this;
+
+        while (node !is null)
+        {
+            if (node.stepSetup != null && node.stepSetup != "(null)" && node.stepSetup != "")
+            {
+                return node.stepSetup;
+            }
+            node = node.parent;
+        }
+        return null;
+    }
+
+    /**
+     * Return the relevant build step
+     */
+    final string build() @safe
+    {
+        BuildDefinition* node = &this;
+
+        while (node !is null)
+        {
+            if (node.stepBuild != null && node.stepBuild != "(null)" && node.stepBuild != "")
+            {
+                return node.stepBuild;
+            }
+            node = node.parent;
+        }
+        return null;
+    }
+
+    /**
+     * Return the relevant install step
+     */
+    final string install() @safe
+    {
+        BuildDefinition* node = &this;
+
+        while (node !is null)
+        {
+            if (node.stepInstall != null && node.stepInstall != "(null)" && node.stepInstall != "")
+            {
+                return node.stepInstall;
+            }
+            node = node.parent;
+        }
+        return null;
+    }
 };

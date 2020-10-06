@@ -57,14 +57,15 @@ public:
         if (plat.emul32)
         {
             auto emul32name = "emul32/" ~ plat.name;
-            if (specFile.supportedArchitecture(emul32name))
+            if (specFile.supportedArchitecture(emul32name)
+                    || specFile.supportedArchitecture("emul32"))
             {
                 addArchitecture(emul32name);
             }
         }
 
         /* Add builds if this is a supported platform */
-        if (specFile.supportedArchitecture(plat.name))
+        if (specFile.supportedArchitecture(plat.name) || specFile.supportedArchitecture("native"))
         {
             addArchitecture(plat.name);
         }

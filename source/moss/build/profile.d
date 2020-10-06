@@ -129,54 +129,26 @@ private:
 
         auto stage = new ExecutionStage(&this, name);
         BuildDefinition buildDef = context.spec.rootBuild;
-        BuildDefinition altDef = context.spec.rootBuild;
 
         if (architecture in context.spec.profileBuilds)
         {
             buildDef = context.spec.profileBuilds[architecture];
         }
-
-        /* Special case handling emul32 */
-        if ("emul32" in context.spec.profileBuilds && architecture.startsWith("emul32/"))
+        else if (architecture.startsWith("emul32/") && "emul32" in context.spec.profileBuilds)
         {
-            altDef = context.spec.profileBuilds["emul32"];
+            buildDef = context.spec.profileBuilds["emul32"];
         }
 
         switch (name)
         {
         case "setup":
-            stage.script = buildDef.stepSetup;
-            if (stage.script is null || stage.script == "null")
-            {
-                stage.script = altDef.stepSetup;
-                if (stage.script is null || stage.script == "null")
-                {
-                    stage.script = context.spec.rootBuild.stepSetup;
-                }
-            }
+            stage.script = buildDef.setup();
             break;
         case "build":
-            stage.script = buildDef.stepBuild;
-            if (stage.script is null || stage.script == "null")
-            {
-                stage.script = altDef.stepBuild;
-                if (stage.script is null || stage.script == "null")
-                {
-                    stage.script = context.spec.rootBuild.stepBuild;
-                }
-            }
+            stage.script = buildDef.build();
             break;
         case "install":
-            stage.script = buildDef.stepInstall;
-            if (stage.script is null || stage.script == "null")
-            {
-                stage.script = altDef.stepInstall;
-                if (stage.script is null || stage.script == "null")
-                {
-                    stage.script = context.spec.rootBuild.stepInstall;
-                }
-            }
-            break;
+            stage.script = buildDef.install();
         default:
             break;
         }
