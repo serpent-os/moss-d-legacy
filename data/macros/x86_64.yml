@@ -11,11 +11,10 @@ definitions:
 
 flags:
 
-    # Base flags, enabled by default
-    - base:
-        c         : "-march=haswell -mtune=skylake %(distroCFLAGS)"
-        cxx       : "-march=haswell -mtune=skylake %(distroCXXFLAGS)"
-        ld        : "%(distroLDFLAGS)"
+    # Set architecture flags
+    - architecture:
+        c         : "-march=haswell -mtune=skylake"
+        cxx       : "-march=haswell -mtune=skylake"
 
     # Generic optimisation case
     - generic:

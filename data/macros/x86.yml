@@ -11,8 +11,7 @@ definitions:
 
 flags:
 
-    # Base flags, enabled by default
-    - base:
-        c         : "-march=i686 -mtune=generic %(distroCFLAGS)"
-        cxx       : "-march=i686 -mtune=generic %(distroCXXFLAGS)"
-        ld        : "%(distroLDFLAGS)"
+    # Set architecture flags
+    - architecture:
+        c         : "-march=i686 -mtune=generic"
+        cxx       : "-march=i686 -mtune=generic"

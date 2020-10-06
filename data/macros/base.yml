@@ -29,12 +29,6 @@ definitions:
     - cxx            : "%(compiler_cxx)"
     - cpp            : "%(compiler_cpp)"
 
-    # Provided for consistency in architectures
-    - distroCFLAGS   : "-pipe -D_FORTIFY_SOURCE=2 -Wall -Wno-error -Wp,-D_REENTRANT -fPIC"
-    - distroCXXFLAGS : "-pipe -D_FORTIFY_SOURCE=2 -Wall -Wno-error -Wp,-D_REENTRANT -fPIC"
-    - distroLDFLAGS  : "-Wl,-O2,-z,max-page-size=0x1000,--sort-common,--gc-sections"
-    # - distroFlags    : [base, omit-frame-pointer, harden, generic, no-common, asneeded]
-
 actions              :
 
     # scriptBase is merged to the top of all newly generated build scripts.
@@ -108,11 +102,19 @@ tuning              :
 
 flags               :
 
+    # Needs overriding with -march/mtune values.
+    - architecture:
+        c         : ""
+        cxx       : ""
+        ld        : ""
+
     # Base flags, enabled by default
     - base:
-        c         : "%(distroCFLAGS)"
-        cxx       : "%(distroCXXFLAGS)"
-        ld        : "%(distroLDFLAGS)"
+        c         : "-pipe -D_FORTIFY_SOURCE=2 -Wall -Wno-error -Wp,-D_REENTRANT -fPIC"
+        cxx       : "-pipe -D_FORTIFY_SOURCE=2 -Wall -Wno-error -Wp,-D_REENTRANT -fPIC"
+        ld        : "-Wl,-O2,-z,max-page-size=0x1000,--sort-common,--gc-sections"
+        depends   :
+            - architecture
 
     - omit-frame-pointer:
         c         : "-fomit-frame-pointer"
