@@ -44,7 +44,7 @@ final enum Toolchain
  * A TuningFlag encapsulates common flags used for a given purpose,
  * such as optimising for speed, etc.
  *
- * Our type adds dependencies, conflicts + accessors to abstract
+ * Our type adds dependencies + accessors to abstract
  * GNU vs LLVM differences
  */
 final struct TuningFlag
@@ -68,10 +68,6 @@ final struct TuningFlag
      * list of TuningFlags we require to be enabled
      */
     @YamlSchema("depends", false, YamlType.Array) string[] depends;
-
-    /**
-     * List of TuningFlags we conflict with */
-    @YamlSchema("conflicts", false, YamlType.Array) string[] conflicts;
 
     /**
      * Return the CFLAGS

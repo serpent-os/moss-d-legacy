@@ -117,14 +117,10 @@ flags               :
     - omit-frame-pointer:
         c         : "-fomit-frame-pointer"
         cxx       : "-fomit-frame-pointer"
-        conflicts :
-            - no-omit-frame-pointer
 
     - no-omit-frame-pointer:
         c         : "-fno-omit-frame-pointer"
         cxx       : "-fno-omit-frame-pointer"
-        conflicts :
-            - omit-frame-pointer
 
     # Toggle bindnow (ON)
     - bindnow:
@@ -147,25 +143,16 @@ flags               :
         gnu:
             c     : "-Os -ffunction-sections -fdata-sections"
             cxx   : "-Os -ffunction-sections -fdata-sections"
-        conflicts:
-            - speed
-            - generic
 
     # Optimize for speed (OFF)
     - speed:
         c         : "-O3"
         cxx       : "-O3"
-        conflicts :
-            - size
-            - generic
 
     # Generic optimisation case
     - generic:
         c         : "-O2"
         cxx       : "-O2"
-        conflicts :
-            - speed
-            - size
 
     # Enable LLVM ICF optimisations (OFF)
     - icf:
@@ -182,15 +169,11 @@ flags               :
     - common:
         c         : "-fcommon"
         cxx       : "-fcommon"
-        conflicts :
-            - no-common
 
     # Toggle -fno-common (ON)
     - no-common:
         c         : "-fno-common"
         cxx       : "-fno-common"
-        conflicts :
-            - common
 
     # Toggle debug optimisations (ON)
     - debug:
