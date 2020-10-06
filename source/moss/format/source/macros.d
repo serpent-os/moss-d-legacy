@@ -25,6 +25,7 @@ module moss.format.source.macros;
 public import std.stdio : File;
 import dyaml;
 import moss.format.source.ymlHelper;
+import moss.format.source.tuningFlag;
 
 /**
  * A MacroFile can contain a set of macro definitions, actions and otherwise
@@ -40,6 +41,7 @@ public:
 
     string[string] actions;
     string[string] definitions;
+    TuningFlag[string] flags;
 
     /**
      * Construct a Spec from the given file
@@ -66,12 +68,18 @@ public:
 
         enforce(_file.isOpen(), "MacoFile.parse(): File is not open");
 
+        scope (exit)
+        {
+            _file.close();
+        }
+
         auto loader = Loader.fromFile(_file);
         try
         {
             auto root = loader.load();
             parseMacros("actions", actions, root);
             parseMacros("definitions", definitions, root);
+            parseFlags(root);
         }
         catch (Exception ex)
         {
@@ -84,15 +92,62 @@ public:
 
 private:
 
+    /**
+     * Parse all Flag types.
+     */
+    final void parseFlags(ref Node root)
+    {
+        import std.exception : enforce;
+
+        if (!root.containsKey("flags"))
+        {
+            return;
+        }
+
+        /* Grab root sequence
+         */
+        Node node = root["flags"];
+        enforce(node.nodeID == NodeID.sequence, "parseFlags(): Expected sequence for flags");
+
+        foreach (ref Node k; node)
+        {
+            assert(k.nodeID == NodeID.mapping, "Each item in flags must be a mapping");
+            foreach (ref Node c, ref Node v; k)
+            {
+                enforce(v.nodeID == NodeID.mapping, "parseFlags: Expected sequence for each item");
+                TuningFlag tf;
+                auto name = c.as!string;
+                parseSection(v, tf);
+                parseSection(v, tf.root);
+
+                /* Handle GNU key */
+                if (v.containsKey("gnu"))
+                {
+                    Node gnu = v["gnu"];
+                    enforce(gnu.nodeID == NodeID.mapping,
+                            "parseFlags(): expected gnu section to be a mapping");
+                    parseSection(gnu, tf.gnu);
+                }
+
+                /* Handle LLVM key */
+                if (v.containsKey("llvm"))
+                {
+                    Node llvm = v["llvm"];
+                    enforce(llvm.nodeID == NodeID.mapping,
+                            "parseFlags(): expected llvm section to be a mapping");
+                    parseSection(llvm, tf.llvm);
+                }
+
+                /* Store flags now */
+                flags[name] = tf;
+            }
+        }
+    }
+
     final void parseMacros(string name, ref string[string] target, ref Node root)
     {
         import std.exception : enforce;
         import std.string;
-
-        scope (exit)
-        {
-            _file.close();
-        }
 
         if (!root.containsKey(name))
         {
