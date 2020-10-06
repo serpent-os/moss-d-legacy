@@ -67,6 +67,9 @@ public:
         this._buildRoot = context.rootDir.buildPath("build", architecture);
         this._installRoot = context.rootDir.buildPath("install");
 
+        auto pgoStage1Dir = buildRoot ~ "-pgo1";
+        auto pgoStage2Dir = buildRoot ~ "-pgo2";
+
         sbuilder.addDefinition("installdir", installRoot);
         sbuilder.addDefinition("builddir", buildRoot);
 
@@ -83,6 +86,9 @@ public:
             sbuilder.addDefinition("compiler_cxx", "g++");
             sbuilder.addDefinition("compiler_cpp", "cpp");
         }
+
+        sbuilder.addDefinition("pgo_stage1_dir", pgoStage1Dir);
+        sbuilder.addDefinition("pgo_stage2_dir", pgoStage2Dir);
 
         /* TODO: Fix to not suck */
         sbuilder.addDefinition("cflags", "");
