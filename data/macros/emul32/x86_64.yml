@@ -16,4 +16,3 @@ flags:
         c         : "-march=i686 -mtune=generic -mtune=generic %(distroCFLAGS)"
         cxx       : "-march=i686 -mtune=generic %(distroCXXFLAGS)"
         ld        : "%(distroLDFLAGS)"
-        enabled   : true

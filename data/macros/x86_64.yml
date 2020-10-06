@@ -16,13 +16,11 @@ flags:
         c         : "-march=haswell -mtune=skylake %(distroCFLAGS)"
         cxx       : "-march=haswell -mtune=skylake %(distroCXXFLAGS)"
         ld        : "%(distroLDFLAGS)"
-        enabled   : true
 
     # Generic optimisation case
     - generic:
         c         : "-O2 -mprefer-vector-width=128"
         cxx       : "-O2 -mprefer-vector-width=128"
-        enabled   : true
         conflicts :
             - speed
             - size
