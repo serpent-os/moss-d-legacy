@@ -46,4 +46,7 @@ struct YamlSchema
 
     /** Type of value to expect */
     YamlType type = YamlType.Single;
+
+    /** If set, these are the acceptable string values */
+    string[] acceptableValues;
 }

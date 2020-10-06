@@ -50,4 +50,10 @@ struct SourceDefinition
      * is performed.
      */
     @YamlSchema("release", true) uint64_t release;
+
+    /**
+     * The toolchain defaults to LLVM, but can be changed if required
+     * to the GNU toolchain, including GCC + binutils.
+     */
+    @YamlSchema("toolchain", false, YamlType.Single, ["gnu", "llvm"]) string toolchain = "llvm";
 };

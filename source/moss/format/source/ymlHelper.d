@@ -29,9 +29,11 @@ import std.stdint;
 /**
  * Set value appropriately.
  */
-final void setValue(T)(ref Node node, ref T value)
+final void setValue(T)(ref Node node, ref T value, YamlSchema schema)
 {
     import std.exception : enforce;
+    import std.algorithm : canFind;
+    import std.string : format;
 
     enforce(node.nodeID == NodeID.scalar, "Expected " ~ T.stringof ~ " for " ~ node.tag);
 
@@ -50,6 +52,15 @@ final void setValue(T)(ref Node node, ref T value)
     else
     {
         value = node.as!string;
+        if (schema.acceptableValues.length < 1)
+        {
+            return;
+        }
+
+        /* Make sure the string is an acceptable value */
+        enforce(schema.acceptableValues.canFind(value),
+                "setValue(): %s not a valid value for %s. Acceptable values: %s".format(value,
+                    schema.name, schema.acceptableValues));
     }
 }
 
@@ -109,7 +120,7 @@ final void parseSection(T)(ref Node node, ref T section) @system
                     if (node.containsKey(yamlName))
                     {
                         auto yamlNode = node[yamlName];
-                        mixin("setValue(yamlNode, section." ~ member ~ ");");
+                        mixin("setValue(yamlNode, section." ~ member ~ ", udaID);");
                     }
                 }
                 else static if (type == YamlType.Array)
