@@ -49,11 +49,19 @@ struct BuildDefinition
     /**
      * Install step.
      *
-     * This is the final step, and should be used to install the
+     * This is the final build step, and should be used to install the
      * files produced by the previous steps into the target "collection"
      * area, ready to be converted into a package.
      */
     @YamlSchema("install") string stepInstall = null;
+
+    /**
+     * Check step.
+     *
+     * We can now ensure consistency of the package by running a test
+     * suite before attempting to deploy it to the users.
+     */
+    @YamlSchema("check") string stepCheck = null;
 
     /**
      * Build dependencies
@@ -114,6 +122,24 @@ struct BuildDefinition
             if (node.stepInstall != null && node.stepInstall != "(null)" && node.stepInstall != "")
             {
                 return node.stepInstall;
+            }
+            node = node.parent;
+        }
+        return null;
+    }
+
+    /**
+     * Return the relevant check step
+     */
+    final string check() @safe
+    {
+        BuildDefinition* node = &this;
+
+        while (node !is null)
+        {
+            if (node.stepCheck != null && node.stepCheck != "(null)" && node.stepCheck != "")
+            {
+                return node.stepCheck;
             }
             node = node.parent;
         }

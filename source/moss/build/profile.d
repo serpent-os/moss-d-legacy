@@ -65,6 +65,7 @@ public:
         insertStage("setup");
         insertStage("build");
         insertStage("install");
+        insertStage("check");
 
     }
 
@@ -127,7 +128,8 @@ private:
     {
         import std.string : startsWith;
 
-        auto stage = new ExecutionStage(&this, name);
+        string script = null;
+
         BuildDefinition buildDef = context.spec.rootBuild;
 
         if (architecture in context.spec.profileBuilds)
@@ -142,22 +144,28 @@ private:
         switch (name)
         {
         case "setup":
-            stage.script = buildDef.setup();
+            script = buildDef.setup();
             break;
         case "build":
-            stage.script = buildDef.build();
+            script = buildDef.build();
             break;
         case "install":
-            stage.script = buildDef.install();
+            script = buildDef.install();
+            break;
+        case "check":
+            script = buildDef.check();
+            break;
         default:
             break;
         }
 
-        if (stage.script is null || stage.script == "null")
+        if (script is null || script == "null")
         {
             return;
         }
 
+        auto stage = new ExecutionStage(&this, name);
+        stage.script = script;
         stages ~= stage;
     }
 
