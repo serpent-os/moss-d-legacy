@@ -30,6 +30,22 @@ import moss.build.stage;
 import std.path : buildPath;
 
 /**
+ * Valid stage types.
+ */
+enum StageType
+{
+    Setup = 1 << 0,
+    Build = 1 << 1,
+    Install = 1 << 2,
+    Check = 1 << 3,
+    Workload = 1 << 4,
+    ProfileGenerate = 1 << 5,
+    ProfileUse = 1 << 6,
+    ProfileStage1 = 1 << 7,
+    ProfileStage2 = 1 << 8,
+}
+
+/**
  * A build profile is generated for each major build profile in the
  * source configuration, i.e. x86_64, emul32, etc.
  *
@@ -74,12 +90,57 @@ public:
         sbuilder.addDefinition("ldflags", "");
 
         context.prepareScripts(sbuilder, architecture);
+        StageType[] stages;
 
-        /* Construct stages based on available BuildDefinitions */
-        insertStage("setup");
-        insertStage("build");
-        insertStage("install");
-        insertStage("check");
+        /* TODO: Take this from options */
+        bool multiStagePGO = false;
+
+        if (hasPGOWorkload)
+        {
+            StageType generationFlags = StageType.ProfileGenerate;
+            if (multiStagePGO)
+            {
+                generationFlags |= StageType.ProfileStage1;
+            }
+
+            /* Always construct a stage1 */
+            stages = [
+                StageType.Setup | generationFlags,
+                StageType.Build | generationFlags,
+                StageType.Workload | generationFlags,
+            ];
+
+            /* Mulitistage uses + refines */
+            if (multiStagePGO)
+            {
+                stages ~= [
+                    StageType.Setup | StageType.ProfileGenerate | StageType.ProfileStage2,
+                    StageType.Build | StageType.ProfileGenerate | StageType.ProfileStage2,
+                    StageType.Workload | StageType.ProfileGenerate | StageType.ProfileStage2,
+                ];
+            }
+
+            /* Always add the use/final stage */
+            stages ~= [
+                StageType.Setup | StageType.ProfileUse,
+                StageType.Build | StageType.ProfileUse,
+                StageType.Install | StageType.ProfileUse,
+                StageType.Check | StageType.ProfileUse,
+            ];
+        }
+        else
+        {
+            /* No PGO, just execute stages */
+            stages = [
+                StageType.Setup, StageType.Build, StageType.Install,
+                StageType.Check,
+            ];
+        }
+
+        foreach (s; stages)
+        {
+            insertStage(s);
+        }
 
     }
 
@@ -158,9 +219,11 @@ private:
         return buildDef.workload() != null;
     }
 
-    final void insertStage(string name)
+    final void insertStage(StageType t)
     {
         import std.string : startsWith;
+
+        string name = null;
 
         string script = null;
 
@@ -175,27 +238,50 @@ private:
             buildDef = context.spec.profileBuilds["emul32"];
         }
 
-        switch (name)
+        if ((t & StageType.Setup) == StageType.Setup)
         {
-        case "setup":
+            name = "setup";
             script = buildDef.setup();
-            break;
-        case "build":
+        }
+        else if ((t & StageType.Build) == StageType.Build)
+        {
+            name = "build";
             script = buildDef.build();
-            break;
-        case "install":
+        }
+        else if ((t & StageType.Install) == StageType.Install)
+        {
+            name = "install";
             script = buildDef.install();
-            break;
-        case "check":
+        }
+        else if ((t & StageType.Check) == StageType.Check)
+        {
+            name = "check";
             script = buildDef.check();
-            break;
-        default:
-            break;
+        }
+        else if ((t & StageType.Workload) == StageType.Workload)
+        {
+            name = "workload";
+            script = buildDef.workload();
         }
 
-        if (script is null || script == "null")
+        /* Need valid script to continue */
+        if (script is null)
         {
             return;
+        }
+
+        /* PGO generation */
+        if ((t & StageType.ProfileGenerate) == StageType.ProfileGenerate)
+        {
+            name ~= "-pgo";
+            if ((t & StageType.ProfileStage1) == StageType.ProfileStage2)
+            {
+                name ~= "-stage1";
+            }
+            else if ((t & StageType.ProfileStage2) == StageType.ProfileStage2)
+            {
+                name ~= "-stage2";
+            }
         }
 
         auto stage = new ExecutionStage(&this, name);
