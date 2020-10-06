@@ -8,3 +8,21 @@ definitions:
     - cc             : "%(compiler_c) -m64"
     - cxx            : "%(compiler_cxx) -m64"
     - cpp            : "%(compiler_cpp) -m64"
+
+flags:
+
+    # Base flags, enabled by default
+    - base:
+        c         : "-march=haswell -mtune=skylake %(distroCFLAGS)"
+        cxx       : "-march=haswell -mtune=skylake %(distroCXXFLAGS)"
+        ld        : "%(distroLDFLAGS)"
+        enabled   : true
+
+    # Generic optimisation case
+    - generic:
+        c         : "-O2 -mprefer-vector-width=128"
+        cxx       : "-O2 -mprefer-vector-width=128"
+        enabled   : true
+        conflicts :
+            - speed
+            - size

@@ -2,6 +2,7 @@
 
 definitions:
 
+    # Basic variables required for packages to build correctly
     - libsuffix      : "" 
     - prefix         : "/usr"
     - bindir         : "%(prefix)/bin"
@@ -18,15 +19,26 @@ definitions:
     - sysconfdir     : "/etc"
     - libdir         : "%(prefix)/lib%(libsuffix)"
     - libexecdir     : "%(libdir)/%(name)"
+
+    # The vendorID is encoded into the triplet, toolchain, builds, etc.
+    # It must match the triplet from bootstrap-scripts.
     - vendorID       : "serpent-linux"
+
+    # Must be set for CC/CXX/CPP to work
     - cc             : "%(compiler_c)"
     - cxx            : "%(compiler_cxx)"
     - cpp            : "%(compiler_cpp)"
 
+    # Provided for consistency in architectures
+    - distroCFLAGS   : "-pipe -D_FORTIFY_SOURCE=2 -Wall -Wno-error -Wp,-D_REENTRANT -fPIC"
+    - distroCXXFLAGS : "-pipe -D_FORTIFY_SOURCE=2 -Wall -Wno-error -Wp,-D_REENTRANT -fPIC"
+    - distroLDFLAGS  : "-Wl,-O2,-z,max-page-size=0x1000,--sort-common,--gc-sections"
+    # - distroFlags    : [base, omit-frame-pointer, harden, generic, no-common, asneeded]
+
 actions              :
 
     # scriptBase is merged to the top of all newly generated build scripts.
-    - scriptBase       : |
+    - scriptBase     : |
         #!/bin/sh
         set -e
         set -x
@@ -37,3 +49,114 @@ actions              :
         CC="%(cc)"; export CC
         CXX="%(cxx)"; export CXX
         CPP="%(cpp)"; export CPP
+
+flags               :
+
+    # Base flags, enabled by default
+    - base:
+        c         : "%(distroCFLAGS)"
+        cxx       : "%(distroCXXFLAGS)"
+        ld        : "%(distroLDFLAGS)"
+
+    - omit-frame-pointer:
+        c         : "-fomit-frame-pointer"
+        cxx       : "-fomit-frame-pointer"
+        conflicts :
+            - no-omit-frame-pointer
+
+    - no-omit-frame-pointer:
+        c         : "-fno-omit-frame-pointer"
+        cxx       : "-fno-omit-frame-poiner"
+        conflicts :
+            - omit-frame-pointer
+
+    # Toggle bindnow (ON)
+    - bindnow:
+        ld        : "-Wl,-z,relro,-z,now"
+
+    # Toggle symbolic (OFF)
+    - symbolic:
+        ld        : "-Wl,-Bsymbolic-functions"
+
+    # Hardening (ON)
+    - harden:
+        c         : "-fstack-protector-strong -fstack-clash-protection -fpie --param ssp-buffer-size=4"
+        cxx       : "-fstack-protector-strong -fstack-clash-protection -fpie --param ssp-buffer-size=4"
+
+    # Optimize for size (OFF)
+    - size:
+        llvm:
+            c     : "-Oz -ffunction-sections -fdata-sections"
+            cxx   : "-Oz -ffunction-sections -fdata-sections"
+        gnu:
+            c     : "-Os -ffunction-sections -fdata-sections"
+            cxx   : "-Os -ffunction-sections -fdata-sections"
+        conflicts:
+            - speed
+            - generic
+
+    # Optimize for speed (OFF)
+    - speed:
+        c         : "-O3"
+        cxx       : "-O3"
+        conflicts :
+            - size
+            - generic
+
+    # Generic optimisation case
+    - generic:
+        c         : "-O2"
+        cxx       : "-O2"
+        conflicts :
+            - speed
+            - size
+
+    # Enable LLVM ICF optimisations (OFF)
+    - icf:
+        llvm:
+            ld    : "-Wl,--icf-safe"
+
+    # Enable LLVM polly optimisations (OFF)
+    - polly:
+        llvm:
+            c     : "-mllvm -polly"
+            cxx   : "-mllvm -polly"
+
+    # Toggle -fcommon (OFF)
+    - common:
+        c         : "-fcommon"
+        cxx       : "-fcommon"
+        conflicts :
+            - no-common
+
+    # Toggle -fno-common (ON)
+    - no-common:
+        c         : "-fno-common"
+        cxx       : "-fno-common"
+        conflicts :
+            - common
+
+    # Toggle debug optimisations (ON)
+    - debug:
+        c         : "-g -feliminate-unused-debug-types -fasynchronous-unwind-tables"
+        cxx       : "-g -feliminate-unused-debug-types -fasynchronous-unwind-tables"
+
+    # Toggle fast math (OFF)
+    - math:
+        c         : "-fno-math-errno -fno-trapping-math"
+        cxx       : "-fno-math-errno -fno-trapping-math"
+
+    # Toggle noplt, requires bindnow (OFF)
+    - noplt:
+        c         : "-fno-plt"
+        cxx       : "-fno-plt"
+        depends   :
+            - bindnow
+
+    # Toggle asneeded (OFF)
+    - asneeded    :
+        ld: "-Wl,--as-needed"
+
+    # Toggle runpath (OFF)
+    - runpath:
+        ld        : "-Wl,--enable-new-dtags"

@@ -8,3 +8,12 @@ definitions:
     - cc             : "%(compiler_c) -m32"
     - cxx            : "%(compiler_cxx) -m32"
     - cpp            : "%(compiler_cpp) -m32"
+
+flags:
+
+    # Base flags, enabled by default
+    - base:
+        c         : "-march=i686 -mtune=generic -mtune=generic %(distroCFLAGS)"
+        cxx       : "-march=i686 -mtune=generic %(distroCXXFLAGS)"
+        ld        : "%(distroLDFLAGS)"
+        enabled   : true
