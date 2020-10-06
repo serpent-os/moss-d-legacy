@@ -25,6 +25,22 @@ module moss.build.stage;
 import moss.build.profile : BuildProfile;
 
 /**
+ * Valid stage types.
+ */
+enum StageType
+{
+    Setup = 1 << 0,
+    Build = 1 << 1,
+    Install = 1 << 2,
+    Check = 1 << 3,
+    Workload = 1 << 4,
+    ProfileGenerate = 1 << 5,
+    ProfileUse = 1 << 6,
+    ProfileStage1 = 1 << 7,
+    ProfileStage2 = 1 << 8,
+}
+
+/**
  * An ExecutionStage is a single step within the build process.
  * It contains the execution script required to run as well as the name,
  * working directory, etc.
@@ -39,11 +55,46 @@ public:
     /**
      * Construct a new ExecutionStage from the given parent profile
      */
-    this(BuildProfile* parent, string name)
+    this(BuildProfile* parent, StageType stageType)
     {
         _parent = parent;
-        _name = name;
         _script = null;
+        _type = stageType;
+
+        if ((stageType & StageType.Setup) == StageType.Setup)
+        {
+            _name = "setup";
+        }
+        else if ((stageType & StageType.Build) == StageType.Build)
+        {
+            _name = "build";
+        }
+        else if ((stageType & StageType.Install) == StageType.Install)
+        {
+            _name = "install";
+        }
+        else if ((stageType & StageType.Check) == StageType.Check)
+        {
+            _name = "check";
+        }
+        else if ((stageType & StageType.Workload) == StageType.Workload)
+        {
+            _name = "workload";
+        }
+
+        /* PGO generation */
+        if ((stageType & StageType.ProfileGenerate) == StageType.ProfileGenerate)
+        {
+            _name ~= "-pgo";
+            if ((stageType & StageType.ProfileStage1) == StageType.ProfileStage2)
+            {
+                _name ~= "-stage1";
+            }
+            else if ((stageType & StageType.ProfileStage2) == StageType.ProfileStage2)
+            {
+                _name ~= "-stage2";
+            }
+        }
     }
 
     /**
@@ -83,9 +134,18 @@ public:
         _script = _parent.script.process("%scriptBase\n" ~ sc.strip);
     }
 
+    /**
+     * Return type of stage
+     */
+    pure final @property StageType type() @safe @nogc nothrow
+    {
+        return _type;
+    }
+
 private:
 
     BuildProfile* _parent = null;
     string _name = null;
+    StageType _type = StageType.Build;
     string _script = null;
 }

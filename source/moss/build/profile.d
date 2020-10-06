@@ -30,22 +30,6 @@ import moss.build.stage;
 import std.path : buildPath;
 
 /**
- * Valid stage types.
- */
-enum StageType
-{
-    Setup = 1 << 0,
-    Build = 1 << 1,
-    Install = 1 << 2,
-    Check = 1 << 3,
-    Workload = 1 << 4,
-    ProfileGenerate = 1 << 5,
-    ProfileUse = 1 << 6,
-    ProfileStage1 = 1 << 7,
-    ProfileStage2 = 1 << 8,
-}
-
-/**
  * A build profile is generated for each major build profile in the
  * source configuration, i.e. x86_64, emul32, etc.
  *
@@ -247,27 +231,22 @@ private:
 
         if ((t & StageType.Setup) == StageType.Setup)
         {
-            name = "setup";
             script = buildDef.setup();
         }
         else if ((t & StageType.Build) == StageType.Build)
         {
-            name = "build";
             script = buildDef.build();
         }
         else if ((t & StageType.Install) == StageType.Install)
         {
-            name = "install";
             script = buildDef.install();
         }
         else if ((t & StageType.Check) == StageType.Check)
         {
-            name = "check";
             script = buildDef.check();
         }
         else if ((t & StageType.Workload) == StageType.Workload)
         {
-            name = "workload";
             script = buildDef.workload();
         }
 
@@ -277,21 +256,7 @@ private:
             return;
         }
 
-        /* PGO generation */
-        if ((t & StageType.ProfileGenerate) == StageType.ProfileGenerate)
-        {
-            name ~= "-pgo";
-            if ((t & StageType.ProfileStage1) == StageType.ProfileStage2)
-            {
-                name ~= "-stage1";
-            }
-            else if ((t & StageType.ProfileStage2) == StageType.ProfileStage2)
-            {
-                name ~= "-stage2";
-            }
-        }
-
-        auto stage = new ExecutionStage(&this, name);
+        auto stage = new ExecutionStage(&this, t);
         stage.script = script;
         stages ~= stage;
     }
