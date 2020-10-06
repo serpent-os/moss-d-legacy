@@ -35,4 +35,13 @@ struct BuildOptions
      * to the GNU toolchain, including GCC + binutils.
      */
     @YamlSchema("toolchain", false, YamlType.Single, ["gnu", "llvm"]) string toolchain = "llvm";
+
+    /**
+     * Context Sensitive Profile Guided Optimisation
+     *
+     * Turning this on will result in a multiple stage profiling build of the
+     * project and execution of the workload, in the hopes of a finer tuned
+     * profile data set
+     */
+    @YamlSchema("cspgo") bool csgpo = true;
 };

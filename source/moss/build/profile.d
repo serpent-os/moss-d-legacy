@@ -92,8 +92,9 @@ public:
         context.prepareScripts(sbuilder, architecture);
         StageType[] stages;
 
-        /* TODO: Take this from options */
-        bool multiStagePGO = false;
+        /* CSPGO is only available with LLVM toolchain */
+        bool multiStagePGO = (context.spec.options.toolchain == "llvm"
+                && context.spec.options.csgpo == true);
 
         if (hasPGOWorkload)
         {
