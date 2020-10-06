@@ -13,7 +13,7 @@ flags:
 
     # Base flags, enabled by default
     - base:
-        c         : "-march=i686 -mtune=generic -mtune=generic %(distroCFLAGS)"
+        c         : "-march=i686 -mtune=generic %(distroCFLAGS)"
         cxx       : "-march=i686 -mtune=generic %(distroCXXFLAGS)"
         ld        : "%(distroLDFLAGS)"
         enabled   : true

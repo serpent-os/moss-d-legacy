@@ -66,7 +66,7 @@ flags               :
 
     - no-omit-frame-pointer:
         c         : "-fno-omit-frame-pointer"
-        cxx       : "-fno-omit-frame-poiner"
+        cxx       : "-fno-omit-frame-pointer"
         conflicts :
             - omit-frame-pointer
 
@@ -114,7 +114,7 @@ flags               :
     # Enable LLVM ICF optimisations (OFF)
     - icf:
         llvm:
-            ld    : "-Wl,--icf-safe"
+            ld    : "-Wl,--icf=safe"
 
     # Enable LLVM polly optimisations (OFF)
     - polly:
@@ -154,8 +154,8 @@ flags               :
             - bindnow
 
     # Toggle asneeded (OFF)
-    - asneeded    :
-        ld: "-Wl,--as-needed"
+    - asneeded:
+        ld        : "-Wl,--as-needed"
 
     # Toggle runpath (OFF)
     - runpath:
