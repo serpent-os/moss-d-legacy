@@ -50,6 +50,62 @@ actions              :
         CXX="%(cxx)"; export CXX
         CPP="%(cpp)"; export CPP
 
+tuning              :
+    # A set of groups we can toggle from the "tune" key
+
+    # Toggle frae-pointer
+    - frame-pointer:
+        enabled: no-omit-frame-pointer
+        disabled: omit-frame-pointer
+
+    # Enable bindnow functionality
+    - bindnow:
+        enabled: bindnow
+
+    # Enable symbolic
+    - symbolic:
+        enabled: symbolic
+
+    # Enable hardening
+    - hardening:
+        enabled: hardening
+
+    # Enable optimisation per given levels
+    - optimize:
+        options:
+            - size:
+                enabled: size
+            - speed:
+                enabled: speed
+            - generic:
+                enabled: generic
+        default: generic
+
+    # Enable ICF
+    - icf:
+        enabled: icf
+
+    # Enable Polly
+    - polly:
+        enabled: polly
+
+    # Toggle common
+    - common:
+        enabled: common
+        disabled: no-common
+
+    # Enable math
+    - math:
+        enabled: math
+
+    # Enable noplt
+    - noplt:
+        enabled: noplt
+
+    # Enable asneeded
+    - asneeded:
+        enabled: asneeded
+
 flags               :
 
     # Base flags, enabled by default
