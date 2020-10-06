@@ -53,7 +53,7 @@ actions              :
 tuning              :
     # A set of groups we can toggle from the "tune" key
 
-    # Toggle frae-pointer
+    # Toggle frame-pointer
     - frame-pointer:
         enabled: no-omit-frame-pointer
         disabled: omit-frame-pointer
