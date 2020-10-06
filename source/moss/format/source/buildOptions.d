@@ -20,34 +20,19 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module moss.format.source.sourceDefinition;
+module moss.format.source.buildOptions;
 
 public import moss.format.source.schema;
-public import std.stdint : uint64_t;
 
 /**
- * Source definition details the root name, version, etc, and where
- * to get sources
+ * A set of Build Options set global build configurations, such as the
+ * toolchain to be used, what flags to use, etc.
  */
-struct SourceDefinition
+struct BuildOptions
 {
     /**
-     * The base name of the software package. This should follow both
-     * the upstream name and the packaging policies.
+     * The toolchain defaults to LLVM, but can be changed if required
+     * to the GNU toolchain, including GCC + binutils.
      */
-    @YamlSchema("name", true) string name;
-
-    /**
-     * A version identifier for this particular release of the software.
-     * This has no bearing on selections, and is only provided to allow
-     * humans to understand the version of software being included.
-     */
-    @YamlSchema("version", true) string versionIdentifier;
-
-    /**
-     * Releases help determine priority of updates for packages of the
-     * same origin. Bumping the release number will ensure an update
-     * is performed.
-     */
-    @YamlSchema("release", true) uint64_t release;
+    @YamlSchema("toolchain", false, YamlType.Single, ["gnu", "llvm"]) string toolchain = "llvm";
 };

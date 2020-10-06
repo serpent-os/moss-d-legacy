@@ -25,6 +25,7 @@ module moss.format.source.spec;
 public import std.stdint;
 public import std.stdio : File;
 public import moss.format.source.buildDefinition;
+public import moss.format.source.buildOptions;
 public import moss.format.source.packageDefinition;
 public import moss.format.source.schema;
 public import moss.format.source.sourceDefinition;
@@ -52,6 +53,11 @@ public:
      * Root context build steps
      */
     BuildDefinition rootBuild;
+
+    /**
+     * Build options
+     */
+    BuildOptions options;
 
     /**
      * Profile specific build steps
@@ -103,6 +109,7 @@ public:
         parseSection(root, source);
         parseSection(root, rootBuild);
         parseSection(root, rootPackage);
+        parseSection(root, options);
 
         parsePackages(root);
         parseBuilds(root);
