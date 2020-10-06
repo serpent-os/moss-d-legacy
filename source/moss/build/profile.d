@@ -54,6 +54,20 @@ public:
         sbuilder.addDefinition("installdir", installRoot);
         sbuilder.addDefinition("builddir", buildRoot);
 
+        /* Set the relevant compilers */
+        if (context.spec.options.toolchain == "llvm")
+        {
+            sbuilder.addDefinition("compiler_c", "clang");
+            sbuilder.addDefinition("compiler_cxx", "clang++");
+            sbuilder.addDefinition("compiler_cpp", "clang-cpp");
+        }
+        else
+        {
+            sbuilder.addDefinition("compiler_c", "gcc");
+            sbuilder.addDefinition("compiler_cxx", "g++");
+            sbuilder.addDefinition("compiler_cpp", "cpp");
+        }
+
         /* TODO: Fix to not suck */
         sbuilder.addDefinition("cflags", "");
         sbuilder.addDefinition("cxxflags", "");

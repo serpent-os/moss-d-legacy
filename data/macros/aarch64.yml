@@ -5,10 +5,6 @@ definitions:
     - libsuffix      : ""
     - build          : aarch64-%(vendorID)
     - host           : aarch64-%(vendorID)
-
-flags:
-
-    # Base set of flags
-    - base:
-        c: "-m64"
-        cxx: "-m64"
+    - cc             : "%(compiler_c) -m64"
+    - cxx            : "%(compiler_cxx) -m64"
+    - cpp            : "%(compiler_cpp) -m64"

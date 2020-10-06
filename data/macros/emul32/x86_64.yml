@@ -5,10 +5,6 @@ definitions:
     - libsuffix      : "32"
     - build          : i686-%(vendorID)
     - host           : x86_64-%(vendorID)
-
-flags:
-
-    # Base set of flags
-    - base:
-        c: "-m32"
-        cxx: "-m32"
+    - cc             : "%(compiler_c) -m32"
+    - cxx            : "%(compiler_cxx) -m32"
+    - cpp            : "%(compiler_cpp) -m32"

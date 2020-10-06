@@ -19,6 +19,9 @@ definitions:
     - libdir         : "%(prefix)/lib%(libsuffix)"
     - libexecdir     : "%(libdir)/%(name)"
     - vendorID       : "serpent-linux"
+    - cc             : "%(compiler_c)"
+    - cxx            : "%(compiler_cxx)"
+    - cpp            : "%(compiler_cpp)"
 
 actions              :
 
@@ -31,17 +34,6 @@ actions              :
         CFLAGS="%(cflags)"; export CFLAGS
         CXXFLAGS="%(cxxflags)"; export CXXFLAGS
         LDFLAGS="%(ldflags)"; export LDFLAGS
-
-# Each flag set can be overriden on a per architecture basis, but at minimum
-# the BASE flagset must be defined. As well as the normal language specific
-# flags, we can set "_gcc" for compatibility with GCC builds, i.e.:
-#
-#   c_gcc: "-some-gcc-flag"
-#   c: "-some-clang-flang"
-flags:
-
-    # Base set of flags
-    - base:
-        c: ""
-        cxx: ""
-        ld: ""
+        CC="%(cc)"; export CC
+        CXX="%(cxx)"; export CXX
+        CPP="%(cpp)"; export CPP
