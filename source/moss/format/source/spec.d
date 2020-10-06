@@ -191,6 +191,7 @@ private:
     final void parseBuilds(ref Node node)
     {
         import std.exception : enforce;
+        import std.string : startsWith;
 
         if (!node.containsKey("profiles"))
         {
@@ -211,6 +212,27 @@ private:
                 auto name = c.as!string;
                 parseSection(v, bd);
                 profileBuilds[name] = bd;
+            }
+        }
+
+        /* Find emul32 definition if it exists */
+        BuildDefinition* emul32 = null;
+        if ("emul32" in profileBuilds)
+        {
+            emul32 = &profileBuilds["emul32"];
+        }
+
+        /* Automatically parent profiles now */
+        foreach (const string k; profileBuilds.keys)
+        {
+            auto v = &profileBuilds[k];
+            if (k.startsWith("emul32/") && emul32 !is null)
+            {
+                v.parent = emul32;
+            }
+            else
+            {
+                v.parent = &rootBuild;
             }
         }
     }

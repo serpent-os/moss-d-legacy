@@ -62,4 +62,7 @@ struct BuildDefinition
      * by the package manager.
      */
     @YamlSchema("builddeps", false, YamlType.Array) string[] buildDependencies;
+
+    /** Parent definition to permit lookups */
+    BuildDefinition* parent = null;
 };
