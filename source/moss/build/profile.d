@@ -138,6 +138,26 @@ public:
 
 private:
 
+    /**
+     * Return true if a PGO workload is found for this architecture
+     */
+    final bool hasPGOWorkload() @safe
+    {
+        import std.string : startsWith;
+
+        BuildDefinition buildDef = context.spec.rootBuild;
+        if (architecture in context.spec.profileBuilds)
+        {
+            buildDef = context.spec.profileBuilds[architecture];
+        }
+        else if (architecture.startsWith("emul32/") && "emul32" in context.spec.profileBuilds)
+        {
+            buildDef = context.spec.profileBuilds["emul32"];
+        }
+
+        return buildDef.workload() != null;
+    }
+
     final void insertStage(string name)
     {
         import std.string : startsWith;

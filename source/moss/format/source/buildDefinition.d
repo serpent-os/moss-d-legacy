@@ -64,6 +64,11 @@ struct BuildDefinition
     @YamlSchema("check") string stepCheck = null;
 
     /**
+     * The workload is executed for Profile Guided Optimisation builds.
+     */
+    @YamlSchema("workload") string stepWorkload = null;
+
+    /**
      * Build dependencies
      *
      * We list build dependencies in a format suitable for consumption
@@ -140,6 +145,25 @@ struct BuildDefinition
             if (node.stepCheck != null && node.stepCheck != "(null)" && node.stepCheck != "")
             {
                 return node.stepCheck;
+            }
+            node = node.parent;
+        }
+        return null;
+    }
+
+    /**
+     * Return the relevant PGO workload step
+     */
+    final string workload() @safe
+    {
+        BuildDefinition* node = &this;
+
+        while (node !is null)
+        {
+            if (node.stepWorkload != null && node.stepWorkload != "(null)" && node.stepWorkload
+                    != "")
+            {
+                return node.stepWorkload;
             }
             node = node.parent;
         }
