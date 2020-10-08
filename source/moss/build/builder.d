@@ -124,8 +124,24 @@ private:
         import moss.download;
 
         auto manager = new DownloadManager();
-        manager.addCache(new DownloadStore(StoreType.System));
-        manager.addCache(new DownloadStore(StoreType.User));
+        manager.add(new DownloadStore(StoreType.System));
+        manager.add(new DownloadStore(StoreType.User));
+
+        /* Foreach available download, add to the download queue */
+        foreach (s; _specFile.upstreams)
+        {
+            Download d;
+            final switch (s.type)
+            {
+            case UpstreamType.Plain:
+                d.uri = s.uri;
+                d.expectedHash = s.plain.hash;
+                break;
+            case UpstreamType.Git:
+                assert(0, "GIT IS UNSUPPORTED");
+            }
+            manager.add(d);
+        }
 
         writeln("Preparing sources");
     }

@@ -25,6 +25,19 @@ module moss.download.manager;
 public import moss.download.cache;
 
 /**
+ * A Download is an as-yet-unimplemented type that will
+ * be used for download tracking
+ */
+final struct Download
+{
+    /** Where to find the file */
+    string uri;
+
+    /* Expected hash when downloaded */
+    string expectedHash;
+}
+
+/**
  * A DownloadManager is responsible for downloading files from the network
  * to disk, and storing them in a DownloadStore. Once verified, files are
  * permitted for use.
@@ -43,17 +56,26 @@ public:
      *
      * System caches are always checked first
      */
-    final void addCache(DownloadStore c)
+    final void add(DownloadStore c) @safe
     {
         import std.algorithm.sorting;
 
-        caches ~= c;
+        stores ~= c;
 
         /* Sort: System first */
-        sort!((a, b) => a.type > b.type)(caches);
+        sort!((a, b) => a.type > b.type)(stores);
+    }
+
+    /**
+     * Add a download to the queue
+     */
+    final void add(ref Download d) @safe
+    {
+        toDownload ~= d;
     }
 
 private:
 
-    DownloadStore[] caches;
+    DownloadStore[] stores;
+    Download[] toDownload;
 }
