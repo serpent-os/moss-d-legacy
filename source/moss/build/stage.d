@@ -29,14 +29,31 @@ import moss.build.profile : BuildProfile;
  */
 enum StageType
 {
+    /** The initial setup (configure) state */
     Setup = 1 << 0,
+
+    /** Perform all real building */
     Build = 1 << 1,
+
+    /** Install contents to collection tree */
     Install = 1 << 2,
+
+    /** Check consistency of the software */
     Check = 1 << 3,
+
+    /** Profile Guided Optimisation generation step */
     Workload = 1 << 4,
+
+    /** We need PGO genflags */
     ProfileGenerate = 1 << 5,
+
+    /** We need to use PGO data */
     ProfileUse = 1 << 6,
+
+    /** Stage1/LLVM PGO generation */
     ProfileStage1 = 1 << 7,
+
+    /** Stage2/LLVM PGO regeneration */
     ProfileStage2 = 1 << 8,
 }
 
