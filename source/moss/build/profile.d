@@ -86,6 +86,7 @@ public:
         bool multiStagePGO = (context.spec.options.toolchain == "llvm"
                 && context.spec.options.csgpo == true);
 
+        /* PGO specific staging */
         if (hasPGOWorkload)
         {
             StageType generationFlags = StageType.ProfileGenerate;
@@ -128,6 +129,7 @@ public:
             ];
         }
 
+        /* Lights, cameras, action */
         foreach (s; stages)
         {
             insertStage(s);
@@ -210,6 +212,13 @@ private:
         return buildDef.workload() != null;
     }
 
+    /**
+     * Insert a stage for processing + execution
+     *
+     * We'll only insert stages if we find a relevant build description for it,
+     * and doing so will result in parent traversal of profiles (i.e. root namespace
+     * and emul32 namespace)
+     */
     final void insertStage(StageType t)
     {
         import std.string : startsWith;
@@ -218,8 +227,10 @@ private:
 
         string script = null;
 
+        /* Default to root namespace */
         BuildDefinition buildDef = context.spec.rootBuild;
 
+        /* Find specific definition for stage, or an appropriate parent */
         if (architecture in context.spec.profileBuilds)
         {
             buildDef = context.spec.profileBuilds[architecture];
@@ -229,6 +240,7 @@ private:
             buildDef = context.spec.profileBuilds["emul32"];
         }
 
+        /* Check core type of stage */
         if ((t & StageType.Setup) == StageType.Setup)
         {
             script = buildDef.setup();
