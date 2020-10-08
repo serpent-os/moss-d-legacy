@@ -74,6 +74,21 @@ public:
         toDownload ~= d;
     }
 
+    /**
+     * Return true if we have the file in our caches
+     */
+    final bool contains(const(string) hash) @safe nothrow
+    {
+        foreach (ref st; stores)
+        {
+            if (st.contains(hash))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
 private:
 
     DownloadStore[] stores;

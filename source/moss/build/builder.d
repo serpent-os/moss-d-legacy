@@ -136,6 +136,12 @@ private:
             case UpstreamType.Plain:
                 d.uri = s.uri;
                 d.expectedHash = s.plain.hash;
+
+                /* Don't download if we already have it */
+                if (manager.contains(d.expectedHash))
+                {
+                    continue;
+                }
                 break;
             case UpstreamType.Git:
                 assert(0, "GIT IS UNSUPPORTED");

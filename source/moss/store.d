@@ -84,6 +84,34 @@ public:
         return _directory;
     }
 
+    /**
+     * Return true if we contain the given name in our cache
+     */
+    final bool contains(const(string) name) @safe nothrow
+    {
+        import std.file : exists;
+
+        try
+        {
+            return fullPath(name).exists;
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+    }
+
+    /**
+     * May be overridden by specific implementations to give a more
+     * specific string splitting function.
+     */
+    string fullPath(const(string) name) @safe
+    {
+        import std.path : buildPath;
+
+        return _directory.buildPath(name);
+    }
+
 package:
 
     @disable this();

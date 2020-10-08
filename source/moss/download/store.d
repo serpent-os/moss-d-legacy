@@ -37,4 +37,18 @@ final class DownloadStore : DiskStore
     {
         super(type, "downloads", "v1");
     }
+
+    /**
+     * Specialised handler for full paths
+     */
+    final override string fullPath(const(string) name)
+    {
+        import std.path : buildPath;
+
+        if (name.length > 10)
+        {
+            return directory.buildPath(name[0 .. 5], name[$ - 5 .. $], name);
+        }
+        return super.fullPath(name);
+    }
 }
