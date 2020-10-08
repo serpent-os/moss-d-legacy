@@ -21,3 +21,39 @@
  */
 
 module moss.download.manager;
+
+public import moss.download.cache;
+
+/**
+ * A DownloadManager is responsible for downloading files from the network
+ * to disk, and storing them in a DownloadCache. Once verified, files are
+ * permitted for use.
+ *
+ * Additionally a DownloadManager may make use of multiple caches in order
+ * to permit cache sharing, i.e. bind-mounted host downloads into a guest
+ * instance of moss.
+ */
+final class DownloadManager
+{
+
+public:
+
+    /**
+     * Add a cache to our list of known caches
+     *
+     * System caches are always checked first
+     */
+    final void addCache(DownloadCache c)
+    {
+        import std.algorithm.sorting;
+
+        caches ~= c;
+
+        /* Sort: System first */
+        sort!((a, b) => a.type > b.type)(caches);
+    }
+
+private:
+
+    DownloadCache[] caches;
+}

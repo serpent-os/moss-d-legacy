@@ -21,3 +21,20 @@
  */
 
 module moss.download.cache;
+
+public import moss.cache;
+
+/**
+ * The DownloadCache is a specialist implementation of the DiskCache
+ * used for downloading + fetching files.
+ */
+final class DownloadCache : DiskCache
+{
+
+    @disable this();
+
+    this(CacheType type)
+    {
+        super(type, "downloads", "v1");
+    }
+}

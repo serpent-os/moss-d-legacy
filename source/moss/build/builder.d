@@ -118,9 +118,14 @@ private:
     /**
      * Prepare and fetch any required sources
      */
-    final void prepareSources() @safe
+    final void prepareSources() @system
     {
         import std.stdio;
+        import moss.download;
+
+        auto manager = new DownloadManager();
+        manager.addCache(new DownloadCache(CacheType.System));
+        manager.addCache(new DownloadCache(CacheType.User));
 
         writeln("Preparing sources");
     }
