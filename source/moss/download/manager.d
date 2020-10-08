@@ -26,7 +26,7 @@ public import moss.download.cache;
 
 /**
  * A DownloadManager is responsible for downloading files from the network
- * to disk, and storing them in a DownloadCache. Once verified, files are
+ * to disk, and storing them in a DownloadStore. Once verified, files are
  * permitted for use.
  *
  * Additionally a DownloadManager may make use of multiple caches in order
@@ -43,7 +43,7 @@ public:
      *
      * System caches are always checked first
      */
-    final void addCache(DownloadCache c)
+    final void addCache(DownloadStore c)
     {
         import std.algorithm.sorting;
 
@@ -55,5 +55,5 @@ public:
 
 private:
 
-    DownloadCache[] caches;
+    DownloadStore[] caches;
 }

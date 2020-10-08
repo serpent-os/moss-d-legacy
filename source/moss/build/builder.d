@@ -124,8 +124,8 @@ private:
         import moss.download;
 
         auto manager = new DownloadManager();
-        manager.addCache(new DownloadCache(CacheType.System));
-        manager.addCache(new DownloadCache(CacheType.User));
+        manager.addCache(new DownloadStore(StoreType.System));
+        manager.addCache(new DownloadStore(StoreType.User));
 
         writeln("Preparing sources");
     }

@@ -25,15 +25,15 @@ module moss.download.cache;
 public import moss.cache;
 
 /**
- * The DownloadCache is a specialist implementation of the DiskCache
+ * The DownloadStore is a specialist implementation of the DiskStore
  * used for downloading + fetching files.
  */
-final class DownloadCache : DiskCache
+final class DownloadStore : DiskStore
 {
 
     @disable this();
 
-    this(CacheType type)
+    this(StoreType type)
     {
         super(type, "downloads", "v1");
     }

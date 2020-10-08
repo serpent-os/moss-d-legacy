@@ -25,7 +25,7 @@ module moss.cache;
 /**
  * Type of cache being employed, affects writability
  */
-final enum CacheType
+final enum StoreType
 {
     /* User specific cache */
     User = 0,
@@ -35,11 +35,11 @@ final enum CacheType
 }
 
 /**
- * The DiskCache is the most basic storage cache within Moss. It is initialised
+ * The DiskStore is the most basic storage cache within Moss. It is initialised
  * as either a system or user cache, and has a fixed root directory from which
  * to work.
  */
-abstract class DiskCache
+abstract class DiskStore
 {
 
 public:
@@ -47,7 +47,7 @@ public:
     /**
      * Return the cache type
      */
-    pure final @property CacheType type() @safe @nogc nothrow
+    pure final @property StoreType type() @safe @nogc nothrow
     {
         return _type;
     }
@@ -89,9 +89,9 @@ package:
     @disable this();
 
     /**
-     * Construct a new DiskCache with the given identifier
+     * Construct a new DiskStore with the given identifier
      */
-    this(CacheType type, string id, string versionID)
+    this(StoreType type, string id, string versionID)
     {
         import std.path : buildPath, expandTilde;
         import std.file : mkdirRecurse;
@@ -104,10 +104,10 @@ package:
         auto userHome = expandTilde("~");
         final switch (type)
         {
-        case CacheType.System:
+        case StoreType.System:
             _directory = buildPath("/os", "store", identifier, versionIdentifier);
             break;
-        case CacheType.User:
+        case StoreType.User:
             _directory = userHome.buildPath("moss", "store",
                     identifier, versionIdentifier);
             break;
@@ -135,7 +135,7 @@ package:
     /**
      * Set the cache type
      */
-    pure final @property void type(CacheType t) @safe @nogc nothrow
+    pure final @property void type(StoreType t) @safe @nogc nothrow
     {
         _type = type;
     }
@@ -177,6 +177,6 @@ private:
     string _identifier;
     string _versionIdentifier;
     bool _writable = false;
-    CacheType _type = CacheType.User;
+    StoreType _type = StoreType.User;
     string _directory = null;
 }
