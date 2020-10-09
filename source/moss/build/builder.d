@@ -105,12 +105,18 @@ private:
     /**
      * Prepare our root filesystem for building on
      */
-    final void prepareRoot() @safe
+    final void prepareRoot() @system
     {
         import std.stdio;
         import std.file;
 
         writeln("Preparing root tree");
+
+        if (context.rootDir.exists)
+        {
+            writeln("Removing old build tree");
+            context.rootDir.rmdirRecurse();
+        }
 
         mkdirRecurse(context.rootDir);
     }
