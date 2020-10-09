@@ -51,6 +51,10 @@ public:
         this._buildRoot = context.rootDir.buildPath("build", architecture);
         this._installRoot = context.rootDir.buildPath("install");
 
+        /* PGO handling */
+        pgoStage1Dir = buildRoot ~ "-pgo1";
+        pgoStage2Dir = buildRoot ~ "-pgo2";
+
         StageType[] stages;
 
         /* CSPGO is only available with LLVM toolchain */
@@ -216,6 +220,21 @@ public:
 
             auto scripted = builder.process(e.script).replace("%%", "%");
 
+            /* Ensure PGO dirs are present if needed */
+            if ((e.type & StageType.ProfileGenerate) == StageType.ProfileGenerate)
+            {
+                import std.file : mkdirRecurse;
+
+                if ((e.type & StageType.ProfileStage2) == StageType.ProfileStage2)
+                {
+                    pgoStage2Dir.mkdirRecurse();
+                }
+                else
+                {
+                    pgoStage1Dir.mkdirRecurse();
+                }
+            }
+
             runStage(e, workdir, scripted);
 
             /* Did we prepare the fs for building? */
@@ -231,9 +250,6 @@ public:
      */
     final void prepareScripts(ref ScriptBuilder sbuilder, string workdir)
     {
-        auto pgoStage1Dir = buildRoot ~ "-pgo1";
-        auto pgoStage2Dir = buildRoot ~ "-pgo2";
-
         sbuilder.addDefinition("installdir", installRoot);
         sbuilder.addDefinition("builddir", buildRoot);
         sbuilder.addDefinition("workdir", workdir);
@@ -439,4 +455,6 @@ private:
     ExecutionStage*[] stages;
     string _buildRoot;
     string _installRoot;
+    string pgoStage1Dir;
+    string pgoStage2Dir;
 }
