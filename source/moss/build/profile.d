@@ -154,6 +154,7 @@ public:
         import core.stdc.string;
         import core.sys.posix.unistd;
         import std.file;
+        import std.exception : enforce;
 
         auto tmpname = "/tmp/moss-stage-%s-XXXXXX".format(stage.name);
         auto copy = new char[tmpname.length + 1];
@@ -185,7 +186,8 @@ public:
         auto args = ["/bin/sh", cast(string) copy[0 .. copy.length - 1]];
 
         auto id = spawnProcess(args, stdin, stdout, stderr, prenv, config, workDir);
-        wait(id);
+        auto status = wait(id);
+        enforce(status == 0, "Stage '%s' exited with code '%d'".format(stage.name, status));
     }
 
     /**
