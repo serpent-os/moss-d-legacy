@@ -286,9 +286,56 @@ private:
      * The sole purpose of this internal script is to make the sources
      * available to the current build in their extracted/exploded form
      */
-    final string genPrepareScript() @safe
+    final string genPrepareScript() @system
     {
-        return null;
+        import std.string : endsWith;
+        import std.path : baseName;
+
+        string ret = "";
+
+        /* Push commands to extract a zip */
+        void extractZip(ref UpstreamDefinition u)
+        {
+            ret ~= "unzip -d . \"%(sources)/" ~ u.plain.rename
+                ~ "\" || (echo \"Failed to extract archive\"; exit 1);";
+        }
+
+        /* Push commands to extract a tar */
+        void extractTar(ref UpstreamDefinition u)
+        {
+            ret ~= "tar xf \"%(sources)/" ~ u.plain.rename
+                ~ "\" -C . || (echo \"Failed to extract archive\"; exit 1);";
+        }
+
+        foreach (source; context.spec.upstreams)
+        {
+            final switch (source.type)
+            {
+            case UpstreamType.Plain:
+                if (!source.plain.unpack)
+                {
+                    continue;
+                }
+                /* Ensure a target name */
+                if (source.plain.rename is null)
+                {
+                    source.plain.rename = source.uri.baseName;
+                }
+                if (source.plain.rename.endsWith(".zip"))
+                {
+                    extractZip(source);
+                }
+                else
+                {
+                    extractTar(source);
+                }
+                break;
+            case UpstreamType.Git:
+                assert(0, "GIT SOURCE NOT YET SUPPORTED");
+            }
+        }
+
+        return ret == "" ? null : ret;
     }
 
     BuildContext* _context;
