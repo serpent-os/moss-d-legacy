@@ -163,7 +163,6 @@ public:
 
         File fi;
         fi.fdopen(fd, "w");
-        writeln(fd);
 
         scope (exit)
         {
