@@ -71,6 +71,9 @@ public:
      */
     final void add(ref Download d) @safe
     {
+        import std.string : toLower;
+
+        d.expectedHash.toLower();
         toDownload ~= d;
     }
 
@@ -111,13 +114,27 @@ public:
         /* Ugly download code */
         foreach (ref d; toDownload)
         {
+            import std.net.curl;
+            import std.string : format;
+
+            /* Download the staging file */
             auto fullPath = writeStore.stagingPath(d.expectedHash);
             auto downloadDir = fullPath.dirName;
             downloadDir.mkdirRecurse();
-            import std.net.curl;
-
             writeln(fullPath);
             download(d.uri, fullPath);
+
+            /* Verify the hash */
+            auto hash = checkHash(fullPath);
+            if (hash != d.expectedHash)
+            {
+                import std.file;
+
+                remove(fullPath);
+                writeln(hash, " vs ", d.expectedHash);
+            }
+            assert(hash == d.expectedHash,
+                    "DownloadManager.fetch(): Corrupt download %s".format(d.uri));
 
             /* IF VERIFIED.. */
             writeStore.promote(d.expectedHash);
@@ -125,6 +142,25 @@ public:
     }
 
 private:
+
+    /**
+     * Ugly utility to check a hash, we should build this while downloading
+     * the file.
+     */
+    final string checkHash(const(string) path)
+    {
+        import std.stdio;
+        import std.digest.sha;
+        import std.string : toLower;
+
+        auto sha = new SHA256Digest();
+        auto input = File(path, "rb");
+        foreach (ubyte[] buffer; input.byChunk(16 * 1024 * 1024))
+        {
+            sha.put(buffer);
+        }
+        return toHexString(sha.finish()).toLower();
+    }
 
     DownloadStore[] stores;
     Download[] toDownload;
