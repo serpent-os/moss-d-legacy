@@ -188,13 +188,9 @@ package:
         }
 
         /* Check if the directory exists + is writable */
-        import core.sys.posix.unistd;
-        import std.string : toStringz;
+        import moss.util : checkWritable;
 
-        if (access(_directory.toStringz(), W_OK) == 0)
-        {
-            writable = true;
-        }
+        writable = checkWritable(_directory);
     }
 
     /**

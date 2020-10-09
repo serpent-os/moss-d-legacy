@@ -59,3 +59,11 @@ pragma(inline, true) void hardLinkOrCopy(const(string) sourcePath, const(string)
 
     copy(sourcePath, destPath);
 }
+
+/**
+ * Returns true if the path exists and is writable
+ */
+pragma(inline, true) bool checkWritable(const(string) path) @trusted
+{
+    return access(path.toStringz, W_OK) == 0;
+}
