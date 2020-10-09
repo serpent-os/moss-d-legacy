@@ -142,10 +142,7 @@ public:
      */
     pure final @property string script() @safe nothrow
     {
-        /* For visual reasons, now return without escaping */
-        import std.array;
-
-        return _script.replace("%%", "%");
+        return _script;
     }
 
     /**
@@ -155,7 +152,7 @@ public:
     {
         import std.string : strip;
 
-        _script = _parent.script.process("%scriptBase\n" ~ sc.strip);
+        _script = "%scriptBase\n" ~ sc.strip;
     }
 
     /**

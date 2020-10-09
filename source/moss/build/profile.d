@@ -51,35 +51,6 @@ public:
         this._buildRoot = context.rootDir.buildPath("build", architecture);
         this._installRoot = context.rootDir.buildPath("install");
 
-        auto pgoStage1Dir = buildRoot ~ "-pgo1";
-        auto pgoStage2Dir = buildRoot ~ "-pgo2";
-
-        sbuilder.addDefinition("installdir", installRoot);
-        sbuilder.addDefinition("builddir", buildRoot);
-
-        /* Set the relevant compilers */
-        if (context.spec.options.toolchain == "llvm")
-        {
-            sbuilder.addDefinition("compiler_c", "clang");
-            sbuilder.addDefinition("compiler_cxx", "clang++");
-            sbuilder.addDefinition("compiler_cpp", "clang-cpp");
-        }
-        else
-        {
-            sbuilder.addDefinition("compiler_c", "gcc");
-            sbuilder.addDefinition("compiler_cxx", "g++");
-            sbuilder.addDefinition("compiler_cpp", "cpp");
-        }
-
-        sbuilder.addDefinition("pgo_stage1_dir", pgoStage1Dir);
-        sbuilder.addDefinition("pgo_stage2_dir", pgoStage2Dir);
-
-        /* TODO: Fix to not suck */
-        sbuilder.addDefinition("cflags", "");
-        sbuilder.addDefinition("cxxflags", "");
-        sbuilder.addDefinition("ldflags", "");
-
-        context.prepareScripts(sbuilder, architecture);
         StageType[] stages;
 
         /* CSPGO is only available with LLVM toolchain */
@@ -173,14 +144,6 @@ public:
     }
 
     /**
-     * Return our ScriptBuilder
-     */
-    pure final @property ref ScriptBuilder script() @safe @nogc nothrow
-    {
-        return sbuilder;
-    }
-
-    /**
      * Request for this profile to now build
      */
     final void build()
@@ -188,9 +151,49 @@ public:
         foreach (ref e; stages)
         {
             import std.stdio;
+            import std.array;
 
-            writefln("Generating script: %s\n%s\n", e.name, e.script);
+            auto builder = ScriptBuilder();
+            prepareScripts(builder);
+            auto scripted = builder.process(e.script).replace("%%", "%");
+            writefln("Generating script: %s\n%s\n", e.name, scripted);
         }
+    }
+
+    /**
+     * Prepare a script builder for use
+     */
+    final void prepareScripts(ref ScriptBuilder sbuilder)
+    {
+        auto pgoStage1Dir = buildRoot ~ "-pgo1";
+        auto pgoStage2Dir = buildRoot ~ "-pgo2";
+
+        sbuilder.addDefinition("installdir", installRoot);
+        sbuilder.addDefinition("builddir", buildRoot);
+
+        /* Set the relevant compilers */
+        if (context.spec.options.toolchain == "llvm")
+        {
+            sbuilder.addDefinition("compiler_c", "clang");
+            sbuilder.addDefinition("compiler_cxx", "clang++");
+            sbuilder.addDefinition("compiler_cpp", "clang-cpp");
+        }
+        else
+        {
+            sbuilder.addDefinition("compiler_c", "gcc");
+            sbuilder.addDefinition("compiler_cxx", "g++");
+            sbuilder.addDefinition("compiler_cpp", "cpp");
+        }
+
+        sbuilder.addDefinition("pgo_stage1_dir", pgoStage1Dir);
+        sbuilder.addDefinition("pgo_stage2_dir", pgoStage2Dir);
+
+        /* TODO: Fix to not suck */
+        sbuilder.addDefinition("cflags", "");
+        sbuilder.addDefinition("cxxflags", "");
+        sbuilder.addDefinition("ldflags", "");
+
+        context.prepareScripts(sbuilder, architecture);
     }
 
 private:
@@ -343,5 +346,4 @@ private:
     ExecutionStage*[] stages;
     string _buildRoot;
     string _installRoot;
-    ScriptBuilder sbuilder;
 }
