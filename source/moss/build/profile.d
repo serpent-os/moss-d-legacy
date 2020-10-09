@@ -97,6 +97,7 @@ public:
 
             /* Always construct a stage1 */
             stages = [
+                StageType.Prepare | generationFlags,
                 StageType.Setup | generationFlags,
                 StageType.Build | generationFlags,
                 StageType.Workload | generationFlags,
@@ -106,6 +107,7 @@ public:
             if (multiStagePGO)
             {
                 stages ~= [
+                    StageType.Prepare | StageType.ProfileGenerate | StageType.ProfileStage2,
                     StageType.Setup | StageType.ProfileGenerate | StageType.ProfileStage2,
                     StageType.Build | StageType.ProfileGenerate | StageType.ProfileStage2,
                     StageType.Workload | StageType.ProfileGenerate | StageType.ProfileStage2,
@@ -114,6 +116,7 @@ public:
 
             /* Always add the use/final stage */
             stages ~= [
+                StageType.Prepare | StageType.ProfileUse,
                 StageType.Setup | StageType.ProfileUse,
                 StageType.Build | StageType.ProfileUse,
                 StageType.Install | StageType.ProfileUse,
@@ -124,8 +127,8 @@ public:
         {
             /* No PGO, just execute stages */
             stages = [
-                StageType.Setup, StageType.Build, StageType.Install,
-                StageType.Check,
+                StageType.Prepare, StageType.Setup, StageType.Build,
+                StageType.Install, StageType.Check,
             ];
         }
 
@@ -261,6 +264,10 @@ private:
         {
             script = buildDef.workload();
         }
+        else if ((t & StageType.Prepare) == StageType.Prepare)
+        {
+            script = genPrepareScript();
+        }
 
         /* Need valid script to continue */
         if (script is null)
@@ -271,6 +278,17 @@ private:
         auto stage = new ExecutionStage(&this, t);
         stage.script = script;
         stages ~= stage;
+    }
+
+    /**
+     * Generate preparation script
+     *
+     * The sole purpose of this internal script is to make the sources
+     * available to the current build in their extracted/exploded form
+     */
+    final string genPrepareScript() @safe
+    {
+        return null;
     }
 
     BuildContext* _context;

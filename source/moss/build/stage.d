@@ -29,32 +29,35 @@ import moss.build.profile : BuildProfile;
  */
 enum StageType
 {
+    /** Special internal preparation step */
+    Prepare = 1 << 0,
+
     /** The initial setup (configure) state */
-    Setup = 1 << 0,
+    Setup = 1 << 1,
 
     /** Perform all real building */
-    Build = 1 << 1,
+    Build = 1 << 2,
 
     /** Install contents to collection tree */
-    Install = 1 << 2,
+    Install = 1 << 3,
 
     /** Check consistency of the software */
-    Check = 1 << 3,
+    Check = 1 << 4,
 
     /** Profile Guided Optimisation generation step */
-    Workload = 1 << 4,
+    Workload = 1 << 5,
 
     /** We need PGO genflags */
-    ProfileGenerate = 1 << 5,
+    ProfileGenerate = 1 << 6,
 
     /** We need to use PGO data */
-    ProfileUse = 1 << 6,
+    ProfileUse = 1 << 7,
 
     /** Stage1/LLVM PGO generation */
-    ProfileStage1 = 1 << 7,
+    ProfileStage1 = 1 << 8,
 
     /** Stage2/LLVM PGO regeneration */
-    ProfileStage2 = 1 << 8,
+    ProfileStage2 = 1 << 9,
 }
 
 /**
@@ -97,6 +100,10 @@ public:
         else if ((stageType & StageType.Workload) == StageType.Workload)
         {
             _name = "workload";
+        }
+        else if ((stageType & StageType.Prepare) == StageType.Prepare)
+        {
+            _name = "prepare";
         }
 
         /* PGO generation */
