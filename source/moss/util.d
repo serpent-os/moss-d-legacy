@@ -20,35 +20,42 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module moss.download.store;
+module moss.util;
 
-public import moss.store;
+import core.sys.posix.unistd;
+import core.stdc.string;
+import core.stdc.errno;
+import std.exception : enforce;
+import std.string : format, toStringz;
 
 /**
- * The DownloadStore is a specialist implementation of the DiskStore
- * used for downloading + fetching files.
+ * Attempt construction of a hardlink.
  */
-final class DownloadStore : DiskStore
+pragma(inline, true) void hardLink(const(string) sourcePath, const(string) destPath) @trusted
 {
+    auto sourceZ = sourcePath.toStringz;
+    auto targetZ = destPath.toStringz;
 
-    @disable this();
+    auto ret = link(sourceZ, targetZ);
+    enforce(ret == 0, "hardLink(): Failed to link %s to %s: %s".format(sourcePath,
+            destPath, strerror(errno)));
+}
 
-    this(StoreType type)
+/**
+ * Attempt hardlink, if it fails, fallback to a copy
+ */
+pragma(inline, true) void hardLinkOrCopy(const(string) sourcePath, const(string) destPath) @trusted
+{
+    try
     {
-        super(type, "downloads", "v1");
+        hardLink(sourcePath, destPath);
+        return;
+    }
+    catch (Exception ex)
+    {
     }
 
-    /**
-     * Specialised handler for full paths
-     */
-    final override string fullPath(const(string) name)
-    {
-        import std.path : buildPath;
+    import std.file : copy;
 
-        if (name.length > 10)
-        {
-            return directory.buildPath(name[0 .. 5], name[$ - 5 .. $], name);
-        }
-        return super.fullPath(name);
-    }
+    copy(sourcePath, destPath);
 }

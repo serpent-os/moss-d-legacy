@@ -24,6 +24,10 @@ module moss;
 
 import core.stdc.stdlib : EXIT_FAILURE, EXIT_SUCCESS;
 
+public import moss.util;
+public import moss.platform;
+public import moss.store;
+
 /** Current Moss Version */
 const Version = "0.0.1";
 

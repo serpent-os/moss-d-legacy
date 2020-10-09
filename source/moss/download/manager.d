@@ -22,7 +22,7 @@
 
 module moss.download.manager;
 
-public import moss.download.cache;
+public import moss.download.store;
 
 /**
  * A Download is an as-yet-unimplemented type that will

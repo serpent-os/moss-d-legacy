@@ -22,5 +22,5 @@
 
 module moss.download;
 
-public import moss.download.cache;
 public import moss.download.manager;
+public import moss.download.store;

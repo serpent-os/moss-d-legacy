@@ -20,7 +20,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module moss.cache;
+module moss.store;
 
 /**
  * Type of cache being employed, affects writability
@@ -123,25 +123,9 @@ public:
      */
     final void share(const(string) id, const(string) target) @system
     {
-        import std.string : toStringz;
+        import moss.util : hardLink;
 
-        auto name = fullPath(id);
-
-        auto namez = name.toStringz;
-        auto targetz = target.toStringz;
-
-        /* Attempt hardlink */
-        import core.sys.posix.unistd;
-
-        if (link(namez, targetz) == 0)
-        {
-            return;
-        }
-
-        /* Fallback to manual copy */
-        import std.file;
-
-        copy(name, target);
+        hardLink(fullPath(id), target);
     }
 
     /**
