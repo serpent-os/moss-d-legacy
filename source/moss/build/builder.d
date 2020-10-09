@@ -149,6 +149,7 @@ private:
             manager.add(d);
         }
 
+        manager.fetch();
         writeln("Preparing sources");
     }
 

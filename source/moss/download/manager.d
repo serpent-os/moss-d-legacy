@@ -89,6 +89,24 @@ public:
         return false;
     }
 
+    /**
+     * Fetch all files in the queue, verifying + staging as we go
+     */
+    final void fetch() @safe
+    {
+        import std.algorithm;
+        import std.array;
+        import std.exception : enforce;
+
+        auto writable = stores.filter!((a) => a.writable).array;
+        enforce(writable.length >= 1, "DownloadManager.fetch(): No writable stores found");
+        auto writeStore = writable[0];
+
+        import std.stdio;
+
+        writefln("Using cache: %s", writeStore.directory);
+    }
+
 private:
 
     DownloadStore[] stores;
