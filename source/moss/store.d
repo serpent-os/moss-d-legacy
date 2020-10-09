@@ -119,6 +119,32 @@ public:
     }
 
     /**
+     * Share our resource with another consumer, via a link if possible
+     */
+    final void share(const(string) id, const(string) target) @system
+    {
+        import std.string : toStringz;
+
+        auto name = fullPath(id);
+
+        auto namez = name.toStringz;
+        auto targetz = target.toStringz;
+
+        /* Attempt hardlink */
+        import core.sys.posix.unistd;
+
+        if (link(namez, targetz) == 0)
+        {
+            return;
+        }
+
+        /* Fallback to manual copy */
+        import std.file;
+
+        copy(name, target);
+    }
+
+    /**
      * May be overridden by specific implementations to give a more
      * specific string splitting function.
      */

@@ -141,6 +141,31 @@ public:
         }
     }
 
+    /**
+     * Find responsible download store, share contents to target location
+     */
+    final void share(const(string) hash, const(string) target) @system
+    {
+        import std.algorithm;
+        import std.array;
+        import std.exception : enforce;
+        import std.file : mkdirRecurse;
+        import std.string : format;
+        import std.path : dirName;
+
+        /* Ensure storage destination exists */
+        auto dirn = dirName(target);
+        dirn.mkdirRecurse();
+
+        /* find home */
+        auto storageHomes = stores.filter!((a) => a.contains(hash)).array;
+        enforce(storageHomes.length >= 1,
+                "DownloadManager.share(): No store found for %s".format(hash));
+        auto storageHome = storageHomes[0];
+
+        storageHome.share(hash, target);
+    }
+
 private:
 
     /**

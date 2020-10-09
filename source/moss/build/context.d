@@ -44,6 +44,7 @@ struct BuildContext
         this._spec = spec;
         this._rootDir = rootDir.buildPath("%s-%s".format(spec.source.name,
                 to!string(spec.source.release)));
+        this._sourceDir = rootDir.buildPath("sources");
 
         this.loadMacros();
     }
@@ -54,6 +55,11 @@ struct BuildContext
     pure final @property const string rootDir() @safe @nogc nothrow
     {
         return _rootDir;
+    }
+
+    pure final @property const string sourceDir() @safe @nogc nothrow
+    {
+        return _sourceDir;
     }
 
     /**
@@ -94,6 +100,7 @@ struct BuildContext
         sbuilder.addDefinition("version", spec.source.versionIdentifier);
         sbuilder.addDefinition("release", to!string(spec.source.release));
         sbuilder.addDefinition("jobs", to!string(jobs));
+        sbuilder.addDefinition("sources", _sourceDir);
 
         foreach (ref arch; arches)
         {
@@ -187,6 +194,7 @@ private:
     }
 
     string _rootDir;
+    string _sourceDir;
     Spec* _spec;
     MacroFile*[string] defFiles;
     MacroFile*[] actionFiles;

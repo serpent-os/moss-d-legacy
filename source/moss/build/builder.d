@@ -150,6 +150,34 @@ private:
         }
 
         manager.fetch();
+
+        /* Now put them into place */
+        foreach (s; _specFile.upstreams)
+        {
+            final switch (s.type)
+            {
+            case UpstreamType.Plain:
+                import std.path : buildPath, baseName;
+                import std.file : exists;
+
+                /* Ensure we have a name for this source */
+                if (s.plain.rename == null)
+                {
+                    s.plain.rename = s.uri.baseName;
+                }
+
+                /* Now grab local full name including renamed path */
+                string name = context.sourceDir.buildPath(s.plain.rename);
+                if (!name.exists)
+                {
+                    /* Stash it */
+                    manager.share(s.plain.hash, name);
+                }
+                break;
+            case UpstreamType.Git:
+                assert(0, "GIT IS UNSUPPORTED");
+            }
+        }
         writeln("Preparing sources");
     }
 
