@@ -168,11 +168,7 @@ private:
 
                 /* Now grab local full name including renamed path */
                 string name = context.sourceDir.buildPath(s.plain.rename);
-                if (!name.exists)
-                {
-                    /* Stash it */
-                    manager.share(s.plain.hash, name);
-                }
+                manager.share(s.plain.hash, name);
                 break;
             case UpstreamType.Git:
                 assert(0, "GIT IS UNSUPPORTED");

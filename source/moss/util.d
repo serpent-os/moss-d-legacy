@@ -37,8 +37,9 @@ pragma(inline, true) void hardLink(const(string) sourcePath, const(string) destP
     auto targetZ = destPath.toStringz;
 
     auto ret = link(sourceZ, targetZ);
+    auto err = strerror(errno);
     enforce(ret == 0, "hardLink(): Failed to link %s to %s: %s".format(sourcePath,
-            destPath, strerror(errno)));
+            destPath, err !is null ? err[0 .. strlen(err)] : ""));
 }
 
 /**
