@@ -43,6 +43,8 @@ actions              :
         CC="%(cc)"; export CC
         CXX="%(cxx)"; export CXX
         CPP="%(cpp)"; export CPP
+        test -d "%(workdir)" || (echo "Work directory does not exist"; exit 1)
+        cd "%(workdir)"
 
 tuning              :
     # A set of groups we can toggle from the "tune" key

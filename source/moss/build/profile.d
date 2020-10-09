@@ -154,7 +154,8 @@ public:
             import std.array;
 
             auto builder = ScriptBuilder();
-            prepareScripts(builder);
+            /* TODO: Form the correct build root */
+            prepareScripts(builder, buildRoot);
             auto scripted = builder.process(e.script).replace("%%", "%");
             writefln("Generating script: %s\n%s\n", e.name, scripted);
         }
@@ -163,13 +164,14 @@ public:
     /**
      * Prepare a script builder for use
      */
-    final void prepareScripts(ref ScriptBuilder sbuilder)
+    final void prepareScripts(ref ScriptBuilder sbuilder, string workdir)
     {
         auto pgoStage1Dir = buildRoot ~ "-pgo1";
         auto pgoStage2Dir = buildRoot ~ "-pgo2";
 
         sbuilder.addDefinition("installdir", installRoot);
         sbuilder.addDefinition("builddir", buildRoot);
+        sbuilder.addDefinition("workdir", workdir);
 
         /* Set the relevant compilers */
         if (context.spec.options.toolchain == "llvm")
