@@ -144,6 +144,52 @@ public:
     }
 
     /**
+     * Write the temporary script to disk, then execute it.
+     */
+    final void runStage(ExecutionStage* stage, string workDir, ref string script) @system
+    {
+        import core.sys.posix.stdlib;
+        import std.stdio;
+        import std.string;
+        import core.stdc.string;
+        import core.sys.posix.unistd;
+        import std.file;
+
+        auto tmpname = "/tmp/moss-stage-%s-XXXXXX".format(stage.name);
+        auto copy = new char[tmpname.length + 1];
+        copy[0 .. tmpname.length] = tmpname[];
+        copy[tmpname.length] = '\0';
+        int fd = mkstemp(copy.ptr);
+
+        File fi;
+        fi.fdopen(fd, "w");
+        writeln(fd);
+
+        scope (exit)
+        {
+            fi.close();
+            remove(cast(string) copy[0 .. copy.length - 1]);
+        }
+
+        /* Write + flush */
+        fi.write(script);
+        fi.flush();
+        fflush(fi.getFP);
+
+        /* Execute, TODO: Fix environment */
+        import std.process;
+
+        auto config = Config.retainStderr | Config.retainStdout
+            | Config.stderrPassThrough | Config.inheritFDs;
+        auto prenv = cast(const(string[string])) null;
+
+        auto args = ["/bin/sh", cast(string) copy[0 .. copy.length - 1]];
+
+        auto id = spawnProcess(args, stdin, stdout, stderr, prenv, config, workDir);
+        wait(id);
+    }
+
+    /**
      * Request for this profile to now build
      */
     final void build()
@@ -164,11 +210,12 @@ public:
 
             /* Prepare the rootfs now */
             auto builder = ScriptBuilder();
-            prepareScripts(builder, buildRoot);
+            prepareScripts(builder, workdir);
             buildRoot.mkdirRecurse();
 
             auto scripted = builder.process(e.script).replace("%%", "%");
-            writefln("Generating script: %s\n%s\n", e.name, scripted);
+
+            runStage(e, workdir, scripted);
 
             /* Did we prepare the fs for building? */
             if ((e.type & StageType.Prepare) == StageType.Prepare)
