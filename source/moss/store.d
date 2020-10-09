@@ -102,6 +102,23 @@ public:
     }
 
     /**
+     * Take a file out of staging, atomically shift it into the promoted
+     * tree
+     */
+    final void promote(const(string) name) @safe
+    {
+        import std.file;
+        import std.path;
+
+        auto sourcePath = stagingPath(name);
+        auto targetPath = fullPath(name);
+
+        auto dirs = dirName(targetPath);
+        dirs.mkdirRecurse();
+        sourcePath.rename(targetPath);
+    }
+
+    /**
      * May be overridden by specific implementations to give a more
      * specific string splitting function.
      */
@@ -110,6 +127,16 @@ public:
         import std.path : buildPath;
 
         return _directory.buildPath(name);
+    }
+
+    /**
+     * Return staging path name for in-transit assets
+     */
+    string stagingPath(const(string) name) @safe
+    {
+        import std.path : buildPath;
+
+        return _directory.buildPath("staging", name);
     }
 
 package:

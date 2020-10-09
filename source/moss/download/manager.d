@@ -92,11 +92,13 @@ public:
     /**
      * Fetch all files in the queue, verifying + staging as we go
      */
-    final void fetch() @safe
+    final void fetch() @system
     {
         import std.algorithm;
         import std.array;
         import std.exception : enforce;
+        import std.file : mkdirRecurse;
+        import std.path : dirName;
 
         auto writable = stores.filter!((a) => a.writable).array;
         enforce(writable.length >= 1, "DownloadManager.fetch(): No writable stores found");
@@ -105,6 +107,21 @@ public:
         import std.stdio;
 
         writefln("Using cache: %s", writeStore.directory);
+
+        /* Ugly download code */
+        foreach (ref d; toDownload)
+        {
+            auto fullPath = writeStore.stagingPath(d.expectedHash);
+            auto downloadDir = fullPath.dirName;
+            downloadDir.mkdirRecurse();
+            import std.net.curl;
+
+            writeln(fullPath);
+            download(d.uri, fullPath);
+
+            /* IF VERIFIED.. */
+            writeStore.promote(d.expectedHash);
+        }
     }
 
 private:
