@@ -148,16 +148,33 @@ public:
      */
     final void build()
     {
+        import std.stdio;
+        import std.array;
+        import std.file : mkdirRecurse;
+
+        bool preparedFS = false;
+
         foreach (ref e; stages)
         {
-            import std.stdio;
-            import std.array;
+            string workdir = buildRoot;
+            if (preparedFS)
+            {
+                workdir = getWorkDir();
+            }
 
+            /* Prepare the rootfs now */
             auto builder = ScriptBuilder();
-            /* TODO: Form the correct build root */
             prepareScripts(builder, buildRoot);
+            buildRoot.mkdirRecurse();
+
             auto scripted = builder.process(e.script).replace("%%", "%");
             writefln("Generating script: %s\n%s\n", e.name, scripted);
+
+            /* Did we prepare the fs for building? */
+            if ((e.type & StageType.Prepare) == StageType.Prepare)
+            {
+                preparedFS = true;
+            }
         }
     }
 
@@ -199,6 +216,32 @@ public:
     }
 
 private:
+
+    /**
+     * Attempt to grab the workdir from the build tree
+     *
+     * Unless explicitly specified, it will be the first directory
+     * entry within the build root
+     */
+    final string getWorkDir() @system
+    {
+        import std.file : dirEntries, SpanMode;
+        import std.path : buildPath, baseName;
+        import std.string : startsWith;
+
+        /* TODO: Support workdir variable in spec and verify it exists */
+        auto items = dirEntries(buildRoot, SpanMode.shallow, false);
+        foreach (item; items)
+        {
+            auto name = item.name.baseName;
+            if (!item.name.startsWith("."))
+            {
+                return buildRoot.buildPath(name);
+            }
+        }
+
+        return buildRoot;
+    }
 
     /**
      * Return true if a PGO workload is found for this architecture
