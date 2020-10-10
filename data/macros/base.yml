@@ -70,7 +70,7 @@ tuning              :
 
     # Enable hardening
     - hardening:
-        enabled: hardening
+        enabled: harden
 
     # Enable optimisation per given levels
     - optimize:
