@@ -65,11 +65,6 @@ final struct TuningFlag
     CompilerFlags root;
 
     /**
-     * list of TuningFlags we require to be enabled
-     */
-    @YamlSchema("depends", false, YamlType.Array) string[] depends;
-
-    /**
      * Return the CFLAGS
      */
     pure final @property string cflags(Toolchain toolchain) @safe @nogc nothrow
