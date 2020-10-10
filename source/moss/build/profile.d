@@ -246,6 +246,21 @@ public:
     }
 
     /**
+     * Throw an error if script building fails
+     */
+    final void validate()
+    {
+        foreach (ref e; stages)
+        {
+            ScriptBuilder builder;
+            prepareScripts(builder, buildRoot);
+
+            /* Throw script away, just ensure it can build */
+            auto scripted = builder.process(e.script);
+        }
+    }
+
+    /**
      * Prepare a script builder for use
      */
     final void prepareScripts(ref ScriptBuilder sbuilder, string workdir)

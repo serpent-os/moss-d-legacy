@@ -94,6 +94,7 @@ public:
     final void build()
     {
         prepareRoot();
+        validateProfiles();
         prepareSources();
         buildProfiles();
         collectAssets();
@@ -167,19 +168,23 @@ private:
     }
 
     /**
+     * Ensure all profile builds will compile ahead of time
+     */
+    final void validateProfiles() @system
+    {
+        import std.algorithm.iteration : each;
+
+        profiles.each!((ref p) => p.validate());
+    }
+
+    /**
      * Build all of the given profiles
      */
     final void buildProfiles() @system
     {
-        import std.stdio;
+        import std.algorithm.iteration : each;
 
-        writeln("Building profiles");
-
-        foreach (ref p; profiles)
-        {
-            writefln(" > Building: %s", p.architecture);
-            p.build();
-        }
+        profiles.each!((ref p) => p.build());
     }
 
     /**
