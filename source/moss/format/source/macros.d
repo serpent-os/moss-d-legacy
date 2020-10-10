@@ -26,6 +26,7 @@ public import std.stdio : File;
 import dyaml;
 import moss.format.source.ymlHelper;
 import moss.format.source.tuningFlag;
+import moss.format.source.tuningGroup;
 
 /**
  * A MacroFile can contain a set of macro definitions, actions and otherwise
@@ -42,6 +43,7 @@ public:
     string[string] actions;
     string[string] definitions;
     TuningFlag[string] flags;
+    TuningGroup[string] groups;
 
     /**
      * Construct a Spec from the given file
@@ -80,6 +82,7 @@ public:
             parseMacros("actions", actions, root);
             parseMacros("definitions", definitions, root);
             parseFlags(root);
+            parseTuning(root);
         }
         catch (Exception ex)
         {
@@ -104,8 +107,7 @@ private:
             return;
         }
 
-        /* Grab root sequence
-         */
+        /* Grab root sequence */
         Node node = root["flags"];
         enforce(node.nodeID == NodeID.sequence, "parseFlags(): Expected sequence for flags");
 
@@ -114,7 +116,7 @@ private:
             assert(k.nodeID == NodeID.mapping, "Each item in flags must be a mapping");
             foreach (ref Node c, ref Node v; k)
             {
-                enforce(v.nodeID == NodeID.mapping, "parseFlags: Expected sequence for each item");
+                enforce(v.nodeID == NodeID.mapping, "parseFlags: Expected map for each item");
                 TuningFlag tf;
                 auto name = c.as!string;
                 parseSection(v, tf);
@@ -140,6 +142,76 @@ private:
 
                 /* Store flags now */
                 flags[name] = tf;
+            }
+        }
+    }
+
+    final void parseTuning(ref Node root)
+    {
+        import std.exception : enforce;
+
+        if (!root.containsKey("tuning"))
+        {
+            return;
+        }
+
+        import std.stdio;
+
+        /* Grab root sequence */
+        Node node = root["tuning"];
+        enforce(node.nodeID == NodeID.sequence, "parseTuning(): Expected sequence for tuning");
+
+        foreach (ref Node k; node)
+        {
+            assert(k.nodeID == NodeID.mapping, "Each item in tuning must be a mapping");
+            foreach (ref Node c, ref Node v; k)
+            {
+                enforce(v.nodeID == NodeID.mapping, "parseTuning: Expected map for each item");
+                TuningGroup group;
+                auto name = c.as!string;
+                parseSection(v, group);
+                parseSection(v, group.root);
+
+                /* Handle all options */
+                if (v.containsKey("options"))
+                {
+                    auto options = v["options"];
+                    enforce(options.nodeID == NodeID.sequence,
+                            "parseTuning(): Expected sequence for options");
+
+                    /* Grab each option key now */
+                    foreach (ref Node kk; options)
+                    {
+                        assert(kk.nodeID == NodeID.mapping,
+                                "Each item in tuning options must be a mapping");
+                        foreach (ref Node cc, ref Node vv; kk)
+                        {
+                            TuningOption to;
+
+                            /* Disallow duplicates */
+                            auto childName = cc.as!string;
+                            enforce(!(childName in group.choices),
+                                    "parseTuning: Duplicate option found in " ~ name);
+
+                            /* Parse the option and store it */
+                            parseSection(vv, to);
+                            group.choices[childName] = to;
+                        }
+                    }
+                }
+
+                /* If we have options, a default MUST be set */
+                if (group.choices !is null && group.choices.length > 0)
+                {
+                    enforce(group.defaultChoice !is null,
+                            "parseTuning: default value missing for option set " ~ name);
+                }
+                else if (group.choices is null || group.choices.length < 1)
+                {
+                    enforce(group.defaultChoice is null,
+                            "parseTuning: default value unsupported for option set " ~ name);
+                }
+                groups[name] = group;
             }
         }
     }
