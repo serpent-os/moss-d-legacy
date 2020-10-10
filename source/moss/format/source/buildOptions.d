@@ -76,4 +76,19 @@ struct BuildOptions
     @YamlSchema("cspgo") bool csgpo = true;
 
     TuningSelection[] tuneSelections = [];
+
+    /**
+     * Return true if the tuning selection is present
+     */
+    pure bool hasTuningSelection(string name) @safe
+    {
+        foreach (ref sel; tuneSelections)
+        {
+            if (sel.name == name)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 };

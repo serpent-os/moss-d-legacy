@@ -312,9 +312,31 @@ private:
         /* Set toolchain type for flag probing */
         auto toolchain = context.spec.options.toolchain == "llvm" ? Toolchain.LLVM : Toolchain.GNU;
 
-        /* Enable some flags */
+        /* Enable basic cflags always */
         sbuilder.enableGroup("base");
-        sbuilder.enableGroup("optimize");
+
+        /* Take all tuning selections */
+        foreach (ref t; context.spec.options.tuneSelections)
+        {
+            final switch (t.type)
+            {
+            case TuningSelectionType.Enable:
+                sbuilder.enableGroup(t.name);
+                break;
+            case TuningSelectionType.Disable:
+                sbuilder.disableGroup(t.name);
+                break;
+            case TuningSelectionType.Config:
+                sbuilder.enableGroup(t.name, t.configValue);
+                break;
+            }
+        }
+
+        /* Force some default optimisation in */
+        if (!context.spec.options.hasTuningSelection("optimize"))
+        {
+            sbuilder.enableGroup("optimize");
+        }
 
         /* Help fixup flag mappings */
         pragma(inline, true) string fixupFlags(T)(T inp)
