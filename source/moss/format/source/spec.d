@@ -115,6 +115,7 @@ public:
         parseBuilds(root);
         parseUpstreams(root);
         parseArchitectures(root);
+        parseTuningOptions(root);
     }
 
     /**
@@ -128,6 +129,70 @@ public:
     }
 
 private:
+
+    /**
+     * Parse all tuning options
+     */
+    final void parseTuningOptions(ref Node node)
+    {
+        import std.exception : enforce;
+
+        if (!node.containsKey("tune"))
+        {
+            return;
+        }
+
+        Node root = node["tune"];
+        enforce(root.nodeID == NodeID.sequence, "tune key should be a sequence of tuning options");
+
+        /* Step through all items in root */
+        foreach (ref Node k; root)
+        {
+            TuningSelection sel;
+
+            if (k.nodeID == NodeID.scalar)
+            {
+                sel.type = TuningSelectionType.Enable;
+                sel.name = k.as!string;
+            }
+            else if (k.nodeID == NodeID.mapping)
+            {
+                auto keys = k.mappingKeys;
+                auto vals = k.mappingValues;
+                enforce(keys.length == 1, "Each tune option has 1 key only");
+                enforce(vals.length == 1, "Each tune option has 1 value only");
+
+                auto name = keys[0].as!string;
+                enforce(vals[0].nodeID == NodeID.scalar,
+                        "Each tune option must have 1 scalar value");
+                auto val = vals[0];
+                try
+                {
+                    auto bval = val.as!bool;
+                    if (bval)
+                    {
+                        sel.type = TuningSelectionType.Enable;
+                    }
+                    else
+                    {
+                        sel.type = TuningSelectionType.Disable;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    sel.type = TuningSelectionType.Config;
+                    sel.configValue = val.as!string;
+                }
+                sel.name = name;
+            }
+            else
+            {
+                enforce(0, "Unsupported value in tune");
+            }
+
+            options.tuneSelections ~= sel;
+        }
+    }
 
     /**
      * Find all PackageDefinition instances and set them up

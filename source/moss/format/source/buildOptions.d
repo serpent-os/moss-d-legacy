@@ -25,6 +25,36 @@ module moss.format.source.buildOptions;
 public import moss.format.source.schema;
 
 /**
+ * The TuningSelectionType indicates whether we're explicitly
+ * enabling, disabling, or enabling and setting to a specific value
+ */
+final enum TuningSelectionType
+{
+    Enable = 0,
+    Disable = 1,
+    Config = 2,
+}
+
+/**
+ * A TuningSelection corresponds to a TuningGroup
+ */
+struct TuningSelection
+{
+    /* Name of the tuning group */
+    string name;
+
+    /**
+     * Type of the Tuning Selection
+     */
+    TuningSelectionType type = TuningSelectionType.Enable;
+
+    /**
+     * Optional configuation value
+     */
+    string configValue = null;
+}
+
+/**
  * A set of Build Options set global build configurations, such as the
  * toolchain to be used, what flags to use, etc.
  */
@@ -44,4 +74,6 @@ struct BuildOptions
      * profile data set
      */
     @YamlSchema("cspgo") bool csgpo = true;
+
+    TuningSelection[] tuneSelections = [];
 };
