@@ -55,6 +55,10 @@ tuning              :
             - architecture
             - base
 
+    - debug:
+        enabled:
+            - debug
+
     # Toggle frame-pointer
     - frame-pointer:
         enabled: no-omit-frame-pointer
