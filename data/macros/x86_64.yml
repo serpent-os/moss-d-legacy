@@ -20,6 +20,3 @@ flags:
     - generic:
         c         : "-O2 -mprefer-vector-width=128"
         cxx       : "-O2 -mprefer-vector-width=128"
-        conflicts :
-            - speed
-            - size
