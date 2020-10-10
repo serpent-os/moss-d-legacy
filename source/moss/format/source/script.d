@@ -25,6 +25,8 @@ module moss.format.source.script;
 import std.string : format, splitLines, startsWith, endsWith;
 import std.exception : enforce;
 import moss.format.source.macros : MacroFile;
+import moss.format.source.tuningFlag;
+import moss.format.source.tuningGroup;
 import std.string : strip;
 
 /**
@@ -124,6 +126,22 @@ public:
     }
 
     /**
+     * Add a TuningFlag to the set
+     */
+    void addFlag(string name, TuningFlag flag) @safe
+    {
+        flags[name] = flag;
+    }
+
+    /**
+     * Add a TuningGroup to the set
+     */
+    void addGroup(string name, TuningGroup group) @safe
+    {
+        groups[name] = group;
+    }
+
+    /**
      * Insert definitions, exports + actions from a macro file.
      */
     final void addFrom(in MacroFile* f) @system
@@ -138,6 +156,18 @@ public:
         foreach (ref k, v; f.actions)
         {
             addAction(k, v);
+        }
+
+        /* Add all tuning flags */
+        foreach (ref k, v; f.flags)
+        {
+            addFlag(k, v);
+        }
+
+        /* Add all tuning groups */
+        foreach (ref k, v; f.groups)
+        {
+            addGroup(k, cast(TuningGroup) v);
         }
     }
 
@@ -324,6 +354,9 @@ private:
 
     string[string] mapping;
     string[string] exports;
+    TuningFlag[string] flags;
+    TuningGroup[string] groups;
+
     bool baked = false;
     string[] usedMacros;
 }
