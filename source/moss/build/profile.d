@@ -316,23 +316,21 @@ private:
         sbuilder.enableGroup("base");
         sbuilder.enableGroup("optimize");
 
+        /* Help fixup flag mappings */
+        pragma(inline, true) string fixupFlags(T)(T inp)
+        {
+            return inp.map!((f) => f.strip)
+                .array
+                .uniq
+                .filter!((e) => e.length > 1)
+                .join(" ");
+        }
+
         /* Fix up unique set of flags and stringify them */
         auto flagset = sbuilder.buildFlags();
-        auto cflags = flagset.map!((f) => f.cflags(toolchain).strip)
-            .array
-            .uniq
-            .filter!((e) => e.length > 1)
-            .join(" ");
-        auto cxxflags = flagset.map!((f) => f.cxxflags(toolchain).strip)
-            .array
-            .uniq
-            .filter!((e) => e.length > 1)
-            .join(" ");
-        auto ldflags = flagset.map!((f) => f.ldflags(toolchain).strip)
-            .array
-            .uniq
-            .filter!((e) => e.length > 1)
-            .join(" ");
+        auto cflags = fixupFlags(flagset.map!((f) => f.cflags(toolchain)));
+        auto cxxflags = fixupFlags(flagset.map!((f) => f.cxxflags(toolchain)));
+        auto ldflags = fixupFlags(flagset.map!((f) => f.ldflags(toolchain)));
 
         sbuilder.addDefinition("cflags", cflags);
         sbuilder.addDefinition("cxxflags", cxxflags);
