@@ -69,7 +69,7 @@ public:
     /**
      * Add a download to the queue
      */
-    final void add(ref Download d) @safe
+    final void add(Download d) @safe
     {
         import std.string : toLower;
 

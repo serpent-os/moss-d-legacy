@@ -128,58 +128,41 @@ private:
     {
         import std.stdio;
         import moss.download;
+        import std.algorithm;
 
         auto manager = new DownloadManager();
         manager.add(new DownloadStore(StoreType.System));
         manager.add(new DownloadStore(StoreType.User));
 
-        /* Foreach available download, add to the download queue */
-        foreach (s; _specFile.upstreams)
-        {
-            Download d;
-            final switch (s.type)
-            {
-            case UpstreamType.Plain:
-                d.uri = s.uri;
-                d.expectedHash = s.plain.hash;
+        /* Only work with plain sources for now */
+        auto plains = _specFile.upstreams.values.filter!((u) => u.type == UpstreamType.Plain);
 
-                /* Don't download if we already have it */
-                if (manager.contains(d.expectedHash))
-                {
-                    continue;
-                }
-                break;
-            case UpstreamType.Git:
-                assert(0, "GIT IS UNSUPPORTED");
-            }
-            manager.add(d);
+        /* Unfetched sources */
+        auto fetchables = plains.filter!((u) => !manager.contains(u.plain.hash));
+        foreach (u; fetchables)
+        {
+            manager.add(Download(u.uri, u.plain.hash));
         }
 
         manager.fetch();
 
         /* Now put them into place */
-        foreach (s; _specFile.upstreams)
+        foreach (s; plains)
         {
-            final switch (s.type)
+            import std.path : buildPath, baseName;
+            import std.file : exists;
+
+            /* Ensure we have a name for this source */
+            if (s.plain.rename == null)
             {
-            case UpstreamType.Plain:
-                import std.path : buildPath, baseName;
-                import std.file : exists;
-
-                /* Ensure we have a name for this source */
-                if (s.plain.rename == null)
-                {
-                    s.plain.rename = s.uri.baseName;
-                }
-
-                /* Now grab local full name including renamed path */
-                string name = context.sourceDir.buildPath(s.plain.rename);
-                manager.share(s.plain.hash, name);
-                break;
-            case UpstreamType.Git:
-                assert(0, "GIT IS UNSUPPORTED");
+                s.plain.rename = s.uri.baseName;
             }
+
+            /* Now grab local full name including renamed path */
+            string name = context.sourceDir.buildPath(s.plain.rename);
+            manager.share(s.plain.hash, name);
         }
+
         writeln("Preparing sources");
     }
 
