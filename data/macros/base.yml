@@ -49,6 +49,12 @@ actions              :
 tuning              :
     # A set of groups we can toggle from the "tune" key
 
+    # Root flags set up architecture + core flags, should always be enabled
+    - base:
+        enabled:
+            - architecture
+            - base
+
     # Toggle frame-pointer
     - frame-pointer:
         enabled: no-omit-frame-pointer
@@ -96,7 +102,9 @@ tuning              :
 
     # Enable noplt
     - noplt:
-        enabled: noplt
+        enabled:
+            - noplt
+            - bindnow
 
     # Enable asneeded
     - asneeded:
@@ -115,8 +123,6 @@ flags               :
         c         : "-pipe -D_FORTIFY_SOURCE=2 -Wall -Wno-error -Wp,-D_REENTRANT -fPIC"
         cxx       : "-pipe -D_FORTIFY_SOURCE=2 -Wall -Wno-error -Wp,-D_REENTRANT -fPIC"
         ld        : "-Wl,-O2,-z,max-page-size=0x1000,--sort-common,--gc-sections"
-        depends   :
-            - architecture
 
     - omit-frame-pointer:
         c         : "-fomit-frame-pointer"
@@ -193,8 +199,6 @@ flags               :
     - noplt:
         c         : "-fno-plt"
         cxx       : "-fno-plt"
-        depends   :
-            - bindnow
 
     # Toggle asneeded (OFF)
     - asneeded:
