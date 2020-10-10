@@ -308,16 +308,18 @@ private:
         import std.algorithm;
         import std.array;
 
-        string cflags;
-        string cxxflags;
-        string ldflags;
-
+        /* Set toolchain type for flag probing */
         auto toolchain = context.spec.options.toolchain == "llvm" ? Toolchain.LLVM : Toolchain.GNU;
 
+        /* Enable some flags */
+        sbuilder.enableGroup("base");
+        sbuilder.enableGroup("optimize");
+
+        /* Fix up unique set of flags and stringify them */
         auto flagset = sbuilder.buildFlags();
-        cflags = flagset.map!((f) => f.cflags(toolchain)).array.uniq.join(" ");
-        cxxflags = flagset.map!((f) => f.cxxflags(toolchain)).array.uniq.join(" ");
-        ldflags = flagset.map!((f) => f.ldflags(toolchain)).array.uniq.join(" ");
+        auto cflags = flagset.map!((f) => f.cflags(toolchain)).array.uniq.join(" ");
+        auto cxxflags = flagset.map!((f) => f.cxxflags(toolchain)).array.uniq.join(" ");
+        auto ldflags = flagset.map!((f) => f.ldflags(toolchain)).array.uniq.join(" ");
 
         sbuilder.addDefinition("cflags", cflags);
         sbuilder.addDefinition("cxxflags", cxxflags);
