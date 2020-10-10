@@ -192,6 +192,111 @@ public:
     }
 
     /**
+     * Enable a specific tuning group
+     */
+    final void enableGroup(string name, string value = null) @safe
+    {
+        import std.string : format;
+        import std.algorithm;
+
+        enforce(name in groups, "enableGroup(): Unknown group: %s".format(name));
+
+        if (!enabledGroups.canFind(name))
+        {
+            enabledGroups ~= name;
+        }
+
+        disabledGroups = disabledGroups.remove!((a) => a == name);
+
+        /* Fallback to default value */
+        auto group = groups[name];
+        if (value is null)
+        {
+            value = group.defaultChoice;
+        }
+
+        /* Validate value is permitted */
+        if (value !is null)
+        {
+            enforce(group.choices !is null && group.choices.length > 0,
+                    "enableGroup(): Non-value option %s".format(name));
+            enforce(value in group.choices,
+                    "enableGroup(): Unknown value '%s' for '%s'".format(name, value));
+            optionSets[name] = value;
+        }
+    }
+
+    /**
+     * Disable a specific tuning group
+     */
+    final void disableGroup(string name) @safe
+    {
+        import std.string : format;
+        import std.algorithm;
+
+        enforce(name in groups, "disableGroup(): Unknown group: %s".format(name));
+
+        if (!disabledGroups.canFind(name))
+        {
+            disabledGroups ~= name;
+        }
+
+        enabledGroups = enabledGroups.remove!((a) => a == name);
+
+        if (name in optionSets)
+        {
+            optionSets.remove(name);
+        }
+    }
+
+    /**
+     * Build the final TuningFlag set
+     */
+    final TuningFlag[] buildFlags() @safe
+    {
+        import std.algorithm;
+        import std.array;
+        import std.range;
+
+        string[] enabledFlags = [];
+        string[] disabledFlags = [];
+
+        /* Build sets of enablings */
+        foreach (enabled; enabledGroups)
+        {
+            TuningGroup group = groups[enabled];
+            TuningOption to = group.root;
+
+            if (enabled in optionSets)
+            {
+                to = group.choices[optionSets[enabled]];
+            }
+
+            if (to.onEnabled !is null)
+            {
+                enabledFlags ~= to.onEnabled.filter!((e) => !enabledFlags.canFind(e)).array;
+            }
+        }
+
+        /* Build sets of disablings */
+        foreach (disabled; disabledGroups)
+        {
+            TuningGroup group = groups[disabled];
+            if (group.root.onDisabled !is null)
+            {
+                disabledFlags ~= group.root.onDisabled.filter!((e) => !disabledFlags.canFind(e))
+                    .array;
+            }
+        }
+
+        /* Ensure all flags are known and valid */
+        enabledFlags.chain(disabledFlags).each!((e) => enforce(e in flags,
+                "buildFlags: Unknown flag: '%s'".format(e)));
+
+        return enabledFlags.chain(disabledFlags).uniq.map!((n) => flags[n]).array;
+    }
+
+    /**
      * Begin tokenisation of the file, line by line
      */
     string process(const(string) input) @safe
@@ -356,6 +461,10 @@ private:
     string[string] exports;
     TuningFlag[string] flags;
     TuningGroup[string] groups;
+
+    string[] enabledGroups = [];
+    string[] disabledGroups = [];
+    string[string] optionSets;
 
     bool baked = false;
     string[] usedMacros;

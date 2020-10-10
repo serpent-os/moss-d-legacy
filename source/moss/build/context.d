@@ -111,8 +111,6 @@ struct BuildContext
         {
             sbuilder.addFrom(action);
         }
-
-        sbuilder.bake();
     }
 
 private:

@@ -286,15 +286,43 @@ public:
         sbuilder.addDefinition("pgo_stage1_dir", pgoStage1Dir);
         sbuilder.addDefinition("pgo_stage2_dir", pgoStage2Dir);
 
-        /* TODO: Fix to not suck */
-        sbuilder.addDefinition("cflags", "");
-        sbuilder.addDefinition("cxxflags", "");
-        sbuilder.addDefinition("ldflags", "");
-
+        /* Load system macros */
         context.prepareScripts(sbuilder, architecture);
+
+        bakeFlags(sbuilder);
+
+        /* Fully cooked */
+        sbuilder.bake();
     }
 
 private:
+
+    /**
+     * Specialist function to work with the ScriptBuilder in enabling a sane
+     * set of build flags
+     */
+    final void bakeFlags(ref ScriptBuilder sbuilder) @safe
+    {
+        import moss.format.source.tuningFlag;
+        import std.array : join;
+        import std.algorithm;
+        import std.array;
+
+        string cflags;
+        string cxxflags;
+        string ldflags;
+
+        auto toolchain = context.spec.options.toolchain == "llvm" ? Toolchain.LLVM : Toolchain.GNU;
+
+        auto flagset = sbuilder.buildFlags();
+        cflags = flagset.map!((f) => f.cflags(toolchain)).array.uniq.join(" ");
+        cxxflags = flagset.map!((f) => f.cxxflags(toolchain)).array.uniq.join(" ");
+        ldflags = flagset.map!((f) => f.ldflags(toolchain)).array.uniq.join(" ");
+
+        sbuilder.addDefinition("cflags", cflags);
+        sbuilder.addDefinition("cxxflags", cxxflags);
+        sbuilder.addDefinition("ldflags", ldflags);
+    }
 
     /**
      * Attempt to grab the workdir from the build tree
