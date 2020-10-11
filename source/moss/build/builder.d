@@ -24,6 +24,7 @@ module moss.build.builder;
 
 import moss.format.source.spec;
 import moss.build.context;
+import moss.build.collector;
 import moss.build.profile;
 import moss.platform;
 
@@ -188,13 +189,16 @@ private:
     }
 
     /**
-     * Collect and analyse all assets
+     * Collect and analyse all assets using the
+     * given collector
      */
     final void collectAssets() @safe
     {
-        import std.stdio;
+        import std.algorithm;
 
-        writeln("Collecting assets");
+        profiles.map!((ref p) => p.installRoot)
+            .uniq
+            .each!((const s) => this.collector.collect(s));
     }
 
     /**
@@ -236,4 +240,5 @@ private:
     string[] architectures;
     BuildProfile*[] profiles;
     BuildContext context;
+    BuildCollector collector;
 }
