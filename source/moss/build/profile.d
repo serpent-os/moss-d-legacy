@@ -332,10 +332,15 @@ private:
             }
         }
 
-        /* Force some default optimisation in */
-        if (!context.spec.options.hasTuningSelection("optimize"))
+        /* Always pick defaults for optimize, harden + bindnow */
+        auto wanted = ["optimize", "harden", "bindnow"];
+
+        foreach (w; wanted)
         {
-            sbuilder.enableGroup("optimize");
+            if (!context.spec.options.hasTuningSelection(w))
+            {
+                sbuilder.enableGroup(w);
+            }
         }
 
         /* Help fixup flag mappings */

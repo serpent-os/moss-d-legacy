@@ -73,8 +73,13 @@ tuning              :
         enabled: symbolic
 
     # Enable hardening
-    - hardening:
-        enabled: harden
+    - harden:
+        options:
+            - full:
+                enabled: hardenFull
+            - minimal:
+                enabled: hardenMinimal
+        default: full
 
     # Enable optimisation per given levels
     - optimize:
@@ -145,9 +150,13 @@ flags               :
         ld        : "-Wl,-Bsymbolic-functions"
 
     # Hardening (ON)
-    - harden:
+    - hardenFull:
         c         : "-fstack-protector-strong -fstack-clash-protection -fpie --param ssp-buffer-size=4"
         cxx       : "-fstack-protector-strong -fstack-clash-protection -fpie --param ssp-buffer-size=4"
+
+    - hardenMinimal:
+        c         : "-fstack-protector --param ssp-buffer-size=32"
+        cxx       : "-fstack-protector --param ssp-buffer-size=32"
 
     # Optimize for size (OFF)
     - size:
