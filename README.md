@@ -50,18 +50,18 @@ While the paths may change, we are considering a layout similar to the one
 listed below:
 
 
-    ├── bin -> serpent/store/installation/0/usr/bin
+    ├── bin -> os/store/installation/0/usr/bin
     ├── boot
     ├── etc
     ├── home
     │   └── root
-    ├── lib -> serpent/store/installation/0/usr/lib
-    ├── lib64 -> serpent/store/installation/0/usr/lib
+    ├── lib -> os/store/installation/0/usr/lib
+    ├── lib64 -> os/store/installation/0/usr/lib
     ├── media
     ├── root -> home/root
     ├── run
-    ├── sbin -> serpent/store/installation/0/usr/bin
-    ├── serpent
+    ├── sbin -> os/store/installation/0/usr/bin
+    ├── os
     │   └── store
     │       ├── hash
     │       │   └── 96918944c1e369411ddb68e8f4f4f479a99f7eccc67ba55b2ce6433901f7832d
@@ -75,7 +75,7 @@ listed below:
     │                   ├── lib64 -> lib
     │                   ├── sbin -> bin
     │                   └── share
-    ├── usr -> serpent/installation/0/usr
+    ├── usr -> os/installation/0/usr
     └── var
 
 It is entirely possible we'll choose to collapse paths and rely on a single
