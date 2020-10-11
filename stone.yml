@@ -13,3 +13,4 @@ build       : |
     %make
 install     : |
     %make_install
+toolchain   : gnu
