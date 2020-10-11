@@ -26,6 +26,8 @@ import moss.format.source.macros;
 import moss.format.source.spec;
 import moss.format.source.script;
 
+import std.parallelism : totalCPUs;
+
 /**
  * The BuildContext holds global configurations and variables needed to complete
  * all builds.
@@ -44,6 +46,8 @@ struct BuildContext
         this._spec = spec;
         this._rootDir = rootDir;
         this._sourceDir = rootDir.buildPath("sources");
+
+        jobs = totalCPUs();
 
         this.loadMacros();
     }
