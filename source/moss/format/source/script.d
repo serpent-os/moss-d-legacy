@@ -302,6 +302,8 @@ public:
     string process(const(string) input) @safe
     {
         auto context = ParseContext();
+        import std.string : format;
+
         string lastLine;
         char lastChar = '\0';
         string ret = "";
@@ -332,8 +334,12 @@ public:
                 return;
             }
 
+            /* Grab macro now */
             string macroName = lastLine[context.macroStart .. context.macroEnd + 1];
-            enforce(macroName in mapping, "Unknown macro: " ~ macroName);
+
+            enforce(!macroName.endsWith("%"),
+                    "Legacy style macro unsupported: %s".format(macroName));
+            enforce(macroName in mapping, "Unknown macro: %s".format(macroName));
 
             /* Store used actions */
             if (baked && context.braceEnd < 1)
