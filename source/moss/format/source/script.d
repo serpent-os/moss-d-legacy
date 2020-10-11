@@ -406,7 +406,8 @@ public:
                     }
                     break;
                 default:
-                    if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_')
+                    if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+                            || c == '_' || (c >= '0' && c <= '9'))
                     {
                         if (context.inMacro)
                         {
