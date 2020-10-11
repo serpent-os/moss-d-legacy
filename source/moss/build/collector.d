@@ -26,6 +26,35 @@ import std.path;
 import std.file;
 
 /**
+ * A CollectionRule simply defines a pattern to match against (glob style)
+ * and a priority with which the pattern will be used.
+ *
+ * Increased priority numbers lead to the rule running before other rules.
+ */
+package final struct CollectionRule
+{
+    /**
+     * A glob style pattern to match againt
+     */
+    string pattern = null;
+
+    /**
+     * A target name to incorporate, such as "name-devel"
+     */
+    string target = null;
+
+    /**
+     * Priority used to sort the rules
+     */
+    int priority = 0;
+
+    pure bool match(const(string) inp) @safe
+    {
+        return globMatch!(CaseSensitive.yes)(inp, pattern);
+    }
+}
+
+/**
  * The BuildCollector is responsible for collecting and analysing the
  * contents of the build root, and assigning packages for each given
  * path.
@@ -59,6 +88,18 @@ public:
         return _rootDir;
     }
 
+    /**
+     * Add a priority based rule to the system which can of course be overridden.
+     */
+    final void addRule(string pattern, string target, uint priority = 0) @safe
+    {
+        import std.algorithm;
+
+        /* Sort ahead of time */
+        rules ~= CollectionRule(pattern, target, priority);
+        rules.sort!((a, b) => a.priority > b.priority);
+    }
+
 private:
 
     /**
@@ -68,6 +109,8 @@ private:
     {
         import std.stdio;
         import std.string : format;
+        import std.algorithm;
+        import std.range;
 
         auto targetPath = e.name.relativePath(rootDir);
 
@@ -78,9 +121,11 @@ private:
         }
 
         auto fullPath = e.name;
-
-        writefln("%s = %s", fullPath, targetPath);
+        /* Find out whre it goes */
+        auto matching = rules.filter!((r) => r.match(targetPath)).takeOne().front;
+        writefln("%s = %s", fullPath, matching.target);
     }
 
     string _rootDir = null;
+    CollectionRule[] rules;
 }
