@@ -220,3 +220,68 @@ flags               :
     # Toggle runpath (OFF)
     - runpath:
         ld        : "-Wl,--enable-new-dtags"
+
+# Template packages
+packages          :
+
+    # Main package
+    - "%(name)":
+        paths:
+            - "*"
+
+    # Some documentation
+    - "%(name)-docs":
+        summary: "Documentation for %(name)"
+        description: |
+            Documentation files for the %(name) package
+        paths:
+            - /usr/share/gtk-doc
+
+    # Main development subpackage
+    - "%(name)-devel":
+        summary: "Development files for %(name)"
+        description: |
+            Install this package if you intend to build software against
+            the %(name) package.
+        paths:
+            - /usr/include
+            - /usr/lib/lib*.so
+            - /usr/lib/pkgconfig
+            - /usr/share/pkgconfig
+            - /usr/share/aclocal
+
+    # Main dbginfo package
+    - "%(name)-dbginfo":
+        summary: "Debugging symbols for %(name)"
+        description: |
+            Install this package if you need debugging information + symbols
+            for the %(name) package.
+        paths:
+            - /usr/lib/debug
+
+    # 32-bit compat libraries
+    - "%(name)-32bit":
+        summary: "Provides 32-bit runtime libraries for %(name)"
+        description: |
+            Install this package if you need the 32-bit versions of the
+            %(name) package libraries.
+        paths:
+            - /usr/lib32/*
+
+    # 32-bit development files
+    - "%(name)-32bit-devel":
+        summary: "Provides development files for %(name)-32bit"
+        description: |
+            Install this package if you need to build software against
+            the 32-bit version of %(name), %(name)-32bit.
+        paths
+            - /usr/lib32/lib*.so.*
+
+    # 32-bit debug symbols
+    - "%(name)-32bit-dbginfo":
+        summary: "Debugging symbols for %(name)-32bit"
+        description: |
+            Install this package if you need debugging information + symbols
+            for the %(name)-32bit package.
+        paths:
+            - /usr/lib32/debug
