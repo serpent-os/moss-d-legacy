@@ -164,7 +164,7 @@ private:
 
                 auto name = keys[0].as!string;
                 enforce(vals[0].nodeID == NodeID.scalar,
-                        "Each tunng option must have 1 scalar value");
+                        "Each tuning option must have 1 scalar value");
                 auto val = vals[0];
                 try
                 {
