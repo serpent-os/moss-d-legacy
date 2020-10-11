@@ -358,7 +358,7 @@ public:
                 {
                 case '%':
                     context.inMacro = !context.inMacro;
-                    if (i <= len && line[i + 1] == '%')
+                    if (i < len && i + 1 < len && line[i + 1] == '%')
                     {
                         ret ~= "%";
                         context.reset();
