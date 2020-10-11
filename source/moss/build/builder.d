@@ -192,7 +192,7 @@ private:
      * Collect and analyse all assets using the
      * given collector
      */
-    final void collectAssets() @safe
+    final void collectAssets() @system
     {
         import std.algorithm;
 

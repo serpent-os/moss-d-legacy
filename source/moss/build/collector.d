@@ -22,6 +22,9 @@
 
 module moss.build.collector;
 
+import std.path;
+import std.file;
+
 /**
  * The BuildCollector is responsible for collecting and analysing the
  * contents of the build root, and assigning packages for each given
@@ -39,10 +42,45 @@ public:
      * Begin collection on the given root directory, considered to be
      * the "/" root filesystem of the target package.
      */
-    final void collect(const(string) rootDir) @safe
+    final void collect(const(string) rootDir) @system
+    {
+        import std.algorithm;
+
+        _rootDir = rootDir;
+
+        dirEntries(rootDir, SpanMode.depth, false).each!((ref e) => this.analysePath(e));
+    }
+
+    /**
+     * Return the root directory for our current operational set
+     */
+    pragma(inline, true) pure final @property string rootDir() @safe @nogc nothrow
+    {
+        return _rootDir;
+    }
+
+private:
+
+    /**
+     * Analyse a given path and start acting on it
+     */
+    final void analysePath(ref DirEntry e) @system
     {
         import std.stdio;
+        import std.string : format;
 
-        writefln("Collecting from: %s", rootDir);
+        auto targetPath = e.name.relativePath(rootDir);
+
+        /* Ensure full "local" path */
+        if (targetPath[0] != '/')
+        {
+            targetPath = "/%s".format(targetPath);
+        }
+
+        auto fullPath = e.name;
+
+        writefln("%s = %s", fullPath, targetPath);
     }
+
+    string _rootDir = null;
 }
