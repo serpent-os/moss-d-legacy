@@ -50,4 +50,10 @@ struct SourceDefinition
      * is performed.
      */
     @YamlSchema("release", true) uint64_t release;
+
+    /**
+     * Licenses must be set accordingly.
+     * We require SPDX identifiers too.
+     */
+    @YamlSchema("license", true, YamlType.Array) string[] license;
 };
