@@ -25,6 +25,7 @@ module moss.format.source.macros;
 public import std.stdio : File;
 import dyaml;
 import moss.format.source.ymlHelper;
+import moss.format.source.packageDefinition;
 import moss.format.source.tuningFlag;
 import moss.format.source.tuningGroup;
 
@@ -44,6 +45,7 @@ public:
     string[string] definitions;
     TuningFlag[string] flags;
     TuningGroup[string] groups;
+    PackageDefinition[string] packages;
 
     /**
      * Construct a Spec from the given file
@@ -83,6 +85,7 @@ public:
             parseMacros("definitions", definitions, root);
             parseFlags(root);
             parseTuning(root);
+            parsePackages(root);
         }
         catch (Exception ex)
         {
@@ -94,6 +97,48 @@ public:
     }
 
 private:
+
+    /**
+     * Parse all package entries
+     */
+    final void parsePackages(ref Node root)
+    {
+        import std.exception : enforce;
+
+        if (!root.containsKey("packages"))
+        {
+            return;
+        }
+
+        /* Grab root sequence */
+        Node node = root["packages"];
+        enforce(node.nodeID == NodeID.sequence, "parsePackages(): Expected sequence for packages");
+
+        foreach (ref Node k; node)
+        {
+            enforce(k.nodeID == NodeID.mapping, "Each item in packages must be a mapping");
+
+            auto keys = k.mappingKeys;
+            auto vals = k.mappingValues;
+
+            enforce(keys.length == 1, "Each item in packages must have 1 key");
+            enforce(vals.length == 1, "Each item in packages must have 1 value");
+
+            auto key = keys[0];
+            Node val = vals[0];
+
+            enforce(key.nodeID == NodeID.scalar,
+                    "Each item key in packages must be a scalar string");
+            auto name = key.as!string;
+            enforce(val.nodeID == NodeID.mapping, "Each item value in packages must be a mapping");
+
+            PackageDefinition pd;
+            parseSection(val, pd);
+
+            /* Merge unbaked package description */
+            packages[name] = pd;
+        }
+    }
 
     /**
      * Parse all Flag types.
