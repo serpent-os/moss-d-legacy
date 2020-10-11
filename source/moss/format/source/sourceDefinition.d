@@ -52,6 +52,12 @@ struct SourceDefinition
     @YamlSchema("release", true) uint64_t release;
 
     /**
+     * All packages MUST set a homepage or package origin.
+     * Accountability is key.
+     */
+    @YamlSchema("homepage", true) string homepage;
+
+    /**
      * Licenses must be set accordingly.
      * We require SPDX identifiers too.
      */
