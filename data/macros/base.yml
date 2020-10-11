@@ -274,7 +274,7 @@ packages          :
         description: |
             Install this package if you need to build software against
             the 32-bit version of %(name), %(name)-32bit.
-        paths
+        paths:
             - /usr/lib32/lib*.so.*
 
     # 32-bit debug symbols
