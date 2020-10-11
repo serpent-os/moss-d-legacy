@@ -24,6 +24,7 @@ module moss.format.source.script;
 
 import std.string : format, splitLines, startsWith, endsWith;
 import std.exception : enforce;
+import moss.format.source.packageDefinition;
 import moss.format.source.macros : MacroFile;
 import moss.format.source.tuningFlag;
 import moss.format.source.tuningGroup;
@@ -142,6 +143,14 @@ public:
     }
 
     /**
+     * Add a PackageDefinition to the group
+     */
+    final void addPackage(string name, PackageDefinition pkg) @safe
+    {
+        packages[name] = pkg;
+    }
+
+    /**
      * Insert definitions, exports + actions from a macro file.
      */
     final void addFrom(in MacroFile* f) @system
@@ -168,6 +177,12 @@ public:
         foreach (ref k, v; f.groups)
         {
             addGroup(k, cast(TuningGroup) v);
+        }
+
+        /* And now all the packages */
+        foreach (ref k, v; f.packages)
+        {
+            addPackage(k, cast(PackageDefinition) v);
         }
     }
 
@@ -468,6 +483,7 @@ private:
     string[string] exports;
     TuningFlag[string] flags;
     TuningGroup[string] groups;
+    PackageDefinition[string] packages;
 
     string[] enabledGroups = [];
     string[] disabledGroups = [];
