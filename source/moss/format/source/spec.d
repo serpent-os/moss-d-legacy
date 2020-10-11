@@ -137,13 +137,13 @@ private:
     {
         import std.exception : enforce;
 
-        if (!node.containsKey("tune"))
+        if (!node.containsKey("tuning"))
         {
             return;
         }
 
-        Node root = node["tune"];
-        enforce(root.nodeID == NodeID.sequence, "tune key should be a sequence of tuning options");
+        Node root = node["tuning"];
+        enforce(root.nodeID == NodeID.sequence, "tuning key should be a sequence of tuning options");
 
         /* Step through all items in root */
         foreach (ref Node k; root)
@@ -159,12 +159,12 @@ private:
             {
                 auto keys = k.mappingKeys;
                 auto vals = k.mappingValues;
-                enforce(keys.length == 1, "Each tune option has 1 key only");
-                enforce(vals.length == 1, "Each tune option has 1 value only");
+                enforce(keys.length == 1, "Each tuning option has 1 key only");
+                enforce(vals.length == 1, "Each tuning option has 1 value only");
 
                 auto name = keys[0].as!string;
                 enforce(vals[0].nodeID == NodeID.scalar,
-                        "Each tune option must have 1 scalar value");
+                        "Each tunng option must have 1 scalar value");
                 auto val = vals[0];
                 try
                 {
@@ -187,7 +187,7 @@ private:
             }
             else
             {
-                enforce(0, "Unsupported value in tune");
+                enforce(0, "Unsupported value in tuning");
             }
 
             options.tuneSelections ~= sel;
