@@ -1,0 +1,6 @@
+[submodule "external/moss-format"]
+	path = external/moss-format
+	url = https://github.com/serpent-linux/moss-format.git
+[submodule "external/moss-core"]
+	path = external/moss-core
+	url = https://github.com/serpent-linux/moss-format.git
