@@ -12,7 +12,7 @@
 		"moss-core": {
 			"path": "external/moss-core",
 		},
-		"moss-format": {
+		"moss-format:binary": {
 			"path": "external/moss-format",
 		},
 	},
