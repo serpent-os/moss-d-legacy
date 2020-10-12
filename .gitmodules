@@ -1,9 +1,0 @@
-[submodule "external/D-YAML"]
-	path = external/dyaml
-	url = https://github.com/dlang-community/D-YAML.git
-[submodule "external/tinyendian"]
-	path = external/tinyendian
-	url = https://github.com/dlang-community/tinyendian.git
-[submodule "external/zstd"]
-	path = external/zstd
-	url = https://github.com/repeatedly/zstd-d.git
