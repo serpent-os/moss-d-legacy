@@ -8,6 +8,14 @@
 	"version": "0.0.1",
 	"name": "moss",
 	"targetPath": "bin",
+	"dependencies": {
+		"moss-core": {
+			"path": "external/moss-core",
+		},
+		"moss-format": {
+			"path": "external/moss-format",
+		},
+	},
 	"buildTypes": {
 		"debug": {
 			"buildOptions": ["debugMode", "optimize"],
