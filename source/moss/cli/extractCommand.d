@@ -1,5 +1,5 @@
 /*
- * This file is part of boulder.
+ * This file is part of moss.
  *
  * Copyright © 2020 Serpent OS Developers
  *

@@ -25,6 +25,7 @@ module moss.cli;
 public import moss.core.cli;
 public import moss.cli.extractCommand;
 public import moss.cli.infoCommand;
+public import moss.cli.installCommand;
 public import moss.cli.versionCommand;
 
 /**

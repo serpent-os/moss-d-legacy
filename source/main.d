@@ -30,6 +30,7 @@ int main(string[] args)
     auto clip = cliProcessor!MossCLI(args);
     clip.addCommand!ExtractCommand;
     clip.addCommand!InfoCommand;
+    clip.addCommand!InstallCommand;
     clip.addCommand!VersionCommand;
     clip.addCommand!HelpCommand;
     return clip.process(args);

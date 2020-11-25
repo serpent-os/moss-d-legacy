@@ -20,25 +20,20 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module moss.cli.versionCommand;
+module moss.cli.installCommand;
 
 public import moss.core.cli;
 import moss.core;
 
-@CommandName("version")
-@CommandHelp("Show the program version and exit")
-public final struct VersionCommand
+@CommandName("install")
+@CommandHelp("Install a local package")
+public final struct InstallCommand
 {
     BaseCommand pt;
     alias pt this;
 
     @CommandEntry() int run(ref string[] argv)
     {
-        import std.stdio;
-
-        writefln("moss, version %s", moss.core.Version);
-        writeln("\nCopyright © 2020 Serpent OS Developers");
-        writeln("Available under the terms of the ZLib license");
-        return ExitStatus.Success;
+        return ExitStatus.Failure;
     }
 }
