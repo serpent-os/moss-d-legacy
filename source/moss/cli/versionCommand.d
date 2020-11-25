@@ -25,13 +25,13 @@
  */
 module moss.cli.versionCommand;
 import moss.cli;
-import moss;
+import moss.core;
 
 static ExitStatus versionExecute(ref Processor p)
 {
     import std.stdio;
 
-    writefln("moss package manager, version %s", moss.Version);
+    writefln("moss package manager, version %s", moss.core.Version);
     writeln("\nCopyright © 2020 Serpent OS Developers");
     writeln("Available under the terms of the ZLib license");
     return ExitStatus.Success;

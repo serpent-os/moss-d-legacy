@@ -22,7 +22,7 @@
 
 module moss.cli;
 
-public import moss : ExitStatus;
+public import moss.core : ExitStatus;
 public import moss.cli.processor;
 
 alias ExitStatus function(ref Processor p) exec_helper;
