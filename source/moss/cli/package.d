@@ -23,6 +23,7 @@
 module moss.cli;
 
 public import moss.core.cli;
+public import moss.cli.extractCommand;
 public import moss.cli.infoCommand;
 public import moss.cli.versionCommand;
 
@@ -37,4 +38,6 @@ public final struct MossCLI
 {
     BaseCommand pt;
     alias pt this;
+
+    @Option("d", "directory", "Root directory for all operations") string rootDirectory = null;
 }

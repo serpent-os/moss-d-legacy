@@ -1,5 +1,5 @@
 /*
- * This file is part of moss.
+ * This file is part of boulder.
  *
  * Copyright © 2020 Serpent OS Developers
  *
@@ -20,17 +20,20 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module main;
+module moss.cli.extractCommand;
 
-import std.stdio;
-import moss.cli;
+public import moss.core.cli;
+import moss.core;
 
-int main(string[] args)
+@CommandName("extract")
+@CommandHelp("Extract a local package to the working directory")
+public final struct ExtractCommand
 {
-    auto clip = cliProcessor!MossCLI(args);
-    clip.addCommand!ExtractCommand;
-    clip.addCommand!InfoCommand;
-    clip.addCommand!VersionCommand;
-    clip.addCommand!HelpCommand;
-    return clip.process(args);
+    BaseCommand pt;
+    alias pt this;
+
+    @CommandEntry() int run(ref string[] argv)
+    {
+        return ExitStatus.Failure;
+    }
 }
