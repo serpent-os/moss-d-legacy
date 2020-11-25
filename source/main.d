@@ -27,6 +27,9 @@ import moss.cli;
 
 int main(string[] args)
 {
-    auto p = Processor(args);
-    return p.process();
+    auto clip = cliProcessor!MossCLI(args);
+    clip.addCommand!InfoCommand;
+    clip.addCommand!VersionCommand;
+    clip.addCommand!HelpCommand;
+    return clip.process(args);
 }

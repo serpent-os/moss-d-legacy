@@ -1,5 +1,5 @@
 /*
- * This file is part of moss.
+ * This file is part of boulder.
  *
  * Copyright © 2020 Serpent OS Developers
  *
@@ -20,24 +20,25 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-/**
- * Version command implementation
- */
 module moss.cli.versionCommand;
-import moss.cli;
+
+public import moss.core.cli;
 import moss.core;
 
-static ExitStatus versionExecute(ref Processor p)
+@CommandName("version")
+@CommandHelp("Show the program version and exit")
+public final struct VersionCommand
 {
-    import std.stdio;
+    BaseCommand pt;
+    alias pt this;
 
-    writefln("moss package manager, version %s", moss.core.Version);
-    writeln("\nCopyright © 2020 Serpent OS Developers");
-    writeln("Available under the terms of the ZLib license");
-    return ExitStatus.Success;
+    @CommandEntry() int run(ref string[] argv)
+    {
+        import std.stdio;
+
+        writefln("moss, version %s", moss.core.Version);
+        writeln("\nCopyright © 2020 Serpent OS Developers");
+        writeln("Available under the terms of the ZLib license");
+        return ExitStatus.Success;
+    }
 }
-
-const Command versionCommand = {
-    primary: "version", secondary: null, blurb: "Show the program version and exit",
-    helpText: "Show the program version and exit", exec: &versionExecute,
-};

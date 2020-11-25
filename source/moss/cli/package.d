@@ -22,29 +22,19 @@
 
 module moss.cli;
 
-public import moss.core : ExitStatus;
-public import moss.cli.processor;
-
-alias ExitStatus function(ref Processor p) exec_helper;
+public import moss.core.cli;
+public import moss.cli.infoCommand;
+public import moss.cli.versionCommand;
 
 /**
- * Command provides the basic API with which to implement subcommand handling
- * in moss. Each command may have an optional alias to make CLI usage simpler.
+ * The MossCLI type holds some global configuration bits
  */
-struct Command
+@RootCommand @CommandName("moss")
+@CommandHelp("moss - the Serpent OS package management tool",
+        "Install software without loosing your mind")
+@CommandUsage("[--args] [command]")
+public final struct MossCLI
 {
-    const string primary; /**< Primary command invocation ("install") */
-    const string secondary; /**< Secondary invocation ("it") */
-    const string helpText; /**< Help text to display */
-    const string blurb; /**< One line description for the command */
-    const string usage; /**< Usage help for invocation */
-    exec_helper exec;
-
-    /**
-     * If the command matches, return true..
-     */
-    pragma(inline, true) pure const bool matches(string cmd) @safe @nogc nothrow
-    {
-        return primary == cmd || secondary == cmd;
-    }
+    BaseCommand pt;
+    alias pt this;
 }

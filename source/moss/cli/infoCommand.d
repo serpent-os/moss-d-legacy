@@ -20,36 +20,35 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-/**
- * Build command implementation
- */
 module moss.cli.infoCommand;
-import moss.cli;
+
+public import moss.core.cli;
+import moss.core;
 import moss.format.binary.reader;
+import std.stdio;
 
-import std.stdio : writeln, stderr;
-
-static ExitStatus infoExecute(ref Processor p)
+@CommandName("info")
+@CommandHelp("Display information on a package")
+public final struct InfoCommand
 {
-    if (p.argv.length != 1)
+    BaseCommand pt;
+    alias pt this;
+
+    @CommandEntry() int run(ref string[] argv)
     {
-        stderr.writeln("Requires an argument");
+        if (argv.length != 1)
+        {
+            stderr.writeln("Requires an argument");
+            return ExitStatus.Failure;
+        }
+
+        auto reader = Reader(File(argv[0], "rb"));
+
+        foreach (payload; reader)
+        {
+            writeln(payload);
+        }
+
         return ExitStatus.Failure;
     }
-
-    auto reader = Reader(File(p.argv[0], "rb"));
-
-    foreach (payload; reader)
-    {
-        writeln(payload);
-    }
-
-    return ExitStatus.Failure;
 }
-
-const Command infoCommand = {
-    primary: "info", secondary: null, blurb: "Show package details", usage: "info [package]",
-    exec: &infoExecute, helpText: `
-Display information on a package
-`
-};
