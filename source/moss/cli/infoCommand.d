@@ -28,7 +28,11 @@ import moss.format.binary.reader;
 import std.stdio;
 
 @CommandName("info")
-@CommandHelp("Display information on a package")
+@CommandHelp("Display information on a package",
+        "With a locally available .stone file, this command will attempt to read,
+validate and extract information on the given package.
+If the file is not a valid .stone file for moss, an error will be reported.")
+@CommandUsage("[.stone file]")
 public final struct InfoCommand
 {
     BaseCommand pt;
