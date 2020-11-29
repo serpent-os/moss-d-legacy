@@ -57,6 +57,7 @@ public final struct InfoCommand
                 break;
             case PayloadType.Content:
                 writeln(" - Content payload");
+                reader.unpackContent("blob");
                 break;
             case PayloadType.Index:
                 writeln(" - Index payload");
