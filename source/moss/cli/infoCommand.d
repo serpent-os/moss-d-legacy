@@ -46,7 +46,7 @@ public final struct InfoCommand
             return ExitStatus.Failure;
         }
 
-        auto reader = Reader(File(argv[0], "rb"));
+        auto reader = new Reader(File(argv[0], "rb"));
 
         foreach (payload; reader)
         {
