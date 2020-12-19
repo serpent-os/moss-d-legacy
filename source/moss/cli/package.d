@@ -35,7 +35,7 @@ public import moss.cli.versionCommand;
 @CommandHelp("moss - the Serpent OS package management tool",
         "Install software without loosing your mind")
 @CommandUsage("[--args] [command]")
-public final struct MossCLI
+public struct MossCLI
 {
     BaseCommand pt;
     alias pt this;

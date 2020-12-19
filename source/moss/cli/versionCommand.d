@@ -27,7 +27,7 @@ import moss.core;
 
 @CommandName("version")
 @CommandHelp("Show the program version and exit")
-public final struct VersionCommand
+public struct VersionCommand
 {
     BaseCommand pt;
     alias pt this;

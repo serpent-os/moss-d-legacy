@@ -27,7 +27,7 @@ import moss.core;
 
 @CommandName("install")
 @CommandHelp("Install a local package")
-public final struct InstallCommand
+public struct InstallCommand
 {
     BaseCommand pt;
     alias pt this;

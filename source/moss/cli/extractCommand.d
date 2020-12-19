@@ -27,7 +27,7 @@ import moss.core;
 
 @CommandName("extract")
 @CommandHelp("Extract a local package to the working directory")
-public final struct ExtractCommand
+public struct ExtractCommand
 {
     BaseCommand pt;
     alias pt this;
