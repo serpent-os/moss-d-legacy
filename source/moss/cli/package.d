@@ -23,10 +23,10 @@
 module moss.cli;
 
 public import moss.core.cli;
-public import moss.cli.extractCommand;
-public import moss.cli.infoCommand;
-public import moss.cli.installCommand;
-public import moss.cli.versionCommand;
+public import moss.cli.extract_command;
+public import moss.cli.info_command;
+public import moss.cli.install_command;
+public import moss.cli.version_command;
 
 /**
  * The MossCLI type holds some global configuration bits

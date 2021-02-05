@@ -20,7 +20,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module moss.cli.infoCommand;
+module moss.cli.info_command;
 
 public import moss.core.cli;
 import moss.core;
