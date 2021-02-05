@@ -25,13 +25,21 @@ module moss.cli.extract_command;
 public import moss.core.cli;
 import moss.core;
 
+/**
+ * The ExtractCommand provides a CLI system to extract moss
+ * packages to a given directory without installation
+ */
 @CommandName("extract")
 @CommandHelp("Extract a local package to the working directory")
 public struct ExtractCommand
 {
+    /** Extend BaseCommand with extraction utility */
     BaseCommand pt;
     alias pt this;
 
+    /**
+     * Main entry point for the ExtractCommand
+     */
     @CommandEntry() int run(ref string[] argv)
     {
         return ExitStatus.Failure;

@@ -37,8 +37,10 @@ public import moss.cli.version_command;
 @CommandUsage("[--args] [command]")
 public struct MossCLI
 {
+    /** Extend BaseCommand to provide a root group of commands */
     BaseCommand pt;
     alias pt this;
 
+    /** Option to set the root directory for filesystem operations */
     @Option("d", "directory", "Root directory for all operations") string rootDirectory = null;
 }

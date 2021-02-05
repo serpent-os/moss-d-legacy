@@ -25,13 +25,21 @@ module moss.cli.install_command;
 public import moss.core.cli;
 import moss.core;
 
+/**
+ * The InstallCommand provides a CLI system to install a package, whether from
+ * a local file or a repository.
+ */
 @CommandName("install")
 @CommandHelp("Install a local package")
 public struct InstallCommand
 {
+    /** Extend BaseCommand with install utility */
     BaseCommand pt;
     alias pt this;
 
+    /**
+     * Main entry point into the InstallCommand
+     */
     @CommandEntry() int run(ref string[] argv)
     {
         return ExitStatus.Failure;

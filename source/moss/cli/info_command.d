@@ -27,17 +27,27 @@ import moss.core;
 import moss.format.binary.reader;
 import std.stdio;
 
+/**
+ * InfoCommand provides a CLI system to view information
+ * pertaining to a package or local package file, as a
+ * means of introspection
+ */
 @CommandName("info")
 @CommandHelp("Display information on a package",
-        "With a locally available .stone file, this command will attempt to read,
-validate and extract information on the given package.
-If the file is not a valid .stone file for moss, an error will be reported.")
+        "With a locally available .stone file, this command will attempt to
+read, validate and extract information on the given package.
+If the file is not a valid .stone file for moss, an error will be
+reported.")
 @CommandUsage("[.stone file]")
-final struct InfoCommand
+public struct InfoCommand
 {
+    /** Extend BaseCommand with Info utility */
     BaseCommand pt;
     alias pt this;
 
+    /**
+     * Main entry point into the InfoCommand utility
+    */
     @CommandEntry() int run(ref string[] argv)
     {
         if (argv.length != 1)
