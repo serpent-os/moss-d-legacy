@@ -58,32 +58,6 @@ public struct InfoCommand
 
         auto reader = new Reader(File(argv[0], "rb"));
 
-        foreach (payload; reader)
-        {
-            final switch (payload.type)
-            {
-            case PayloadType.Attributes:
-                writeln(" - Attributes payload");
-                break;
-            case PayloadType.Content:
-                writeln(" - Content payload");
-                break;
-            case PayloadType.Index:
-                writeln(" - Index payload");
-                break;
-            case PayloadType.Layout:
-                writeln(" - Layout payload");
-                break;
-            case PayloadType.Meta:
-                writeln(" - Meta payload");
-                break;
-            case PayloadType.Unknown:
-                writeln(" - Unknown payload");
-                break;
-            }
-            writeln(payload);
-        }
-
         return ExitStatus.Failure;
     }
 }
