@@ -58,6 +58,10 @@ public struct InfoCommand
 
         auto reader = new Reader(File(argv[0], "rb"));
 
+        import moss.format.binary.payload.meta : MetaPayload;
+
+        auto metadata = reader.payload!MetaPayload();
+        writeln(metadata);
         return ExitStatus.Failure;
     }
 }
