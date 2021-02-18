@@ -50,6 +50,8 @@ public struct InfoCommand
     */
     @CommandEntry() int run(ref string[] argv)
     {
+        import std.conv : to;
+
         if (argv.length != 1)
         {
             stderr.writeln("Requires an argument");
@@ -58,10 +60,24 @@ public struct InfoCommand
 
         auto reader = new Reader(File(argv[0], "rb"));
 
-        import moss.format.binary.payload.meta : MetaPayload;
+        import moss.format.binary.payload.meta : MetaPayload, RecordType;
 
         auto metadata = reader.payload!MetaPayload();
-        writeln(metadata);
+        foreach (pair; metadata)
+        {
+            writef("%-15s : ", pair.tag.to!string);
+
+            /* TODO: Care more about signed values :)) */
+            if (pair.type == RecordType.String)
+            {
+                writeln(pair.val_string);
+            }
+            else
+            {
+                writeln(pair.val_i64);
+            }
+        }
+
         return ExitStatus.Failure;
     }
 }
