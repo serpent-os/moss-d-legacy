@@ -107,5 +107,14 @@ public struct InfoCommand
         {
             writeln(indices);
         }
+
+        /* Grab layout */
+        import moss.format.binary.payload.layout : LayoutPayload;
+
+        auto layout = reader.payload!LayoutPayload();
+        if (layout !is null)
+        {
+            writeln(layout);
+        }
     }
 }
