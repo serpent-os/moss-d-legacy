@@ -50,15 +50,35 @@ public struct InfoCommand
     */
     @CommandEntry() int run(ref string[] argv)
     {
-        import std.conv : to;
+        import std.algorithm : each;
 
-        if (argv.length != 1)
+        if (argv.length < 1)
         {
             stderr.writeln("Requires an argument");
             return ExitStatus.Failure;
         }
 
-        auto reader = new Reader(File(argv[0], "rb"));
+        argv.each!((a) => readPackage(a));
+        return ExitStatus.Success;
+    }
+
+    /**
+     * Helper to read each package
+     */
+    void readPackage(string packageName)
+    {
+        import std.file : exists;
+        import std.conv : to;
+
+        if (!packageName.exists())
+        {
+            stderr.writeln("No such package: ", packageName);
+            return;
+        }
+
+        auto reader = new Reader(File(packageName, "rb"));
+
+        writeln("Package: ", packageName);
 
         import moss.format.binary.payload.meta : MetaPayload, RecordType;
 
@@ -77,7 +97,6 @@ public struct InfoCommand
                 writeln(pair.val_i64);
             }
         }
-
-        return ExitStatus.Failure;
+        writeln();
     }
 }
