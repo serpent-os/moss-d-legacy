@@ -98,5 +98,14 @@ public struct InfoCommand
             }
         }
         writeln();
+
+        /* Grab index */
+        import moss.format.binary.payload.index : IndexPayload;
+
+        auto indices = reader.payload!IndexPayload();
+        if (indices !is null)
+        {
+            writeln(indices);
+        }
     }
 }
