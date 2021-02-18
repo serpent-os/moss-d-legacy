@@ -105,7 +105,10 @@ public struct InfoCommand
         auto indices = reader.payload!IndexPayload();
         if (indices !is null)
         {
-            writeln(indices);
+            foreach (_, id; indices)
+            {
+                writeln("Index ID: ", id);
+            }
         }
 
         /* Grab layout */
