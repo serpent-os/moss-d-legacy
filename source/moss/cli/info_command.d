@@ -117,7 +117,19 @@ public struct InfoCommand
         auto layout = reader.payload!LayoutPayload();
         if (layout !is null)
         {
-            writeln(layout);
+            import std.conv : to;
+
+            foreach (entry, source, target; layout)
+            {
+                if (source !is null)
+                {
+                    writefln("Source: %s, Target: %s (%s)", source, target, to!string(entry));
+                }
+                else
+                {
+                    writefln("Target: %s (%s)", target, to!string(entry));
+                }
+            }
         }
     }
 }
