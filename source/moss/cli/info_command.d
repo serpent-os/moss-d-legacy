@@ -100,6 +100,9 @@ public struct InfoCommand
             case PayloadType.Layout:
                 printLayout(reader);
                 break;
+            case PayloadType.Index:
+                printIndex(reader);
+                break;
             default:
                 break;
             }
@@ -141,21 +144,32 @@ public struct InfoCommand
         import moss.format.binary.payload.layout : LayoutPayload;
 
         auto layout = reader.payload!LayoutPayload();
-        if (layout !is null)
-        {
-            import std.conv : to;
+        import std.conv : to;
 
-            foreach (entry, source, target; layout)
+        foreach (entry, source, target; layout)
+        {
+            if (source !is null)
             {
-                if (source !is null)
-                {
-                    writefln("  - %s -> %s [%s]", target, source, to!string(entry.type));
-                }
-                else
-                {
-                    writefln("  - %s [%s]", target, to!string(entry.type));
-                }
+                writefln("  - %s -> %s [%s]", target, source, to!string(entry.type));
             }
+            else
+            {
+                writefln("  - %s [%s]", target, to!string(entry.type));
+            }
+        }
+    }
+
+    /**
+     * Print all index entries within the payload
+     */
+    void printIndex(scope Reader reader)
+    {
+        import moss.format.binary.payload.index : IndexPayload;
+
+        auto index = reader.payload!IndexPayload();
+        foreach (entry, id; index)
+        {
+            writefln("  - %s [size: %d]", id, entry.size);
         }
     }
 }
