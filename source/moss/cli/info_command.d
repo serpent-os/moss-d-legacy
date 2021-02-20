@@ -25,6 +25,7 @@ module moss.cli.info_command;
 public import moss.core.cli;
 import moss.core;
 import moss.format.binary.reader;
+import moss.format.binary.payload;
 import std.stdio;
 
 /**
@@ -80,7 +81,33 @@ public struct InfoCommand
 
         writeln("Package: ", packageName);
 
+        /**
+         * Emit all headers
+         */
+        foreach (hdr; reader.headers)
+        {
+            writefln("Payload: %s", to!string(hdr.type));
+            switch (hdr.type)
+            {
+            case PayloadType.Meta:
+                printMeta(reader);
+                break;
+            case PayloadType.Layout:
+                printLayout(reader);
+                break;
+            default:
+                break;
+            }
+        }
+    }
+
+    /**
+     * Print all metadata in a local package file
+     */
+    void printMeta(scope Reader reader)
+    {
         import moss.format.binary.payload.meta : MetaPayload, RecordType;
+        import std.conv : to;
 
         auto metadata = reader.payload!MetaPayload();
         foreach (pair; metadata)
@@ -98,19 +125,13 @@ public struct InfoCommand
             }
         }
         writeln();
+    }
 
-        /* Grab index */
-        import moss.format.binary.payload.index : IndexPayload;
-
-        auto indices = reader.payload!IndexPayload();
-        if (indices !is null)
-        {
-            foreach (_, id; indices)
-            {
-                writeln("Index ID: ", id);
-            }
-        }
-
+    /**
+     * Print all layout information in a local package file
+     */
+    void printLayout(scope Reader reader)
+    {
         /* Grab layout */
         import moss.format.binary.payload.layout : LayoutPayload;
 
@@ -130,15 +151,6 @@ public struct InfoCommand
                     writefln("Target: %s (%s)", target, to!string(entry));
                 }
             }
-        }
-
-        /* Got content? */
-        import moss.format.binary.payload.content : ContentPayload;
-
-        auto content = reader.payload!ContentPayload();
-        if (content !is null)
-        {
-            writeln(content);
         }
     }
 }
