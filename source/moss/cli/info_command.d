@@ -149,11 +149,11 @@ public struct InfoCommand
             {
                 if (source !is null)
                 {
-                    writefln("Source: %s, Target: %s (%s)", source, target, to!string(entry));
+                    writefln("  - %s -> %s [%s]", target, source, to!string(entry.type));
                 }
                 else
                 {
-                    writefln("Target: %s (%s)", target, to!string(entry));
+                    writefln("  - %s [%s]", target, to!string(entry.type));
                 }
             }
         }
