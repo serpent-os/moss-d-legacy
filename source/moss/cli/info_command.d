@@ -131,5 +131,14 @@ public struct InfoCommand
                 }
             }
         }
+
+        /* Got content? */
+        import moss.format.binary.payload.content : ContentPayload;
+
+        auto content = reader.payload!ContentPayload();
+        if (content !is null)
+        {
+            writeln(content);
+        }
     }
 }
