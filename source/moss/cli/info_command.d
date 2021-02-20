@@ -86,7 +86,12 @@ public struct InfoCommand
          */
         foreach (hdr; reader.headers)
         {
-            writefln("Payload: %s", to!string(hdr.type));
+            /* Calculate compression savings */
+            immutable float comp = hdr.storedSize;
+            immutable float uncomp = hdr.plainSize;
+            auto savings = (comp > 0 ? (100.0f - (comp / uncomp) * 100.0f) : 0);
+            writefln("Payload: %s [Compression: %s, savings: %.2f%%]",
+                    to!string(hdr.type), to!string(hdr.compression), savings);
             switch (hdr.type)
             {
             case PayloadType.Meta:
