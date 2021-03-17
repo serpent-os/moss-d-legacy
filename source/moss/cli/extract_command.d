@@ -24,6 +24,9 @@ module moss.cli.extract_command;
 
 public import moss.core.cli;
 import moss.core;
+import moss.format.binary.reader;
+import moss.format.binary.payload;
+import std.stdio : writeln, stderr;
 
 /**
  * The ExtractCommand provides a CLI system to extract moss
@@ -42,6 +45,48 @@ public struct ExtractCommand
      */
     @CommandEntry() int run(ref string[] argv)
     {
-        return ExitStatus.Failure;
+        import std.algorithm : each;
+
+        if (argv.length < 1)
+        {
+            stderr.writeln("Requires an argument");
+            return ExitStatus.Failure;
+        }
+
+        argv.each!((a) => unpackPackage(a));
+        return ExitStatus.Success;
+    }
+
+    /**
+     * Handle unpacking of a single package
+     */
+    void unpackPackage(const(string) packageName)
+    {
+        import std.file : exists;
+        import moss.format.binary.payload.content : ContentPayload;
+        import moss.format.binary.payload.index : IndexPayload;
+        import moss.format.binary.payload.layout : LayoutPayload;
+        import std.exception : enforce;
+
+        if (!packageName.exists())
+        {
+            stderr.writeln("No such package: ", packageName);
+            return;
+        }
+
+        auto reader = new Reader(File(packageName, "rb"));
+
+        writeln("Extracting package: ", packageName);
+
+        auto contentPayload = reader.payload!ContentPayload;
+        auto layoutPayload = reader.payload!LayoutPayload;
+        auto indexPayload = reader.payload!IndexPayload;
+
+        enforce(contentPayload !is null, "ContentPayload not present");
+        enforce(indexPayload !is null, "IndexPayload not present");
+        enforce(layoutPayload !is null, "LayoutPayload not present");
+
+        /** TODO: Use better filename! */
+        reader.unpackContent(contentPayload, "./MOSSCONTENT");
     }
 }
