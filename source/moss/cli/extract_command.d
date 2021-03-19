@@ -82,7 +82,10 @@ public struct ExtractCommand
 
         auto extractionDir = ".".buildPath("mossExtraction");
         auto installDir = ".".buildPath("mossInstall");
-        extractionDir.mkdir();
+        if (!extractionDir.exists)
+        {
+            extractionDir.mkdir();
+        }
         auto contentFile = extractionDir.buildPath("MOSSCONTENT");
         scope (exit)
         {
