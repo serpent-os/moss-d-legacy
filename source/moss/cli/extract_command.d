@@ -88,17 +88,35 @@ public struct ExtractCommand
 
         import std.algorithm : each;
 
-        /* Handle extraction of cache indices */
+        /** TODO: Use better filename! */
+        reader.unpackContent(contentPayload, "./MOSSCONTENT");
+
+        import std.mmfile : MmFile;
+
+        auto mappedFile = new MmFile(File("MOSSCONTENT", "rb"));
+
+        /**
+         * Inefficient extraction of indices via copying. Eventually we'll
+         * support copy_file_range which will minimise userspace copying and
+         * do much of it in kernel space.
+         *
+         * Our current version read/writes in 4MB chunks.
+         */
         void extractIndex(ref IndexEntry entry, const(string) id)
         {
             import std.conv : to;
+            import std.range : chunks;
+            import std.algorithm : each;
 
             writefln("extracting entry: %s [%s]", id, to!string(entry));
+
+            /* Copy file to targets. */
+            auto targetFile = File(id, "wb");
+            auto copyableRange = cast(ubyte[]) mappedFile[entry.start .. entry.end];
+            copyableRange.chunks(4 * 1024 * 1024).each!((b) => targetFile.rawWrite(b));
+            targetFile.close();
         }
 
         indexPayload.each!((entry, id) => extractIndex(entry, id));
-
-        /** TODO: Use better filename! */
-        reader.unpackContent(contentPayload, "./MOSSCONTENT");
     }
 }
