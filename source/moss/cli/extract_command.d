@@ -26,7 +26,7 @@ public import moss.core.cli;
 import moss.core;
 import moss.format.binary.reader;
 import moss.format.binary.payload;
-import std.stdio : writeln, stderr;
+import std.stdio : writeln, writefln, stderr;
 
 /**
  * The ExtractCommand provides a CLI system to extract moss
@@ -64,7 +64,7 @@ public struct ExtractCommand
     {
         import std.file : exists;
         import moss.format.binary.payload.content : ContentPayload;
-        import moss.format.binary.payload.index : IndexPayload;
+        import moss.format.binary.payload.index : IndexPayload, IndexEntry;
         import moss.format.binary.payload.layout : LayoutPayload;
         import std.exception : enforce;
 
@@ -85,6 +85,18 @@ public struct ExtractCommand
         enforce(contentPayload !is null, "ContentPayload not present");
         enforce(indexPayload !is null, "IndexPayload not present");
         enforce(layoutPayload !is null, "LayoutPayload not present");
+
+        import std.algorithm : each;
+
+        /* Handle extraction of cache indices */
+        void extractIndex(ref IndexEntry entry, const(string) id)
+        {
+            import std.conv : to;
+
+            writefln("extracting entry: %s [%s]", id, to!string(entry));
+        }
+
+        indexPayload.each!((entry, id) => extractIndex(entry, id));
 
         /** TODO: Use better filename! */
         reader.unpackContent(contentPayload, "./MOSSCONTENT");
