@@ -65,7 +65,7 @@ public struct ExtractCommand
         import std.file : exists;
         import moss.format.binary.payload.content : ContentPayload;
         import moss.format.binary.payload.index : IndexPayload, IndexEntry;
-        import moss.format.binary.payload.layout : LayoutPayload;
+        import moss.format.binary.payload.layout : LayoutPayload, LayoutEntry;
         import std.exception : enforce;
         import std.path : buildPath;
         import std.file : mkdir, remove;
@@ -81,6 +81,7 @@ public struct ExtractCommand
         writeln("Extracting package: ", packageName);
 
         auto extractionDir = ".".buildPath("mossExtraction");
+        auto installDir = ".".buildPath("mossInstall");
         extractionDir.mkdir();
         auto contentFile = extractionDir.buildPath("MOSSCONTENT");
         scope (exit)
@@ -127,6 +128,61 @@ public struct ExtractCommand
             targetFile.close();
         }
 
+        void applyLayout(ref LayoutEntry entry, const(string) source, const(string) target)
+        {
+            import std.stdio : writefln;
+            import std.string : startsWith;
+            import moss.format.binary : FileType;
+            import std.file : mkdirRecurse;
+
+            auto targetPath = installDir.buildPath(target.startsWith("/") ? target[1 .. $] : target);
+            writefln("Constructing target: %s", targetPath);
+
+            void updateAttrs()
+            {
+                import std.file : setAttributes, setTimes;
+                import std.datetime : SysTime;
+
+                targetPath.setAttributes(entry.mode);
+                targetPath.setTimes(SysTime.fromUnixTime(entry.time),
+                        SysTime.fromUnixTime(entry.time));
+            }
+
+            switch (entry.type)
+            {
+            case FileType.Directory:
+                /* Construct the directory */
+                targetPath.mkdirRecurse();
+
+                /* Directory access changes as it needs applying in reverse. Revisit */
+                updateAttrs();
+                break;
+            case FileType.Regular:
+                /* Link to final destination */
+                const auto sourcePath = extractionDir.buildPath(source);
+                import moss.core.util : hardLink;
+                import std.file : setAttributes;
+
+                hardLink(sourcePath, targetPath);
+
+                updateAttrs();
+                break;
+            case FileType.Symlink:
+                import std.file : symlink;
+
+                symlink(source, targetPath);
+                break;
+            default:
+                stderr.writeln("Extraction support not yet complete");
+                break;
+            }
+        }
+
         indexPayload.each!((entry, id) => extractIndex(entry, id));
+
+        foreach (entry, source, target; layoutPayload)
+        {
+            applyLayout(entry, source, target);
+        }
     }
 }
