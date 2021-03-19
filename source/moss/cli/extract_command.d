@@ -26,7 +26,7 @@ public import moss.core.cli;
 import moss.core;
 import moss.format.binary.reader;
 import moss.format.binary.payload;
-import std.stdio : writeln, writefln, stderr;
+import std.stdio : writeln, stderr;
 
 /**
  * The ExtractCommand provides a CLI system to extract moss
@@ -67,6 +67,8 @@ public struct ExtractCommand
         import moss.format.binary.payload.index : IndexPayload, IndexEntry;
         import moss.format.binary.payload.layout : LayoutPayload;
         import std.exception : enforce;
+        import std.path : buildPath;
+        import std.file : mkdir, remove;
 
         if (!packageName.exists())
         {
@@ -77,6 +79,14 @@ public struct ExtractCommand
         auto reader = new Reader(File(packageName, "rb"));
 
         writeln("Extracting package: ", packageName);
+
+        auto extractionDir = ".".buildPath("mossExtraction");
+        extractionDir.mkdir();
+        auto contentFile = extractionDir.buildPath("MOSSCONTENT");
+        scope (exit)
+        {
+            contentFile.remove();
+        }
 
         auto contentPayload = reader.payload!ContentPayload;
         auto layoutPayload = reader.payload!LayoutPayload;
@@ -89,11 +99,11 @@ public struct ExtractCommand
         import std.algorithm : each;
 
         /** TODO: Use better filename! */
-        reader.unpackContent(contentPayload, "./MOSSCONTENT");
+        reader.unpackContent(contentPayload, contentFile);
 
         import std.mmfile : MmFile;
 
-        auto mappedFile = new MmFile(File("MOSSCONTENT", "rb"));
+        auto mappedFile = new MmFile(File(contentFile, "rb"));
 
         /**
          * Inefficient extraction of indices via copying. Eventually we'll
@@ -108,10 +118,10 @@ public struct ExtractCommand
             import std.range : chunks;
             import std.algorithm : each;
 
-            writefln("extracting entry: %s [%s]", id, to!string(entry));
-
             /* Copy file to targets. */
-            auto targetFile = File(id, "wb");
+            auto fileName = extractionDir.buildPath(id);
+
+            auto targetFile = File(fileName, "wb");
             auto copyableRange = cast(ubyte[]) mappedFile[entry.start .. entry.end];
             copyableRange.chunks(4 * 1024 * 1024).each!((b) => targetFile.rawWrite(b));
             targetFile.close();
