@@ -14,6 +14,9 @@
 		},
 		"moss-format:binary": {
 			"path": "external/moss-format"
+		},
+		"serpent-ecs": {
+			"path":  "external/serpent-ecs"
 		}
 	},
 	"buildTypes": {
