@@ -182,10 +182,6 @@ public struct ExtractCommand
         }
 
         indexPayload.each!((entry, id) => extractIndex(entry, id));
-
-        foreach (entry, source, target; layoutPayload)
-        {
-            applyLayout(entry, source, target);
-        }
+        layoutPayload.each!((e) => applyLayout(e.entry, e.source, e.target));
     }
 }
