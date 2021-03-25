@@ -4,3 +4,6 @@
 [submodule "external/moss-core"]
 	path = external/moss-core
 	url = https://github.com/serpent-linux/moss-core.git
+[submodule "external/serpent-ecs"]
+	path = external/serpent-ecs
+	url = https://github.com/lispysnake/serpent-ecs.git
