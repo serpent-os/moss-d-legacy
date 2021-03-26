@@ -45,6 +45,11 @@ final class DiskDB
 
         enforce(systemRoot !is null, "DiskDB(): Cannot operate on NULL systemRoot");
         enforce(dbName !is null, "DiskDB(): Cannot operate on NULL dbName");
+
+        /* Raw DB path for DiskDB */
+        import std.path : buildPath;
+
+        _dbPath = systemRoot.buildPath(systemRoot, "moss", "db", dbName, "raw");
     }
 
     /**
@@ -63,8 +68,17 @@ final class DiskDB
         return _dbName;
     }
 
+    /**
+     * Return the database path on disk
+     */
+    pure @property const(string) dbPath() @safe @nogc nothrow
+    {
+        return _dbPath;
+    }
+
 private:
 
     string _systemRoot = "/";
     string _dbName = null;
+    string _dbPath = null;
 }
