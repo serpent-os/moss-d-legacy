@@ -63,6 +63,12 @@ public:
         _entity.registerComponent!PackageIDComponent;
         _entity.registerComponent!StateIDComponent;
         _entity.build();
+
+        /* TODO: Initialise currentState from disk! */
+        _currentState = new State(this, 0);
+        _currentState.description = "Automatically generated transaction";
+        _currentState.aliasName = "Installation of new system";
+        _currentState.type = StateType.Regular;
     }
 
     ~this()
@@ -70,9 +76,18 @@ public:
         _entity.clear();
     }
 
+    /**
+     * Return the current system state
+     */
+    pure @property State currentState() @safe @nogc nothrow
+    {
+        return _currentState;
+    }
+
 private:
 
     EntityManager _entity;
+    State _currentState;
 }
 
 public import moss.manager.state;
