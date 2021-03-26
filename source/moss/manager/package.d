@@ -20,30 +20,57 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module moss.cli.install_command;
+/**
+ * The moss.Manager module contains types that make it possible to interact
+ * with the package mangling side of things.
+ */
+module moss.manager;
 
-public import moss.core.cli;
-import moss.core;
-import moss.manager;
+import serpent.ecs;
+import std.stdint : uint64_t;
 
 /**
- * The InstallCommand provides a CLI system to install a package, whether from
- * a local file or a repository.
+ * Assign a Package ID to every package in the state
  */
-@CommandName("install")
-@CommandHelp("Install a local package")
-public struct InstallCommand
+@serpentComponent package struct PackageIDComponent
 {
-    /** Extend BaseCommand with install utility */
-    BaseCommand pt;
-    alias pt this;
+    string id;
+}
+
+/**
+ * Assign a State ID component to every package in the state.
+ */
+@serpentComponent package struct StateIDComponent
+{
+    uint64_t stateID;
+}
+
+/**
+ * The StateManager class the main entry point to package management operations,
+ * allowing us to query and manipulate the state of an installed system.
+ */
+final class StateManager
+{
+
+public:
 
     /**
-     * Main entry point into the InstallCommand
+     * Construct a new moss StateManager
      */
-    @CommandEntry() int run(ref string[] argv)
+    this()
     {
-        auto manager = new StateManager();
-        return ExitStatus.Failure;
+        _entity = new EntityManager();
+        _entity.registerComponent!PackageIDComponent;
+        _entity.registerComponent!StateIDComponent;
+        _entity.build();
     }
+
+    ~this()
+    {
+        _entity.clear();
+    }
+
+private:
+
+    EntityManager _entity;
 }
