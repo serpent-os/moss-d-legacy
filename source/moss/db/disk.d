@@ -84,7 +84,7 @@ final class DiskDB
         const filePath = dbPath.buildPath(key);
 
         File fi = File(filePath, "wb");
-        scope(exit)
+        scope (exit)
         {
             fi.close();
         }
@@ -104,6 +104,17 @@ final class DiskDB
             return null;
         }
         return cast(ubyte[]) read(filePath);
+    }
+
+    /**
+     * Remove key from the database
+     */
+    void removeKey(const(string) key)
+    {
+        const filePath = dbPath.buildPath(key);
+        import std.file : remove;
+
+        remove(filePath);
     }
 
 private:
