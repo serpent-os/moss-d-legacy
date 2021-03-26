@@ -20,59 +20,30 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-/**
- * The moss.Manager module contains types that make it possible to interact
- * with the package mangling side of things.
- */
-module moss.manager;
+module moss.manager.state;
 
-import serpent.ecs;
-import std.stdint : uint64_t;
+import moss.manager : StateManager;
 
 /**
- * Assign a Package ID to every package in the state
+ * A State is a view of a current or future installation state within the
+ * target system.
  */
-@serpentComponent package struct PackageIDComponent
-{
-    string id;
-}
-
-/**
- * Assign a State ID component to every package in the state.
- */
-@serpentComponent package struct StateIDComponent
-{
-    uint64_t stateID;
-}
-
-/**
- * The StateManager class the main entry point to package management operations,
- * allowing us to query and manipulate the state of an installed system.
- */
-public final class StateManager
+public final class State
 {
 
-public:
+    @disable this();
+
+package:
 
     /**
-     * Construct a new moss StateManager
+     * Construct a new State with the given Manager as owning instance
      */
-    this()
+    this(StateManager _manager)
     {
-        _entity = new EntityManager();
-        _entity.registerComponent!PackageIDComponent;
-        _entity.registerComponent!StateIDComponent;
-        _entity.build();
-    }
-
-    ~this()
-    {
-        _entity.clear();
+        _manager = _manager;
     }
 
 private:
 
-    EntityManager _entity;
+    StateManager _manager;
 }
-
-public import moss.manager.state;
