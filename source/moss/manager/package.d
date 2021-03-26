@@ -27,14 +27,15 @@
 module moss.manager;
 
 import serpent.ecs;
-import std.stdint : uint64_t;
+import std.stdint : uint16_t, uint64_t;
 
 /**
- * Assign a Package ID to every package in the state
+ * Numerous reasons for why a package was installed
  */
-@serpentComponent package struct PackageIDComponent
+enum SelectionType : uint16_t
 {
-    string id;
+    Manual = 0,
+    AutomaticDependency = 1,
 }
 
 /**
@@ -45,6 +46,22 @@ import std.stdint : uint64_t;
     uint64_t stateID;
 }
 
+/**
+ * Each package may be installed automatically or manually,
+ * and additionally has a unique identifier
+ */
+@serpentComponent package struct SelectionComponent
+{
+    SelectionType type = SelectionType.Manual;
+}
+
+/**
+ * Every package has a unique ID which must be stored
+ */
+@serpentComponent package struct PackageIDComponent
+{
+    string packageID;
+}
 /**
  * The StateManager class the main entry point to package management operations,
  * allowing us to query and manipulate the state of an installed system.
@@ -63,6 +80,7 @@ public:
 
         _entity = new EntityManager();
         _entity.registerComponent!PackageIDComponent;
+        _entity.registerComponent!SelectionComponent;
         _entity.registerComponent!StateIDComponent;
         _entity.build();
 
