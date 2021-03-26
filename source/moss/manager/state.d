@@ -23,6 +23,7 @@
 module moss.manager.state;
 
 import moss.manager : StateManager;
+public import std.stdint : uint64_t;
 
 /**
  * A State is a view of a current or future installation state within the
@@ -33,17 +34,35 @@ public final class State
 
     @disable this();
 
+    /**
+     * Return the ID property
+     */
+    pragma(inline, true) pure @property uint64_t id() @safe @nogc nothrow
+    {
+        return _id;
+    }
+
 package:
 
     /**
      * Construct a new State with the given Manager as owning instance
      */
-    this(StateManager _manager)
+    this(StateManager _manager, uint64_t id = 0)
     {
         _manager = _manager;
+        this.id = id;
+    }
+
+    /**
+     * Update the ID property
+     */
+    pure @property void id(uint64_t id) @safe @nogc nothrow
+    {
+        _id = id;
     }
 
 private:
 
     StateManager _manager;
+    uint64_t _id = 0;
 }
