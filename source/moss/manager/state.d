@@ -42,6 +42,30 @@ public final class State
         return _id;
     }
 
+    /**
+     * Return the aliased name for this State
+     */
+    pragma(inline, true) pure @property string aliasName() @safe @nogc nothrow
+    {
+        return _aliasedName;
+    }
+
+    /**
+     * Return the description for this State
+     */
+    pragma(inline, true) pure @property string description() @safe @nogc nothrow
+    {
+        return _description;
+    }
+
+    /**
+     * Return underlying timestamp for the State
+     */
+    pragma(inline, true) pure @property uint64_t timestamp() @safe @nogc nothrow
+    {
+        return _time;
+    }
+
 package:
 
     /**
@@ -61,8 +85,35 @@ package:
         _id = id;
     }
 
+    /**
+     * Update the aliased name for this State
+     */
+    pure @property void aliasName(const(string) aliasName) @safe @nogc nothrow
+    {
+        _aliasedName = aliasName;
+    }
+
+    /**
+     * Update the description for this state
+     */
+    pure @property void description(const(string) desc) @safe @nogc nothrow
+    {
+        _description = desc;
+    }
+
+    /**
+     * Update the State's internal timestamp
+     */
+    pure @property void timestamp(uint64_t time) @safe @nogc nothrow
+    {
+        _time = time;
+    }
+
 private:
 
     StateManager _manager;
     uint64_t _id = 0;
+    uint64_t _time = 0;
+    string _aliasedName = null;
+    string _description = null;
 }
