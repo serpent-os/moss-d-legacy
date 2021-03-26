@@ -26,6 +26,21 @@ import moss.manager : StateManager;
 public import std.stdint : uint64_t;
 
 /**
+ * A State may be created with a specific purpose..
+ */
+public final enum StateType
+{
+    /** Automatic snapshot as created by the system */
+    Regular = 0,
+
+    /** Manually created by the user as a rollback point */
+    Snapshot,
+
+    /** Transient (not yet applied) state */
+    Transient,
+}
+
+/**
  * A State is a view of a current or future installation state within the
  * target system.
  */
@@ -64,6 +79,14 @@ public final class State
     pragma(inline, true) pure @property uint64_t timestamp() @safe @nogc nothrow
     {
         return _time;
+    }
+
+    /**
+     * Return the type of State
+     */
+    pragma(inline, true) pure @property StateType type() @safe @nogc nothrow
+    {
+        return _type;
     }
 
 package:
@@ -109,6 +132,14 @@ package:
         _time = time;
     }
 
+    /**
+     * Update the State's type
+     */
+    pure @property void type(StateType type) @safe @nogc nothrow
+    {
+        _type = type;
+    }
+
 private:
 
     StateManager _manager;
@@ -116,4 +147,5 @@ private:
     uint64_t _time = 0;
     string _aliasedName = null;
     string _description = null;
+    StateType _type = StateType.Transient;
 }
