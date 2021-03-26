@@ -57,8 +57,10 @@ public:
     /**
      * Construct a new moss StateManager
      */
-    this()
+    this(const(string) systemRoot = "/")
     {
+        _systemRoot = systemRoot;
+
         _entity = new EntityManager();
         _entity.registerComponent!PackageIDComponent;
         _entity.registerComponent!StateIDComponent;
@@ -84,10 +86,19 @@ public:
         return _currentState;
     }
 
+    /**
+     * Return the systemRoot for all operations
+     */
+    pure @property const(string) systemRoot() @safe @nogc nothrow
+    {
+        return _systemRoot;
+    }
+
 private:
 
     EntityManager _entity;
     State _currentState;
+    string _systemRoot = "/";
 }
 
 public import moss.manager.state;

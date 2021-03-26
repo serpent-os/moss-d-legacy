@@ -25,6 +25,7 @@ module moss.cli.install_command;
 public import moss.core.cli;
 import moss.core;
 import moss.manager;
+import moss.cli : MossCLI;
 
 /**
  * The InstallCommand provides a CLI system to install a package, whether from
@@ -43,7 +44,8 @@ public struct InstallCommand
      */
     @CommandEntry() int run(ref string[] argv)
     {
-        auto manager = new StateManager();
+        auto base = pt.findAncestor!MossCLI;
+        auto manager = new StateManager(base.rootDirectory !is null ? base.rootDirectory : "/");
         return ExitStatus.Failure;
     }
 }
