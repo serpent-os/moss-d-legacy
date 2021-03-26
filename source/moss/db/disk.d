@@ -23,6 +23,8 @@
 module moss.db.disk;
 
 import std.exception : enforce;
+import std.path : buildPath;
+import std.stdio : File;
 
 /**
  * The DiskDB is a very inefficient method for encoding data in a permanent
@@ -47,8 +49,6 @@ final class DiskDB
         enforce(dbName !is null, "DiskDB(): Cannot operate on NULL dbName");
 
         /* Raw DB path for DiskDB */
-        import std.path : buildPath;
-
         _dbPath = systemRoot.buildPath("moss", "db", dbName, "raw");
     }
 
@@ -74,6 +74,36 @@ final class DiskDB
     pure @property const(string) dbPath() @safe @nogc nothrow
     {
         return _dbPath;
+    }
+
+    /**
+     * Set the contents of key to contents
+     */
+    void setContents(const(string) key, ubyte[] contents) @system
+    {
+        const filePath = dbPath.buildPath(key);
+
+        File fi = File(filePath, "wb");
+        scope(exit)
+        {
+            fi.close();
+        }
+        fi.rawWrite(contents);
+    }
+
+    /**
+     * Return the contents of the given key
+     */
+    ubyte[] getContents(const(string) key)
+    {
+        const filePath = dbPath.buildPath(key);
+        import std.file : read, exists;
+
+        if (!filePath.exists)
+        {
+            return null;
+        }
+        return cast(ubyte[]) read(filePath);
     }
 
 private:
