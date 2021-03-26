@@ -49,7 +49,7 @@ final class DiskDB
         /* Raw DB path for DiskDB */
         import std.path : buildPath;
 
-        _dbPath = systemRoot.buildPath(systemRoot, "moss", "db", dbName, "raw");
+        _dbPath = systemRoot.buildPath("moss", "db", dbName, "raw");
     }
 
     /**
