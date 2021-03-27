@@ -79,9 +79,11 @@ final class DiskDB
     /**
      * Set the contents of key to contents
      */
-    void setContents(const(string) key, ubyte[] contents) @system
+    void setContents(const(string) group, const(string) key, ubyte[] contents) @system
     {
-        const filePath = dbPath.buildPath(key);
+        enforce(group !is null, "DiskDB.setContents(): Cannot have null group");
+        enforce(key !is null, "DiskDB.setContents(): Cannot have null key");
+        const filePath = dbPath.buildPath(group, key);
 
         File fi = File(filePath, "wb");
         scope (exit)
@@ -94,9 +96,12 @@ final class DiskDB
     /**
      * Return the contents of the given key
      */
-    ubyte[] getContents(const(string) key)
+    ubyte[] getContents(const(string) group, const(string) key)
     {
-        const filePath = dbPath.buildPath(key);
+        enforce(group !is null, "DiskDB.getContents(): Cannot have null group");
+        enforce(key !is null, "DiskDB.getContents(): Cannot have null key");
+
+        const filePath = dbPath.buildPath(group, key);
         import std.file : read, exists;
 
         if (!filePath.exists)
@@ -109,12 +114,28 @@ final class DiskDB
     /**
      * Remove key from the database
      */
-    void removeKey(const(string) key)
+    void removeKey(const(string) group, const(string) key)
     {
-        const filePath = dbPath.buildPath(key);
+        enforce(group !is null, "DiskDB.removeKey(): Cannot have null group");
+        enforce(key !is null, "DiskDB.removeKey(): Cannot have null key");
+
+        const filePath = dbPath.buildPath(group, key);
         import std.file : remove;
 
         remove(filePath);
+    }
+
+    /**
+     * Remove a whole group from the database
+     */
+    void removeGroup(const(string) group)
+    {
+        enforce(group !is null, "DiskDB.removeGroup(): Cannot have null group");
+
+        const filePath = dbPath.buildPath(group);
+        import std.file : rmdirRecurse;
+
+        filePath.rmdirRecurse();
     }
 
 private:
