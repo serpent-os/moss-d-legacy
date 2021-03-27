@@ -44,7 +44,8 @@ public struct InstallCommand
      */
     @CommandEntry() int run(ref string[] argv)
     {
-        import std.stdio : writeln;
+        import std.stdio : writeln, stderr;
+        import std.algorithm : each, uniq;
 
         /* Create appropriate Manager object */
         auto base = pt.findAncestor!MossCLI;
@@ -53,6 +54,11 @@ public struct InstallCommand
         /* Begin construction of a new state */
         auto state = manager.currentState;
         auto transaction = state.beginTransaction();
+
+        /* For now, we only support local archive installs. */
+        argv.uniq.each!((p) => transaction.installLocalArchive(p));
+
+        writeln(transaction);
 
         /* Condense and apply */
         auto newStates = transaction.end();

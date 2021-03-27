@@ -25,6 +25,29 @@ module moss.manager.transaction;
 public import moss.manager.state : State;
 
 /**
+ * Specific operation type
+ */
+package final enum OpType
+{
+    InstallLocal = 0,
+}
+
+/**
+ * Tagged structure to build operation lists from
+ */
+package struct TransactionOp
+{
+    OpType type;
+    string data;
+
+    this(OpType type, const(string) data)
+    {
+        this.type = type;
+        this.data = data;
+    }
+}
+
+/**
  * A State is a view of a current or future installation state within the
  * target system.
  */
@@ -50,6 +73,14 @@ public final class Transaction
 
     @disable this();
 
+    /**
+     * Add set of local archives to the queue
+     */
+    void installLocalArchive(const(string) path)
+    {
+        opQueue ~= TransactionOp(OpType.InstallLocal, path);
+    }
+
 package:
 
     /**
@@ -71,4 +102,5 @@ package:
 private:
 
     State _baseState;
+    TransactionOp[] opQueue;
 }

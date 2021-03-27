@@ -166,5 +166,5 @@ private:
     uint64_t _time = 0;
     string _aliasedName = null;
     string _description = null;
-    StateType _type = StateType.Regular;
+    StateType _type = StateType.Transient;
 }
