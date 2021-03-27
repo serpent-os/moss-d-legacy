@@ -24,6 +24,8 @@ module moss.manager.state;
 
 import moss.manager : StateManager;
 public import std.stdint : uint64_t;
+public import moss.manager.transaction : Transaction;
+import std.exception : enforce;
 
 /**
  * A State may be created with a specific purpose..
@@ -89,14 +91,31 @@ public final class State
         return _type;
     }
 
+    /**
+     * Return reference to the responsible Manager object
+     */
+    pragma(inline, true) pure @property StateManager manager() @safe @nogc nothrow
+    {
+        return _manager;
+    }
+
+    /**
+     * Create a new Transaction from this base State
+     */
+    Transaction beginTransaction() @safe
+    {
+        return new Transaction(this);
+    }
+
 package:
 
     /**
      * Construct a new State with the given Manager as owning instance
      */
-    this(StateManager _manager, uint64_t id = 0)
+    this(StateManager manager, uint64_t id = 0) @safe
     {
-        _manager = _manager;
+        enforce(manager !is null, "State(): Cannot have null manager");
+        _manager = manager;
         this.id = id;
     }
 
@@ -147,5 +166,5 @@ private:
     uint64_t _time = 0;
     string _aliasedName = null;
     string _description = null;
-    StateType _type = StateType.Transient;
+    StateType _type = StateType.Regular;
 }

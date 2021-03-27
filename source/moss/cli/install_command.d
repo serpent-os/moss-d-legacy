@@ -44,8 +44,20 @@ public struct InstallCommand
      */
     @CommandEntry() int run(ref string[] argv)
     {
+        import std.stdio : writeln;
+
+        /* Create appropriate Manager object */
         auto base = pt.findAncestor!MossCLI;
         auto manager = new StateManager(base.rootDirectory !is null ? base.rootDirectory : "/");
+
+        /* Begin construction of a new state */
+        auto state = manager.currentState;
+        auto transaction = state.beginTransaction();
+
+        /* Condense and apply */
+        auto newStates = transaction.end();
+        writeln(newStates);
+        manager.apply(newStates[0]);
         return ExitStatus.Failure;
     }
 }

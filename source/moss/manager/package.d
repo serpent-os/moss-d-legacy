@@ -29,6 +29,7 @@ module moss.manager;
 import moss.db.cache_db;
 import serpent.ecs;
 import std.stdint : uint16_t, uint64_t;
+import std.exception : enforce;
 
 /**
  * Numerous reasons for why a package was installed
@@ -113,6 +114,17 @@ public:
     pure @property const(string) systemRoot() @safe @nogc nothrow
     {
         return _systemRoot;
+    }
+
+    /**
+     * Attempt to apply a new state to the system.
+     * A state is derived from transactions and will become the new full state
+     * of the system, assuming precaching completes successfully.
+     */
+    void apply(State newState) @safe
+    {
+        enforce(newState.type == StateType.Transient,
+                "Manager.apply(): Cannot apply non-transient state");
     }
 
 private:
