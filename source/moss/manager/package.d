@@ -26,6 +26,7 @@
  */
 module moss.manager;
 
+import moss.db.cache_db;
 import serpent.ecs;
 import std.stdint : uint16_t, uint64_t;
 
@@ -89,6 +90,8 @@ public:
         _currentState.description = "Automatically generated transaction";
         _currentState.aliasName = "Installation of new system";
         _currentState.type = StateType.Regular;
+
+        cacheDB = new CacheDB(_systemRoot);
     }
 
     ~this()
@@ -117,6 +120,7 @@ private:
     EntityManager _entity;
     State _currentState;
     string _systemRoot = "/";
+    CacheDB cacheDB;
 }
 
 public import moss.manager.state;
