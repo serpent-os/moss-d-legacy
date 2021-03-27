@@ -60,6 +60,10 @@ public final class Transaction
      */
     State[] end() @safe
     {
+        import std.algorithm : each;
+        import std.stdio : writeln;
+
+        opQueue.each!((o) => writeln(o));
         return [new State(baseState.manager, 0)];
     }
 
