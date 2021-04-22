@@ -23,11 +23,19 @@
 module moss.db;
 
 import moss.format.binary;
-import moss.format.binary.payload.kvpair;
+import moss.format.binary.payload;
 import serpent.ecs;
 
 /**
- * base class for all Moss Databases
+ * Base class for all Moss Databases
+ *
+ * Simply provides just enough sauce to make it possible to (ab)use a moss
+ * archive + payload as a basic database which is loaded to/from an ECS.
+ *
+ * Implementations should mostly use KvPairPayload, though its more than
+ * possible to use any Payload with a hot-load/write function (i.e. no local
+ * retention) with MossDB, by making use of the userData pointer exposed to the
+ * payload, and implementing the bulk of the "DB" logic in the MossDB subclass.
  */
 public abstract class MossDB
 {
@@ -125,7 +133,7 @@ public abstract class MossDB
     /**
      * Implementations should prepare a payload and return it here
      */
-    abstract KvPairPayload preparePayload();
+    abstract Payload preparePayload();
 
     /**
      * Return the filePath for this database
