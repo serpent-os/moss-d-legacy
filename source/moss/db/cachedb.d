@@ -58,6 +58,10 @@ public final class CacheDB : MossDB
  */
 public final class CachePayload : KvPairPayload
 {
+
+    /**
+     * Construct a new CachePayload
+     */
     this()
     {
         super(PayloadType.CacheDB, cachePayloadVersion);
