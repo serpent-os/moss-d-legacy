@@ -21,3 +21,49 @@
  */
 
 module moss.db.state.meta;
+
+public import moss.db : MossDB;
+public import serpent.ecs : EntityManager;
+
+import moss.format.binary.payload.kvpair;
+import std.path : buildPath;
+
+/**
+ * Currently supported state meta payload version
+ */
+const uint16_t stateMetaPayloadVersion = 1;
+
+/**
+ * The StateMetaDB is responsible for storing metadata on each state entry
+ * within a permanent database file on disk. It is used in conjunction with
+ * the StateEntriesDB to compute, store and analyse states.
+ */
+public final class StateMetaDB : MossDB
+{
+    @disable this();
+
+    /**
+     * Construct a new StateMetaDB using the given EntityManager
+     */
+    this(EntityManager entityManager)
+    {
+        super(entityManager);
+        filePath = buildPath("/moss/db/state.meta");
+    }
+}
+
+/**
+ * The StateMetaPayload is a specialised KvPairPayload that handles
+ * encoding/decoding of the StateMetaDB to and from a moss archive
+ */
+public final class StateMetaPayload : KvPairPayload
+{
+
+    /**
+     * Construct a new CachePayload
+     */
+    this()
+    {
+        super(PayloadType.StateMetaDB, stateMetaPayloadVersion);
+    }
+}
