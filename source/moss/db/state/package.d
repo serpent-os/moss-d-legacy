@@ -24,3 +24,18 @@ module moss.db.state;
 
 public import moss.db.state.entries;
 public import moss.db.state.meta;
+public import std.stdint : uint64_t;
+
+import moss.format.binary.endianness;
+
+/**
+ * Internally a StateKey is used to automatically handle a state ID within
+ * the KvPair derived databases
+ */
+package struct StateKey
+{
+    @AutoEndian uint64_t id = 0;
+}
+
+/* Future sanity */
+static assert(StateKey.sizeof == 8, "StateKey.sizeof should be exactly 8 bytes");
