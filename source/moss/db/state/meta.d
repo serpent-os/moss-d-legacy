@@ -50,6 +50,19 @@ public final class StateMetaDB : MossDB
         super(entityManager);
         filePath = buildPath("/moss/db/state.meta");
     }
+
+    /**
+     * Return a newly prepared payload
+     */
+    override KvPairPayload preparePayload()
+    {
+        return new StateMetaPayload();
+    }
+
+    override void clear()
+    {
+        /* Do nothing */
+    }
 }
 
 /**
@@ -72,5 +85,21 @@ public final class StateMetaPayload : KvPairPayload
         import moss.format.binary.reader : Reader;
 
         Reader.registerPayloadType!StateMetaPayload(PayloadType.StateMetaDB);
+    }
+
+    /**
+     * No-op right now, need to store records on disk from the StateMetaDB ECS components
+     */
+    override void writeRecords(void delegate(scope ubyte[] key, scope ubyte[] value) rwr)
+    {
+
+    }
+
+    /**
+     * No-op right now, need to load records into the StateMetaDB ECS components from disk
+     */
+    override void loadRecord(scope ubyte[] key, scope ubyte[] data)
+    {
+
     }
 }
