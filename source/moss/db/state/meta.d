@@ -66,4 +66,11 @@ public final class StateMetaPayload : KvPairPayload
     {
         super(PayloadType.StateMetaDB, stateMetaPayloadVersion);
     }
+
+    static this()
+    {
+        import moss.format.binary.reader : Reader;
+
+        Reader.registerPayloadType!StateMetaPayload(PayloadType.StateMetaDB);
+    }
 }

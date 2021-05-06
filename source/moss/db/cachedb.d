@@ -66,4 +66,11 @@ public final class CachePayload : KvPairPayload
     {
         super(PayloadType.CacheDB, cachePayloadVersion);
     }
+
+    static this()
+    {
+        import moss.format.binary.reader : Reader;
+
+        Reader.registerPayloadType!CachePayload(PayloadType.CacheDB);
+    }
 }
