@@ -29,6 +29,7 @@ import moss.format.binary.payload.kvpair;
 import moss.context;
 import moss.db.components;
 import std.meta : AliasSeq;
+import std.exception : enforce;
 
 /**
  * Currently supported state meta payload version
@@ -149,8 +150,6 @@ public final class StateMetaDB : MossDB
      */
     void addState(StateDescriptor st)
     {
-        import std.exception : enforce;
-
         enforce(st.type != StateType.Invalid, "StateMetaDB.addState(): Cannot add .Invalid state");
 
         auto view = View!ReadWrite(entityManager);
@@ -205,6 +204,9 @@ public final class StateMetaPayload : KvPairPayload
         import std.algorithm : each, sort;
         import std.array : array;
 
+        auto db = cast(StateMetaDB) userData;
+        enforce(db !is null, "StateMetaPayload.writeRecords(): Cannot continue without DB");
+
         /* TODO: Actually emit the encoded value! */
         void writeOne(ref StateDescriptor sd)
         {
@@ -219,7 +221,6 @@ public final class StateMetaPayload : KvPairPayload
         }
 
         /* Write the DB back in ascending numerical order */
-        auto db = cast(StateMetaDB) userData;
         db.states
             .array
             .sort!((a, b) => a.id < b.id)
@@ -234,6 +235,9 @@ public final class StateMetaPayload : KvPairPayload
         import moss.db.state : StateKey;
         import moss.format.binary.endianness : toHostOrder;
         import std.stdio : writeln;
+
+        auto db = cast(StateMetaDB) userData;
+        enforce(db !is null, "StateMetaPayload.loadRecord(): Cannot continue without DB");
 
         /* TODO: Actually decode the value! */
         StateKey* skey = cast(StateKey*) key;
