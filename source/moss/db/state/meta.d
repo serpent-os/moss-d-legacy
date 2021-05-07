@@ -365,5 +365,6 @@ public final class StateMetaPayload : KvPairPayload
         auto remnants = data[StateMetaDBValue.sizeof .. $];
         StateDescriptor sd = StateDescriptor(cp.id, valcp, remnants);
         db.addState(sd);
+        writeln(sd);
     }
 }
