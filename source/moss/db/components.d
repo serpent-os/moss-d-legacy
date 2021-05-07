@@ -28,7 +28,7 @@ public import std.stdint : uint64_t;
 /**
  * Assign a timestamp (seconds since epoch) to an entity
  */
-@serpentComponent package struct TimestampComponent
+@serpentComponent public struct TimestampComponent
 {
     uint64_t timestamp = 0;
 }
@@ -36,7 +36,7 @@ public import std.stdint : uint64_t;
 /**
  * Simple component to assign a name to an entity
  */
-@serpentComponent package struct NameComponent
+@serpentComponent public struct NameComponent
 {
     string name = null;
 }
@@ -44,7 +44,7 @@ public import std.stdint : uint64_t;
 /**
  * Simple component to assign a description to an entity
  */
-@serpentComponent package struct DescriptionComponent
+@serpentComponent public struct DescriptionComponent
 {
     string description = null;
 }
