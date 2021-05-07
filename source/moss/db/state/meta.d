@@ -202,7 +202,8 @@ public final class StateMetaPayload : KvPairPayload
      */
     override void writeRecords(void delegate(scope ubyte[] key, scope ubyte[] value) rwr)
     {
-        import std.algorithm : each;
+        import std.algorithm : each, sort;
+        import std.array : array;
 
         /* TODO: Actually emit the encoded value! */
         void writeOne(ref StateDescriptor sd)
@@ -215,12 +216,14 @@ public final class StateMetaPayload : KvPairPayload
             keyEnc.toNetworkOrder();
             auto keyz = (cast(ubyte*)&keyEnc)[0 .. keyEnc.sizeof];
             rwr(keyz, keyz);
-
-            writeln(sd);
         }
 
+        /* Write the DB back in ascending numerical order */
         auto db = cast(StateMetaDB) userData;
-        db.states.each!((s) => writeOne(s));
+        db.states
+            .array
+            .sort!((a, b) => a.id < b.id)
+            .each!((s) => writeOne(s));
     }
 
     /**
