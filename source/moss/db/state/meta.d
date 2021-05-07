@@ -26,6 +26,7 @@ public import moss.db : MossDB;
 public import serpent.ecs;
 
 import moss.format.binary.payload.kvpair;
+import moss.format.binary.endianness;
 import moss.context;
 import moss.db.components;
 import std.meta : AliasSeq;
@@ -76,6 +77,63 @@ public enum StateType : uint8_t
      */
     UserBackup = 3,
 }
+
+/**
+ * Firstly, we store a special key within the start of the value and
+ * then inject C strings after it
+ */
+extern (C) public struct StateMetaDBValue
+{
+align(1):
+
+    /** UNIX timestamp, 8 bytes, endian aware */
+    @AutoEndian uint64_t timestamp = 0;
+
+    /** Length of name, 2 bytes, endian aware */
+    @AutoEndian uint16_t nameLen = 0;
+
+    /** Length of description, 4 bytes, endian aware */
+    @AutoEndian uint32_t descLen = 0;
+
+    /** Type of state, 1 byte */
+    StateType type = StateType.Invalid;
+
+    /** Necessary padding */
+    ubyte[1] padding = [0];
+
+    /**
+     * Return encoded key start
+     */
+    ubyte[StateMetaDBValue.sizeof] encoded()
+    {
+        StateMetaDBValue cp = this;
+        cp.toNetworkOrder();
+
+        ubyte[StateMetaDBValue.sizeof] data;
+
+        data[0 .. 8] = (cast(ubyte*)&cp.timestamp)[0 .. cp.timestamp.sizeof];
+        data[8 .. 10] = (cast(ubyte*)&cp.nameLen)[0 .. cp.nameLen.sizeof];
+        data[10 .. 14] = (cast(ubyte*)&cp.descLen)[0 .. cp.descLen.sizeof];
+        data[14 .. 15] = (cast(ubyte*)&cp.type)[0 .. cp.type.sizeof];
+        data[15] = cp.padding[0];
+
+        return data;
+    }
+
+    /**
+     * Construct a StateMetaDBValue from the input StateDescriptor
+     */
+    this(ref StateDescriptor sd)
+    {
+        timestamp = sd.timestamp;
+        nameLen = cast(uint16_t)(sd.name.length + 1);
+        descLen = cast(uint32_t)(sd.description.length + 1);
+        type = sd.type;
+        padding = [0];
+    }
+}
+
+static assert(StateMetaDBValue.sizeof == 16, "StateMetaDBValue must be exactly 16 bytes");
 
 /**
  * The StateDescriptor is used to describe a State within the meta table,
@@ -154,7 +212,7 @@ public final class StateMetaDB : MossDB
 
         auto view = View!ReadWrite(entityManager);
         auto ent = view.createEntityWithComponents!StateMetaArchetype;
-        view.addComponent(ent, MetaPrimaryKey(st.id));
+        view.addComponent(ent, MetaPrimaryKey(st.id, st.type));
         view.addComponent(ent, TimestampComponent(st.timestamp));
         view.addComponent(ent, NameComponent(st.name));
         view.addComponent(ent, DescriptionComponent(st.description));
@@ -211,13 +269,32 @@ public final class StateMetaPayload : KvPairPayload
         void writeOne(ref StateDescriptor sd)
         {
             import moss.db.state : StateKey;
-            import moss.format.binary.endianness : toNetworkOrder;
             import std.stdio : writefln;
+            import std.string : toStringz;
 
+            sd.timestamp = 20;
             StateKey keyEnc = StateKey(sd.id);
             keyEnc.toNetworkOrder();
             auto keyz = (cast(ubyte*)&keyEnc)[0 .. keyEnc.sizeof];
-            rwr(keyz, keyz);
+            auto sdCopy = StateMetaDBValue(sd);
+            auto valStart = sdCopy.encoded();
+
+            ubyte[] val = valStart;
+
+            /* Append name */
+            if (sdCopy.nameLen > 0)
+            {
+                val ~= (cast(ubyte*) toStringz(sd.name))[0 .. sdCopy.nameLen];
+
+            }
+            /* Append description */
+            if (sdCopy.descLen > 0)
+            {
+                val ~= (cast(ubyte*) toStringz(sd.description))[0 .. sdCopy.descLen];
+            }
+
+            /* Merge into the DB now */
+            rwr(keyz, val);
         }
 
         /* Write the DB back in ascending numerical order */
@@ -233,7 +310,6 @@ public final class StateMetaPayload : KvPairPayload
     override void loadRecord(scope ubyte[] key, scope ubyte[] data)
     {
         import moss.db.state : StateKey;
-        import moss.format.binary.endianness : toHostOrder;
         import std.stdio : writeln;
 
         auto db = cast(StateMetaDB) userData;
