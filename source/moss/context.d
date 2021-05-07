@@ -67,6 +67,17 @@ public struct MossPaths
         return _cache;
     }
 
+    /**
+     * Create necessary context directories
+     */
+    void mkdirs() @trusted const
+    {
+        import std.algorithm : each;
+        import std.file : mkdirRecurse;
+
+        [_root, _db, _cache].each!(mkdirRecurse);
+    }
+
 package:
 
     /**
