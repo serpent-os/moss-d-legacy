@@ -26,6 +26,7 @@ public import moss.core.cli;
 import moss.core;
 import moss.cli : MossCLI;
 import moss.context;
+import moss.client;
 
 /**
  * The InstallCommand provides a CLI system to install a package, whether from
@@ -47,11 +48,19 @@ public struct InstallCommand
         import std.stdio : writeln, stderr;
         import std.algorithm : each, uniq;
 
+        /* Set up context and our client */
         context.setRootDirectory((pt.findAncestor!MossCLI).rootDirectory);
+        auto client = new DirectMossClient();
 
-        /* Create appropriate Manager object 
-        auto base = pt.findAncestor!MossCLI;
-        auto manager = new StateManager(base.rootDirectory !is null ? base.rootDirectory : "/");*/
-        return ExitStatus.Failure;
+        try
+        {
+            client.installLocalArchives(argv);
+        }
+        catch (Exception ex)
+        {
+            return ExitStatus.Failure;
+        }
+
+        return ExitStatus.Success;
     }
 }
