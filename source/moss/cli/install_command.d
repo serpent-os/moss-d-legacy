@@ -25,6 +25,7 @@ module moss.cli.install_command;
 public import moss.core.cli;
 import moss.core;
 import moss.cli : MossCLI;
+import moss.context;
 
 /**
  * The InstallCommand provides a CLI system to install a package, whether from
@@ -45,6 +46,8 @@ public struct InstallCommand
     {
         import std.stdio : writeln, stderr;
         import std.algorithm : each, uniq;
+
+        context.setRootDirectory((pt.findAncestor!MossCLI).rootDirectory);
 
         /* Create appropriate Manager object 
         auto base = pt.findAncestor!MossCLI;
