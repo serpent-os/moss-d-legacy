@@ -165,6 +165,40 @@ public struct StateDescriptor
      * UNIX timestamp for State creation
      */
     uint64_t timestamp = 0;
+
+    /**
+     * Construct a new StateDescriptor with all fields
+     */
+    this(uint64_t id, string name, string description, StateType type, uint64_t timestamp)
+    {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.type = type;
+        this.timestamp = timestamp;
+    }
+
+    /**
+     * Construct a new StateDescriptor from the DB value
+     */
+    package this(uint64_t id, ref StateMetaDBValue cp, scope ubyte[] cpData)
+    {
+        this.id = id;
+        this.type = cp.type;
+        this.timestamp = cp.timestamp;
+        ulong forwarded = 0;
+
+        if (cp.nameLen > 0)
+        {
+            name = cast(string) cpData[0 .. cp.nameLen - 1];
+            forwarded += cp.nameLen;
+        }
+
+        if (cp.descLen > 0)
+        {
+            description = cast(string) cpData[forwarded .. forwarded + cp.descLen - 1];
+        }
+    }
 }
 
 /**
@@ -320,5 +354,16 @@ public final class StateMetaPayload : KvPairPayload
         auto cp = *skey;
         cp.toHostOrder();
         writeln(cp);
+
+        enforce(data.length >= StateMetaDBValue.sizeof, "StateMetaDB.loadRecord(): Value too short");
+
+        StateMetaDBValue* dbval = cast(StateMetaDBValue*) data[0 .. StateMetaDBValue.sizeof];
+        auto valcp = *dbval;
+        valcp.toHostOrder();
+        writeln(valcp);
+
+        auto remnants = data[StateMetaDBValue.sizeof .. $];
+        StateDescriptor sd = StateDescriptor(cp.id, valcp, remnants);
+        db.addState(sd);
     }
 }
