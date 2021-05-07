@@ -90,8 +90,8 @@ public struct InfoCommand
             immutable float comp = hdr.storedSize;
             immutable float uncomp = hdr.plainSize;
             auto savings = (comp > 0 ? (100.0f - (comp / uncomp) * 100.0f) : 0);
-            writefln("Payload: %s [Compression: %s, savings: %.2f%%]",
-                    to!string(hdr.type), to!string(hdr.compression), savings);
+            writefln("Payload: %s [Records: %d Compression: %s, savings: %.2f%%]",
+                    to!string(hdr.type), hdr.numRecords, to!string(hdr.compression), savings);
             switch (hdr.type)
             {
             case PayloadType.Meta:
