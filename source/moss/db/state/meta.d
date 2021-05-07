@@ -23,7 +23,7 @@
 module moss.db.state.meta;
 
 public import moss.db : MossDB;
-public import serpent.ecs : EntityManager;
+public import serpent.ecs : EntityManager, serpentComponent;
 
 import moss.format.binary.payload.kvpair;
 import moss.context;
@@ -32,6 +32,15 @@ import moss.context;
  * Currently supported state meta payload version
  */
 const uint16_t stateMetaPayloadVersion = 1;
+
+/**
+ * Our primary key simply contains the ID
+ */
+@serpentComponent struct MetaPrimaryKey
+{
+    /** Numerical ID of the state */
+    uint64_t id = 0;
+}
 
 /**
  * The StateMetaDB is responsible for storing metadata on each state entry
@@ -48,6 +57,7 @@ public final class StateMetaDB : MossDB
     this(EntityManager entityManager)
     {
         super(entityManager);
+        entityManager.tryRegisterComponent!MetaPrimaryKey;
         filePath = context.paths.db.buildPath("state.meta");
     }
 
