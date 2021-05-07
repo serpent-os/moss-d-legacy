@@ -277,9 +277,9 @@ public final class StateMetaPayload : KvPairPayload
             keyEnc.toNetworkOrder();
             auto keyz = (cast(ubyte*)&keyEnc)[0 .. keyEnc.sizeof];
             auto sdCopy = StateMetaDBValue(sd);
-            auto valStart = sdCopy.encoded();
 
-            ubyte[] val = valStart;
+            ubyte[] val;
+            val ~= sdCopy.encoded();
 
             /* Append name */
             if (sdCopy.nameLen > 0)
