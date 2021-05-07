@@ -60,6 +60,8 @@ public final class DirectMossClient : MossClient
         entityManager.build();
         entityManager.step();
 
+        stateMetaDB.reload!StateMetaPayload();
+
         /* Force inclusion of a dummy state */
         StateDescriptor sd;
         sd.id = 1;
