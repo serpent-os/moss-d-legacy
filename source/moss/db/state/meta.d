@@ -23,23 +23,89 @@
 module moss.db.state.meta;
 
 public import moss.db : MossDB;
-public import serpent.ecs : EntityManager, serpentComponent;
+public import serpent.ecs;
 
 import moss.format.binary.payload.kvpair;
 import moss.context;
+import moss.db.components;
+import std.meta : AliasSeq;
 
 /**
  * Currently supported state meta payload version
  */
 const uint16_t stateMetaPayloadVersion = 1;
 
+alias StateMetaArchetype = AliasSeq!(MetaPrimaryKey, TimestampComponent,
+        NameComponent, DescriptionComponent);
+
 /**
  * Our primary key simply contains the ID
  */
-@serpentComponent struct MetaPrimaryKey
+@serpentComponent public struct MetaPrimaryKey
 {
     /** Numerical ID of the state */
     uint64_t id = 0;
+
+    /** Type of state */
+    StateType type = StateType.Invalid;
+}
+
+/**
+ * Specific type of State being stored
+ */
+public enum StateType : uint8_t
+{
+    /**
+     * Unusable
+     */
+    Invalid = 0,
+
+    /**
+     * Moss automatically triggered this State
+     */
+    MossTriggered = 1,
+
+    /**
+     * The user explicitly triggered this State
+     */
+    UserTriggered = 2,
+
+    /**
+     * The user explicitly created a backup
+     */
+    UserBackup = 3,
+}
+
+/**
+ * The StateDescriptor is used to describe a State within the meta table,
+ * giving it optional kind, description, etc.
+ */
+public struct StateDescriptor
+{
+    /**
+     * Unique ID for the State
+     */
+    uint64_t id = 0;
+
+    /**
+     * Display name for the State
+     */
+    string name = null;
+
+    /**
+     * Archival description for the State
+     */
+    string description = null;
+
+    /**
+     * What *kind* of State this is
+     */
+    StateType type = StateType.Invalid;
+
+    /**
+     * UNIX timestamp for State creation
+     */
+    uint64_t timestamp = 0;
 }
 
 /**
@@ -69,9 +135,43 @@ public final class StateMetaDB : MossDB
         return new StateMetaPayload();
     }
 
+    /**
+     * All entities with the MetaPrimaryKey component will be purged from the
+     * ECS tables
+     */
     override void clear()
     {
-        /* Do nothing */
+        dropEntitiesWithComponents!MetaPrimaryKey();
+    }
+
+    /**
+     * Add a State to the DB if it doesn't already exist
+     */
+    void addState(StateDescriptor st)
+    {
+        import std.exception : enforce;
+
+        enforce(st.type != StateType.Invalid, "StateMetaDB.addState(): Cannot add .Invalid state");
+
+        auto view = View!ReadWrite(entityManager);
+        auto ent = view.createEntityWithComponents!StateMetaArchetype;
+        view.addComponent(ent, MetaPrimaryKey(st.id));
+        view.addComponent(ent, TimestampComponent(st.timestamp));
+        view.addComponent(ent, NameComponent(st.name));
+        view.addComponent(ent, DescriptionComponent(st.description));
+    }
+
+    /**
+     * Return a new range containing all State descriptors
+     */
+    auto states()
+    {
+        import std.algorithm : map;
+
+        auto view = View!ReadOnly(entityManager);
+        return view.withComponents!StateMetaArchetype
+            .map!((t) => StateDescriptor(t[1].id, t[3].name, t[4].description,
+                    t[1].type, t[2].timestamp));
     }
 }
 
@@ -102,7 +202,25 @@ public final class StateMetaPayload : KvPairPayload
      */
     override void writeRecords(void delegate(scope ubyte[] key, scope ubyte[] value) rwr)
     {
+        import std.algorithm : each;
 
+        /* TODO: Actually emit the encoded value! */
+        void writeOne(ref StateDescriptor sd)
+        {
+            import moss.db.state : StateKey;
+            import moss.format.binary.endianness : toNetworkOrder;
+            import std.stdio : writefln;
+
+            StateKey keyEnc = StateKey(sd.id);
+            keyEnc.toNetworkOrder();
+            auto keyz = (cast(ubyte*)&keyEnc)[0 .. keyEnc.sizeof];
+            rwr(keyz, keyz);
+
+            writeln(sd);
+        }
+
+        auto db = cast(StateMetaDB) userData;
+        db.states.each!((s) => writeOne(s));
     }
 
     /**
@@ -110,6 +228,14 @@ public final class StateMetaPayload : KvPairPayload
      */
     override void loadRecord(scope ubyte[] key, scope ubyte[] data)
     {
+        import moss.db.state : StateKey;
+        import moss.format.binary.endianness : toHostOrder;
+        import std.stdio : writeln;
 
+        /* TODO: Actually decode the value! */
+        StateKey* skey = cast(StateKey*) key;
+        auto cp = *skey;
+        cp.toHostOrder();
+        writeln(cp);
     }
 }
