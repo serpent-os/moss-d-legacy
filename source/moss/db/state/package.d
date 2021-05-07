@@ -34,6 +34,7 @@ import moss.format.binary.endianness;
  */
 public struct StateKey
 {
+    /** The State's unique ID */
     @AutoEndian uint64_t id = 0;
 }
 
