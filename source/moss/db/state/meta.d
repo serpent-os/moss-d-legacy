@@ -265,7 +265,7 @@ public final class StateMetaPayload : KvPairPayload
         auto db = cast(StateMetaDB) userData;
         enforce(db !is null, "StateMetaPayload.writeRecords(): Cannot continue without DB");
 
-        /* TODO: Actually emit the encoded value! */
+        /*  Encode one single state value into the DB */
         void writeOne(ref StateDescriptor sd)
         {
             import moss.db.state : StateKey;
