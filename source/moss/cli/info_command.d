@@ -79,7 +79,7 @@ public struct InfoCommand
 
         auto reader = new Reader(File(packageName, "rb"));
 
-        writeln("Package: ", packageName);
+        writeln("Archive: ", packageName);
 
         /**
          * Emit all headers
