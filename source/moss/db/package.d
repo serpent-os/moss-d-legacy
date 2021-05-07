@@ -26,6 +26,8 @@ import moss.format.binary;
 import moss.format.binary.payload;
 import serpent.ecs;
 
+public import moss.db.components;
+
 /**
  * Base class for all Moss Databases
  *
@@ -48,6 +50,9 @@ public abstract class MossDB
     this(EntityManager entityManager)
     {
         _entityManager = entityManager;
+        _entityManager.tryRegisterComponent!NameComponent;
+        _entityManager.tryRegisterComponent!TimestampComponent;
+        _entityManager.tryRegisterComponent!DescriptionComponent;
     }
 
     /**
