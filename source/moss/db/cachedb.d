@@ -25,7 +25,7 @@ module moss.db.cachedb;
 public import moss.db : MossDB;
 public import serpent.ecs : EntityManager;
 public import moss.format.binary.payload.kvpair;
-import std.path : buildPath;
+import moss.context;
 import std.stdint : uint16_t;
 
 /**
@@ -48,7 +48,7 @@ public final class CacheDB : MossDB
     this(EntityManager entityManager)
     {
         super(entityManager);
-        filePath = buildPath("/moss/db/cachedb");
+        filePath = context.paths.db.buildPath("cache");
     }
 }
 

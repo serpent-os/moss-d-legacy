@@ -26,7 +26,7 @@ public import moss.db : MossDB;
 public import serpent.ecs : EntityManager;
 
 import moss.format.binary.payload.kvpair;
-import std.path : buildPath;
+import moss.context;
 
 /**
  * Currently supported state meta payload version
@@ -48,7 +48,7 @@ public final class StateMetaDB : MossDB
     this(EntityManager entityManager)
     {
         super(entityManager);
-        filePath = buildPath("/moss/db/state.meta");
+        filePath = context.paths.db.buildPath("state.meta");
     }
 
     /**

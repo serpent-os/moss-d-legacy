@@ -22,7 +22,8 @@
 
 module moss.context;
 
-import std.path : buildPath, absolutePath;
+import std.path : absolutePath;
+public import std.path : buildPath;
 import std.concurrency : initOnce;
 
 /**
