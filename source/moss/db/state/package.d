@@ -32,7 +32,7 @@ import moss.format.binary.endianness;
  * Internally a StateKey is used to automatically handle a state ID within
  * the KvPair derived databases
  */
-package struct StateKey
+public struct StateKey
 {
     @AutoEndian uint64_t id = 0;
 }
