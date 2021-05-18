@@ -72,7 +72,7 @@ public final class StateEntriesDB : MossDB
     }
 
     /**
-     * All entities with the MetaPrimaryKey component will be purged from the
+     * All entities with the EntryRelationalKey component will be purged from the
      * ECS tables
      */
     override void clear()

@@ -289,7 +289,7 @@ public final class StateMetaPayload : KvPairPayload
     }
 
     /**
-     * No-op right now, need to store records on disk from the StateMetaDB ECS components
+     * Write all matching records, in order, to the DB file
      */
     override void writeRecords(void delegate(scope ubyte[] key, scope ubyte[] value) rwr)
     {
@@ -339,7 +339,7 @@ public final class StateMetaPayload : KvPairPayload
     }
 
     /**
-     * No-op right now, need to load records into the StateMetaDB ECS components from disk
+     * Load all records into the ECS from the disk DB
      */
     override void loadRecord(scope ubyte[] key, scope ubyte[] data)
     {
