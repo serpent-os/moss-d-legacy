@@ -30,6 +30,9 @@ public import std.stdint : uint64_t;
  */
 @serpentComponent public struct TimestampComponent
 {
+    /**
+     * Timestamp for entity creation/update
+     */
     uint64_t timestamp = 0;
 }
 
@@ -38,6 +41,9 @@ public import std.stdint : uint64_t;
  */
 @serpentComponent public struct NameComponent
 {
+    /**
+     * Name of the entity
+     */
     string name = null;
 }
 
@@ -46,5 +52,8 @@ public import std.stdint : uint64_t;
  */
 @serpentComponent public struct DescriptionComponent
 {
+    /**
+     * Description of the entity
+     */
     string description = null;
 }
