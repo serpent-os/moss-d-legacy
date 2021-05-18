@@ -27,8 +27,7 @@ import moss.context;
 import std.exception : enforce;
 import std.file : exists;
 
-import moss.db.state.meta;
-import moss.db.state.entries;
+import moss.db.state;
 
 public import moss.client : MossClient;
 
