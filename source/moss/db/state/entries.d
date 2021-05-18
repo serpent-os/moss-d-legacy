@@ -29,11 +29,19 @@ public import moss.format.binary.payload.kvpair;
 import moss.format.binary.endianness;
 import std.stdint : uint64_t;
 import moss.context;
+import std.meta : AliasSeq;
+
+import moss.db.components : NameComponent;
 
 /**
  * Currently supported state entries payload version
  */
 const uint16_t stateEntriesPayloadVersion = 1;
+
+/**
+ * Archetype for StateEntries records
+ */
+alias StateEntriesArchetype = AliasSeq!(EntryRelationalKey, NameComponent, SelectionComponent);
 
 /**
  * A selection can be either binary or source, changing how we resolve
@@ -111,6 +119,52 @@ public final class StateEntriesDB : MossDB
         entityManager.tryRegisterComponent!EntryRelationalKey;
         entityManager.tryRegisterComponent!SelectionComponent;
         filePath = context.paths.db.buildPath("state.entries.db");
+    }
+
+    /**
+     * Mark a selection for identifier within stateID with the given selection information
+     */
+    void markSelection(uint64_t stateID, const(string) identifier,
+            SelectionType type, SelectionFlags flags)
+    {
+        import std.algorithm : filter, map;
+
+        auto view = View!ReadWrite(entityManager);
+
+        /* Search for existing entities */
+        auto matchingEntities = view.withComponents!StateEntriesArchetype
+            .filter!((t) => t[1].stateID == stateID && t[2].name == identifier)
+            .map!((t) => t[0].id);
+
+        /* Update front match if found */
+        if (!matchingEntities.empty)
+        {
+            auto ent = matchingEntities.front;
+            SelectionComponent* sel = view.data!SelectionComponent(ent);
+            sel.type = type;
+            sel.flags = flags;
+            return;
+        }
+
+        /* Construct new entity with the selection data */
+        auto ent = view.createEntityWithComponents!StateEntriesArchetype;
+        view.addComponent(ent, EntryRelationalKey(stateID));
+        view.addComponent(ent, NameComponent(identifier));
+        view.addComponent(ent, SelectionComponent(type, flags));
+    }
+
+    /**
+     * Unmark the selection from the stateID so it is then forgotten
+     */
+    void unmarkSelection(uint64_t stateID, const(string) identifier)
+    {
+        import std.algorithm : each, filter, map;
+
+        auto view = View!ReadWrite(entityManager);
+        view.withComponents!StateEntriesArchetype
+            .filter!((t) => t[1].stateID == stateID && t[2].name == identifier)
+            .map!((t) => t[0].id)
+            .each!((id) => view.killEntity(id));
     }
 
     /**
