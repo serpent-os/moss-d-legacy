@@ -78,7 +78,7 @@ public abstract class MossDB
         auto tmpPath = "%s-tmpFile".format(filePath);
         auto writer = new Writer(File(tmpPath, "wb"));
         writer.fileType = MossFileType.Database;
-        //writer.compressionType = PayloadCompression.None;
+        writer.compressionType = PayloadCompression.None;
         scope (exit)
         {
             writer.close();
