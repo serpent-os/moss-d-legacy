@@ -28,6 +28,7 @@ import std.exception : enforce;
 import std.file : exists;
 
 import moss.db.state.meta;
+import moss.db.state.entries;
 
 public import moss.client : MossClient;
 
@@ -55,12 +56,14 @@ public final class DirectMossClient : MossClient
 
         /* Ensure we can manipulate the DBs */
         stateMetaDB = new StateMetaDB(entityManager);
+        stateEntriesDB = new StateEntriesDB(entityManager);
 
         /* Bake and step our DBs */
         entityManager.build();
         entityManager.step();
 
         stateMetaDB.reload!StateMetaPayload();
+        stateEntriesDB.reload!StateEntriesPayload();
 
         /* Force inclusion of a dummy state */
         StateDescriptor sd;
@@ -70,6 +73,7 @@ public final class DirectMossClient : MossClient
         sd.type = StateType.MossTriggered;
         stateMetaDB.addState(sd);
         stateMetaDB.commit();
+        stateEntriesDB.commit();
     }
 
     override void installLocalArchives(string[] archivePaths)
@@ -86,4 +90,5 @@ private:
 
     EntityManager entityManager = null;
     StateMetaDB stateMetaDB = null;
+    StateEntriesDB stateEntriesDB = null;
 }
