@@ -217,7 +217,7 @@ public final class StateMetaDB : MossDB
     {
         super(entityManager);
         entityManager.tryRegisterComponent!MetaPrimaryKey;
-        filePath = context.paths.db.buildPath("state.meta");
+        filePath = context.paths.db.buildPath("state.meta.db");
     }
 
     /**

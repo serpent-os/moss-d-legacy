@@ -60,7 +60,7 @@ public final class StateEntriesDB : MossDB
     {
         super(entityManager);
         entityManager.tryRegisterComponent!EntryRelationalKey;
-        filePath = context.paths.db.buildPath("state.entries");
+        filePath = context.paths.db.buildPath("state.entries.db");
     }
 
     /**

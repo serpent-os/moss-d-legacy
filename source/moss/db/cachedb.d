@@ -48,7 +48,7 @@ public final class CacheDB : MossDB
     this(EntityManager entityManager)
     {
         super(entityManager);
-        filePath = context.paths.db.buildPath("cache");
+        filePath = context.paths.db.buildPath("cache.db");
     }
 }
 
