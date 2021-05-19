@@ -103,6 +103,32 @@ public enum SelectionFlags : uint32_t
 }
 
 /**
+ * Accessible entry within the database
+ */
+public struct StateEntry
+{
+    /**
+     * Identifier for the entry
+     */
+    string id = null;
+
+    /**
+     * State ID for the entry
+     */
+    uint64_t state = 0;
+
+    /**
+     * Type for the entry
+     */
+    SelectionType type = SelectionType.Binary;
+
+    /**
+     * Flags for the entry
+     */
+    SelectionFlags flags = SelectionFlags.DefaultPolicy;
+}
+
+/**
  * The StateEntriesDB is used to store each selection in a given state as
  * recorded within the StateMetaDB
  */
@@ -182,6 +208,17 @@ public final class StateEntriesDB : MossDB
     override void clear()
     {
         dropEntitiesWithComponents!EntryRelationalKey();
+    }
+
+    /**
+     * Return a range for all entries in the ECS
+     */
+    auto entries()
+    {
+        import std.algorithm : map;
+
+        return View!ReadOnly(entityManager).withComponents!StateEntriesArchetype
+            .map!((t) => StateEntry(t[2].name, t[1].stateID, t[3].type, t[3].flags));
     }
 }
 /**
