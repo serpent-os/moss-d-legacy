@@ -71,6 +71,9 @@ public final class DirectMossClient : MossClient
         sd.description = "Ignore this, it will never be useful";
         sd.type = StateType.MossTriggered;
         stateMetaDB.addState(sd);
+
+        stateEntriesDB.markSelection(sd.id, "phantom-package",
+                SelectionType.Binary, SelectionFlags.UserInstalled);
         stateMetaDB.commit();
         stateEntriesDB.commit();
     }
