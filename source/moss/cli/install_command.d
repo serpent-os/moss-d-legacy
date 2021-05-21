@@ -45,9 +45,6 @@ public struct InstallCommand
      */
     @CommandEntry() int run(ref string[] argv)
     {
-        import std.stdio : writeln, stderr;
-        import std.algorithm : each, uniq;
-
         /* Set up context and our client */
         context.setRootDirectory((pt.findAncestor!MossCLI).rootDirectory);
         auto client = new DirectMossClient();
