@@ -30,6 +30,7 @@ import moss.format.binary.endianness;
 import std.stdint : uint64_t;
 import moss.context;
 import std.meta : AliasSeq;
+import std.exception : enforce;
 
 import moss.db.components : NameComponent;
 
@@ -78,7 +79,7 @@ public enum SelectionFlags : uint32_t
 
 /**
  * The EntryRelationalKey maps each entry in the StateEntriesDB to a state
- * identifier specified in the StateMetaDB
+ * identifier specified in the StateEntriesDB
  */
 @serpentComponent public struct EntryRelationalKey
 {
@@ -126,6 +127,30 @@ public struct StateEntry
      * Flags for the entry
      */
     SelectionFlags flags = SelectionFlags.DefaultPolicy;
+
+    this(string id, uint64_t state, SelectionType type, SelectionFlags flags)
+    {
+        this.id = id;
+        this.state = state;
+        this.type = type;
+        this.flags = flags;
+    }
+
+    /**
+     * Construct a new StateEntry from the DB value
+     */
+    package this(uint64_t state, ref StateEntryBinary cp, scope ubyte[] cpData)
+    {
+        this.state = state;
+        this.type = cp.type;
+        this.flags = cp.flags;
+
+        if (cp.idLen > 0)
+        {
+            id = cast(string) cpData[0 .. cp.idLen - 1];
+        }
+
+    }
 }
 
 /**
@@ -169,7 +194,7 @@ align(1):
     }
 
     /**
-     * Construct a StateMetaDBValue from the input StateDescriptor
+     * Construct a StateEntriesDBValue from the input StateEntry
      */
     this(ref StateEntry sd)
     {
@@ -185,7 +210,7 @@ static assert(StateEntryBinary.sizeof == 16, "StateEntryBinary must be exactly 1
 
 /**
  * The StateEntriesDB is used to store each selection in a given state as
- * recorded within the StateMetaDB
+ * recorded within the StateEntriesDB
  */
 public final class StateEntriesDB : MossDB
 {
@@ -303,6 +328,42 @@ public final class StateEntriesPayload : KvPairPayload
      */
     override void writeRecords(void delegate(scope ubyte[] key, scope ubyte[] value) rwr)
     {
+        import std.algorithm : each, sort;
+        import std.array : array;
+
+        auto db = cast(StateEntriesDB) userData;
+        enforce(db !is null, "StateEntriesDB.writeRecords(): Cannot continue without DB");
+
+        /*  Encode one single state value into the DB */
+        void writeOne(ref StateEntry sd)
+        {
+            import std.stdio : writefln;
+            import std.string : toStringz;
+
+            EntryRelationalKey keyEnc = EntryRelationalKey(sd.state);
+            keyEnc.toNetworkOrder();
+            auto keyz = (cast(ubyte*)&keyEnc)[0 .. keyEnc.sizeof];
+            auto sdCopy = StateEntryBinary(sd);
+
+            ubyte[] val;
+            val ~= sdCopy.encoded();
+
+            /* Append name */
+            if (sdCopy.idLen > 0)
+            {
+                val ~= (cast(ubyte*) toStringz(sd.id))[0 .. sdCopy.idLen];
+
+            }
+
+            /* Merge into the DB now */
+            rwr(keyz, val);
+        }
+
+        /* Write the DB back in ascending numerical order */
+        db.entries
+            .array
+            .sort!((a, b) => a.id < b.id)
+            .each!((s) => writeOne(s));
     }
 
     /**
@@ -310,5 +371,28 @@ public final class StateEntriesPayload : KvPairPayload
      */
     override void loadRecord(scope ubyte[] key, scope ubyte[] data)
     {
+        import std.stdio : writeln;
+
+        auto db = cast(StateEntriesDB) userData;
+        enforce(db !is null, "StateEntriesDB.loadRecord(): Cannot continue without DB");
+
+        /* TODO: Actually decode the value! */
+        EntryRelationalKey* skey = cast(EntryRelationalKey*) key;
+        auto cp = *skey;
+        cp.toHostOrder();
+        writeln(cp);
+
+        enforce(data.length >= StateEntryBinary.sizeof,
+                "StateEntriesDB.loadRecord(): Value too short");
+
+        StateEntryBinary* dbval = cast(StateEntryBinary*) data[0 .. StateEntryBinary.sizeof];
+        auto valcp = *dbval;
+        valcp.toHostOrder();
+        writeln(valcp);
+
+        auto remnants = data[StateEntryBinary.sizeof .. $];
+        StateEntry sd = StateEntry(cp.stateID, valcp, remnants);
+        db.markSelection(sd.state, sd.id, sd.type, sd.flags);
+        writeln(sd);
     }
 }
