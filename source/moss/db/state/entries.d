@@ -131,7 +131,7 @@ public struct StateEntry
 /**
  * Used for serialisation purposes
  */
-package struct StateEntryBinary
+extern (C) public struct StateEntryBinary
 {
 align(1):
 
@@ -141,13 +141,44 @@ align(1):
     /* ID length, 2 bytes, endian-aware */
     @AutoEndian uint16_t idLen = 0;
 
-    /* Flags, 2 bytes. endian-aware */
+    /* Flags, 4 bytes. endian-aware */
     @AutoEndian SelectionFlags flags = SelectionFlags.DefaultPolicy;
 
     /** Type, 1 byte */
     @SelectionType type = SelectionType.Binary;
 
     ubyte[1] padding = [0];
+
+    /**
+     * Return encoded key start
+     */
+    ubyte[StateEntryBinary.sizeof] encoded()
+    {
+        StateEntryBinary cp = this;
+        cp.toNetworkOrder();
+
+        ubyte[StateEntryBinary.sizeof] data;
+
+        data[0 .. 8] = (cast(ubyte*)&cp.state)[0 .. cp.state.sizeof];
+        data[8 .. 10] = (cast(ubyte*)&cp.idLen)[0 .. cp.idLen.sizeof];
+        data[10 .. 14] = (cast(ubyte*)&cp.flags)[0 .. cp.flags.sizeof];
+        data[14 .. 15] = (cast(ubyte*)&cp.type)[0 .. cp.type.sizeof];
+        data[15] = cp.padding[0];
+
+        return data;
+    }
+
+    /**
+     * Construct a StateMetaDBValue from the input StateDescriptor
+     */
+    this(ref StateEntry sd)
+    {
+        state = sd.state;
+        idLen = cast(uint16_t)(sd.id.length + 1);
+        flags = sd.flags;
+        type = sd.type;
+        padding = [0];
+    }
 }
 
 static assert(StateEntryBinary.sizeof == 16, "StateEntryBinary must be exactly 16 bytes long");
