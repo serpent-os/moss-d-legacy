@@ -95,13 +95,13 @@ public struct InfoCommand
             switch (hdr.type)
             {
             case PayloadType.Meta:
-                printMeta(reader);
+                printMeta(hdr.payload);
                 break;
             case PayloadType.Layout:
-                printLayout(reader);
+                printLayout(hdr.payload);
                 break;
             case PayloadType.Index:
-                printIndex(reader);
+                printIndex(hdr.payload);
                 break;
             default:
                 break;
@@ -112,12 +112,12 @@ public struct InfoCommand
     /**
      * Print all metadata in a local package file
      */
-    void printMeta(scope Reader reader)
+    void printMeta(scope Payload p)
     {
         import moss.format.binary.payload.meta : MetaPayload, RecordType;
         import std.conv : to;
 
-        auto metadata = reader.payload!MetaPayload();
+        auto metadata = cast(MetaPayload) p;
         foreach (pair; metadata)
         {
             writef("%-15s : ", pair.tag.to!string);
@@ -138,12 +138,12 @@ public struct InfoCommand
     /**
      * Print all layout information in a local package file
      */
-    void printLayout(scope Reader reader)
+    void printLayout(scope Payload p)
     {
         /* Grab layout */
         import moss.format.binary.payload.layout : LayoutPayload;
 
-        auto layout = reader.payload!LayoutPayload();
+        auto layout = cast(LayoutPayload) p;
         import std.conv : to;
 
         foreach (entry, source, target; layout)
@@ -162,11 +162,11 @@ public struct InfoCommand
     /**
      * Print all index entries within the payload
      */
-    void printIndex(scope Reader reader)
+    void printIndex(scope Payload p)
     {
         import moss.format.binary.payload.index : IndexPayload;
 
-        auto index = reader.payload!IndexPayload();
+        auto index = cast(IndexPayload) p;
         foreach (entry, id; index)
         {
             writefln("  - %s [size: %d]", id, entry.size);
