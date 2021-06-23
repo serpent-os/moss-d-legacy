@@ -129,6 +129,30 @@ public struct StateEntry
 }
 
 /**
+ * Used for serialisation purposes
+ */
+package struct StateEntryBinary
+{
+align(1):
+
+    /* State ID, 8 bytes, endian-aware */
+    @AutoEndian uint64_t state = 0;
+
+    /* ID length, 2 bytes, endian-aware */
+    @AutoEndian uint16_t idLen = 0;
+
+    /* Flags, 2 bytes. endian-aware */
+    @AutoEndian SelectionFlags flags = SelectionFlags.DefaultPolicy;
+
+    /** Type, 1 byte */
+    @SelectionType type = SelectionType.Binary;
+
+    ubyte[1] padding = [0];
+}
+
+static assert(StateEntryBinary.sizeof == 16, "StateEntryBinary must be exactly 16 bytes long");
+
+/**
  * The StateEntriesDB is used to store each selection in a given state as
  * recorded within the StateMetaDB
  */
