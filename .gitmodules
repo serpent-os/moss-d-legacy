@@ -7,3 +7,6 @@
 [submodule "external/serpent-ecs"]
 	path = external/serpent-ecs
 	url = https://github.com/lispysnake/serpent-ecs.git
+[submodule "external/rocksdb-binding"]
+	path = external/rocksdb-binding
+	url = https://github.com/hatf0/rocksdb-binding.git
