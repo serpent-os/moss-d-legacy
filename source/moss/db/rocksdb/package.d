@@ -23,3 +23,6 @@
 module moss.db.rocksdb;
 
 public import moss.db;
+public import moss.db.rocksdb.bucket;
+public import moss.db.rocksdb.db;
+public import moss.db.rocksdb.transform;
