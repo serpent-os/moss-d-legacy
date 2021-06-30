@@ -22,4 +22,5 @@
 
 module moss.db;
 
+public import moss.db.entry;
 public import moss.db.interfaces;
