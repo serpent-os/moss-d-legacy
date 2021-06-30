@@ -17,9 +17,6 @@
 		},
 		"rocksdb": {
 			"path": "external/rocksdb-binding"
-		},
-		"serpent-ecs": {
-			"path":  "external/serpent-ecs"
 		}
 	},
 	"buildTypes": {
