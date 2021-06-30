@@ -43,6 +43,10 @@ struct DatabaseEntry
      */
     ubyte[] key;
 
+    /**
+     * Construct a DatabaseEntry as shallow references to input data.
+     */
+
     this(scope const(ubyte[]) prefix, scope const(ubyte[]) key)
     {
         this.prefix = cast(ubyte[]) prefix;
