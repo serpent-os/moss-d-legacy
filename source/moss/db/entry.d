@@ -43,6 +43,12 @@ struct DatabaseEntry
      */
     ubyte[] key;
 
+    this(scope const(ubyte[]) prefix, scope const(ubyte[]) key)
+    {
+        this.prefix = cast(ubyte[]) prefix;
+        this.key = cast(ubyte[]) key;
+    }
+
     /**
      * Encode the DatabaseEntry into a prefixed key with a fixed uint32_t prefix
      * length.
