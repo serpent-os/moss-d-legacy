@@ -22,7 +22,7 @@
 
 module moss.db.rocksdb.bucket;
 
-public import moss.db.interfaces : IReadWrite;
+public import moss.db.interfaces : IReadWrite, IIterator;
 
 import moss.db.entry;
 import moss.db.rocksdb.db : RDBDatabase;
@@ -60,6 +60,11 @@ package class RDBBucket : IReadWrite
     pure @property const(ubyte[]) prefix() @safe @nogc nothrow
     {
         return cast(const(ubyte[])) _prefix;
+    }
+
+    @property override IIterator iterator()
+    {
+        return null;
     }
 
 private:

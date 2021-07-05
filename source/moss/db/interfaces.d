@@ -21,6 +21,32 @@
  */
 
 module moss.db.interfaces;
+public import std.typecons : Tuple;
+public import moss.db.entry : DatabaseEntry;
+
+public alias DatabaseEntryPair = Tuple!(DatabaseEntry, "entry", ubyte[], "value");
+
+/**
+ * Simple iteration API for buckets.
+ */
+public interface IIterator
+{
+    /**
+     * Returns true if iteration is no longer possible or has ended
+     */
+    bool empty();
+
+    /**
+     * Return the entry pair at the front of the iterator
+     */
+    DatabaseEntryPair front();
+
+    /**
+     * Pop the current entry pair from the front of the iterator and seek to the
+     * next one, if possible.
+     */
+    void popFront();
+}
 
 /**
  * Implementations should support reading within the current scope
@@ -31,6 +57,12 @@ public interface IReadable
      * Retrieve a single value from the current namespace/scope
      */
     ubyte[] get(scope ubyte[] key);
+
+    /**
+     * Implementations must return a new iterator for reading through the
+     * data.
+     */
+    @property IIterator iterator();
 }
 
 /**

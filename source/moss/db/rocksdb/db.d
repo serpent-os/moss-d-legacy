@@ -122,6 +122,11 @@ public class RDBDatabase : Database
         _dbCon = null;
     }
 
+    @property override IIterator iterator()
+    {
+        return rootBucket.iterator;
+    }
+
 package:
 
     /**
