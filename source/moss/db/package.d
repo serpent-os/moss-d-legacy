@@ -24,3 +24,10 @@ module moss.db;
 
 public import moss.db.entry;
 public import moss.db.interfaces;
+
+/**
+ * We encode all data as ubyte[] internally which must take into account any
+ * host endian issues. As such, we always store in Big Endian format, and
+ * convert back to native endian upon reads.
+ */
+public alias Datum = ubyte[];

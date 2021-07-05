@@ -23,8 +23,9 @@
 module moss.db.interfaces;
 public import std.typecons : Tuple;
 public import moss.db.entry : DatabaseEntry;
+public import moss.db : Datum;
 
-public alias DatabaseEntryPair = Tuple!(DatabaseEntry, "entry", ubyte[], "value");
+public alias DatabaseEntryPair = Tuple!(DatabaseEntry, "entry", Datum, "value");
 
 /**
  * Simple iteration API for buckets.
@@ -56,7 +57,7 @@ public interface IReadable
     /**
      * Retrieve a single value from the current namespace/scope
      */
-    ubyte[] get(scope ubyte[] key);
+    Datum get(scope Datum key);
 
     /**
      * Implementations must return a new iterator for reading through the
@@ -73,7 +74,7 @@ public interface IWritable
     /**
      * Set a single value within the current namespace/scope
      */
-    void set(scope ubyte[] key, scope ubyte[] value);
+    void set(scope Datum key, scope Datum value);
 }
 
 /**
@@ -125,7 +126,7 @@ public abstract class Database : IReadWrite
      * Return a subset of the primary database that is namespaced with
      * a special bucket prefix or key.
      */
-    abstract IReadWrite bucket(scope ubyte[] prefix);
+    abstract IReadWrite bucket(scope Datum prefix);
 
     /**
      * The path URI is set at construction time. This property returns the current value

@@ -26,6 +26,7 @@ import rocksdb;
 import moss.db.rocksdb.bucket;
 import moss.db.rocksdb.transform;
 
+public import moss.db : Datum;
 public import moss.db.interfaces : Database, IReadWrite, DatabaseMutability;
 
 /**
@@ -71,7 +72,7 @@ public class RDBDatabase : Database
     /**
      * Set a key in the root namespace
      */
-    pragma(inline, true) override void set(scope ubyte[] key, scope ubyte[] value)
+    pragma(inline, true) override void set(scope Datum key, scope Datum value)
     {
         rootBucket.set(key, value);
     }
@@ -79,7 +80,7 @@ public class RDBDatabase : Database
     /**
      * Get a value from the root namespace
      */
-    pragma(inline, true) override ubyte[] get(scope ubyte[] key)
+    pragma(inline, true) override Datum get(scope Datum key)
     {
         return rootBucket.get(key);
     }
@@ -88,7 +89,7 @@ public class RDBDatabase : Database
      * Return a subset of the database with an explicit prefix for
      * the purposes of namespacing
      */
-    override IReadWrite bucket(scope ubyte[] prefix)
+    override IReadWrite bucket(scope Datum prefix)
     {
         import std.algorithm : find;
 

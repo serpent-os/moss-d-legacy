@@ -22,6 +22,8 @@
 
 module moss.db.entry;
 
+public import moss.db : Datum;
+
 import std.bitmanip : nativeToBigEndian, bigEndianToNative;
 import std.exception : enforce;
 import std.stdint : uint32_t;
@@ -36,28 +38,28 @@ struct DatabaseEntry
     /**
      * Prefix or "bucket ID" for the entry
      */
-    ubyte[] prefix;
+    Datum prefix;
 
     /**
      * Actual key without any prefix or modification
      */
-    ubyte[] key;
+    Datum key;
 
     /**
      * Construct a DatabaseEntry as shallow references to input data.
      */
 
-    this(scope const(ubyte[]) prefix, scope const(ubyte[]) key)
+    this(scope const(Datum) prefix, scope const(Datum) key)
     {
-        this.prefix = cast(ubyte[]) prefix;
-        this.key = cast(ubyte[]) key;
+        this.prefix = cast(Datum) prefix;
+        this.key = cast(Datum) key;
     }
 
     /**
      * Encode the DatabaseEntry into a prefixed key with a fixed uint32_t prefix
      * length.
      */
-    pure ubyte[] encode()
+    pure Datum encode()
     {
         uint32_t prefixLen = prefix is null ? 0 : cast(uint32_t) prefix.length;
         ubyte[uint32_t.sizeof] encodedLen = nativeToBigEndian(prefixLen);
@@ -88,9 +90,9 @@ struct DatabaseEntry
     /**
      * Decode this DatabaseEntry from the input bytes
      */
-    void decode(scope ubyte[] input)
+    void decode(scope Datum input)
     {
-        enforce(input.length > uint32_t.sizeof, "DatabaseEntry.decode(ubyte[]): Key is too short");
+        enforce(input.length > uint32_t.sizeof, "DatabaseEntry.decode(Datum): Key is too short");
 
         ubyte[uint32_t.sizeof] prefixLenEnc = input[0 .. uint32_t.sizeof];
         const uint32_t prefixLen = bigEndianToNative!(uint32_t, uint32_t.sizeof)(prefixLenEnc);

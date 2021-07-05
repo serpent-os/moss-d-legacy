@@ -22,6 +22,7 @@
 
 module moss.db.rocksdb.bucket;
 
+public import moss.db : Datum;
 public import moss.db.interfaces : IReadWrite, IIterator;
 
 import moss.db.entry;
@@ -39,27 +40,27 @@ package class RDBBucket : IReadWrite
     /**
      * Return a new RDBBucket with the given prefix
      */
-    this(RDBDatabase parentDB, scope ubyte[] prefix)
+    this(RDBDatabase parentDB, scope Datum prefix)
     {
         this._prefix = prefix;
         this.parentDB = parentDB;
     }
 
-    override void set(scope ubyte[] key, scope ubyte[] value)
+    override void set(scope Datum key, scope Datum value)
     {
         auto dbe = DatabaseEntry(prefix, key);
         parentDB.dbCon.put(dbe.encode(), value);
     }
 
-    override ubyte[] get(scope ubyte[] key)
+    override Datum get(scope Datum key)
     {
         auto dbe = DatabaseEntry(prefix, key);
         return parentDB.dbCon.get(dbe.encode());
     }
 
-    pure @property const(ubyte[]) prefix() @safe @nogc nothrow
+    pure @property const(Datum) prefix() @safe @nogc nothrow
     {
-        return cast(const(ubyte[])) _prefix;
+        return cast(const(Datum)) _prefix;
     }
 
     @property override IIterator iterator()
@@ -69,6 +70,6 @@ package class RDBBucket : IReadWrite
 
 private:
 
-    ubyte[] _prefix = null;
+    Datum _prefix = null;
     RDBDatabase parentDB = null;
 }
