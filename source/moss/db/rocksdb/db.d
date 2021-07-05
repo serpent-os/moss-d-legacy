@@ -26,12 +26,12 @@ import rocksdb;
 import moss.db.rocksdb.bucket;
 import moss.db.rocksdb.transform;
 
-public import moss.db.interfaces : IDatabase, IReadWrite, DatabaseMutability;
+public import moss.db.interfaces : Database, IReadWrite, DatabaseMutability;
 
 /**
  * RocksDB implementation of the KBDatabase interface
  */
-public class RDBDatabase : IDatabase
+public class RDBDatabase : Database
 {
 
     @disable this();
@@ -64,7 +64,7 @@ public class RDBDatabase : IDatabase
         }
 
         /* Establish the DB connection. TODO: Support read-only connections  */
-        _dbCon = new Database(dbOpts, pathURI);
+        _dbCon = new rocksdb.Database(dbOpts, pathURI);
         rootBucket = new RDBBucket(this, null);
     }
 

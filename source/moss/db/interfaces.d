@@ -66,7 +66,7 @@ public interface IReadWrite : IReadable, IWritable
  * the Readable and Writeble interfaces for basic read/write functionality
  * but may also support batch operations.
  */
-public abstract class IDatabase : IReadWrite
+public abstract class Database : IReadWrite
 {
 
     @disable this();
