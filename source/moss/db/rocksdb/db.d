@@ -27,7 +27,7 @@ import moss.db.rocksdb.bucket;
 import moss.db.rocksdb.transform;
 
 public import moss.db : Datum;
-public import moss.db.interfaces : Database, IReadWrite, DatabaseMutability;
+public import moss.db.interfaces : Database,  DatabaseMutability, IReadWritable;
 
 /**
  * RocksDB implementation of the KBDatabase interface
@@ -89,7 +89,7 @@ public class RDBDatabase : Database
      * Return a subset of the database with an explicit prefix for
      * the purposes of namespacing
      */
-    override IReadWrite bucket(scope Datum prefix)
+    override IReadWritable bucket(scope Datum prefix)
     {
         import std.algorithm : find;
 
@@ -123,7 +123,7 @@ public class RDBDatabase : Database
         _dbCon = null;
     }
 
-    @property override IIterator iterator()
+    @property override IIterable iterator()
     {
         return rootBucket.iterator;
     }

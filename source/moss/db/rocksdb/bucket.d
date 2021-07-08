@@ -23,7 +23,7 @@
 module moss.db.rocksdb.bucket;
 
 public import moss.db : Datum;
-public import moss.db.interfaces : IReadWrite, IIterator;
+public import moss.db.interfaces : IReadWritable, IIterable;
 
 import moss.db.entry;
 import moss.db.rocksdb.db : RDBDatabase;
@@ -33,7 +33,7 @@ import moss.db.rocksdb.db : RDBDatabase;
  * the actual nested bucket. In either case it is the root buckets job to
  * perform the real meat of the operations.
  */
-package class RDBBucket : IReadWrite
+package class RDBBucket : IReadWritable
 {
     @disable this();
 
@@ -63,7 +63,7 @@ package class RDBBucket : IReadWrite
         return cast(const(Datum)) _prefix;
     }
 
-    @property override IIterator iterator()
+    @property override IIterable iterator()
     {
         return null;
     }

@@ -30,7 +30,7 @@ public alias DatabaseEntryPair = Tuple!(DatabaseEntry, "entry", Datum, "value");
 /**
  * Simple iteration API for buckets.
  */
-public interface IIterator
+public interface IIterable
 {
     /**
      * Returns true if iteration is no longer possible or has ended
@@ -63,7 +63,7 @@ public interface IReadable
      * Implementations must return a new iterator for reading through the
      * data.
      */
-    @property IIterator iterator();
+    @property IIterable iterator();
 }
 
 /**
@@ -89,7 +89,7 @@ public enum DatabaseMutability
 /**
  * The implementation is both readable and writable.
  */
-public interface IReadWrite : IReadable, IWritable
+public interface IReadWritable : IReadable, IWritable
 {
 }
 
@@ -99,7 +99,7 @@ public interface IReadWrite : IReadable, IWritable
  * the Readable and Writeble interfaces for basic read/write functionality
  * but may also support batch operations.
  */
-public abstract class Database : IReadWrite
+public abstract class Database : IReadWritable
 {
 
     @disable this();
@@ -126,7 +126,7 @@ public abstract class Database : IReadWrite
      * Return a subset of the primary database that is namespaced with
      * a special bucket prefix or key.
      */
-    abstract IReadWrite bucket(scope Datum prefix);
+    abstract IReadWritable bucket(scope Datum prefix);
 
     /**
      * The path URI is set at construction time. This property returns the current value
