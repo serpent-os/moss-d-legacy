@@ -15,8 +15,8 @@
 		"moss-format:binary": {
 			"path": "external/moss-format"
 		},
-		"rocksdb": {
-			"path": "external/rocksdb-binding"
+		"moss-db": {
+			"path": "external/moss-db"
 		}
 	},
 	"buildTypes": {
