@@ -44,7 +44,7 @@ public class RDBDatabase : Database
     {
         super(pathURI, mut);
 
-        /* Organis our options */
+        /* Organise our options */
         dbOpts = new DBOptions();
         auto fact = new BlockedBasedTableOptions();
         fact.wholeKeyFiltering = false;

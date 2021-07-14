@@ -96,7 +96,7 @@ public interface IReadWritable : IReadable, IWritable
 /**
  * The Database interface specifies a contract to which our database
  * implementations should implement. By default they will have to implement
- * the Readable and Writeble interfaces for basic read/write functionality
+ * the Readable and Writeable interfaces for basic read/write functionality
  * but may also support batch operations.
  */
 public abstract class Database : IReadWritable
