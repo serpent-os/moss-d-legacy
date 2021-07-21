@@ -89,9 +89,10 @@ public struct InfoCommand
             /* Calculate compression savings */
             immutable float comp = hdr.storedSize;
             immutable float uncomp = hdr.plainSize;
+            auto puncomp = getPrettyBytes(uncomp);
             auto savings = (comp > 0 ? (100.0f - (comp / uncomp) * 100.0f) : 0);
-            writefln("Payload: %s [Records: %d Compression: %s, savings: %.2f%%]",
-                    to!string(hdr.type), hdr.numRecords, to!string(hdr.compression), savings);
+            writefln("Payload: %s [Records: %d Compression: %s, Savings: %.2f%%, Size: %s]",
+                    to!string(hdr.type), hdr.numRecords, to!string(hdr.compression), savings, puncomp);
             switch (hdr.type)
             {
             case PayloadType.Meta:
@@ -171,5 +172,27 @@ public struct InfoCommand
         {
             writefln("  - %s [size: %d]", id, entry.size);
         }
+    }
+
+    /**
+     * Convert bytes to a pretty condensed version
+     */
+    string getPrettyBytes(float bytes)
+    {
+        import std.format : format;
+
+        const string[4] units = ["B", "KB", "MB", "GB"];
+        const int[4] deci = [0, 2, 2, 2];
+        const auto k = 1024;
+
+        for (int i = 3; i >= 0; i--)
+        {
+            auto correctsize = bytes/(k^^i);
+            if (correctsize > 1)
+            {
+                return "%.*f %s".format(deci[i], correctsize, units[i]);
+            }
+        }
+        assert(0);
     }
 }
