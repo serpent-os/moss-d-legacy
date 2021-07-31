@@ -92,7 +92,8 @@ public struct InfoCommand
             auto puncomp = formatBytes(uncomp);
             auto savings = (comp > 0 ? (100.0f - (comp / uncomp) * 100.0f) : 0);
             writefln("Payload: %s [Records: %d Compression: %s, Savings: %.2f%%, Size: %s]",
-                    to!string(hdr.type), hdr.numRecords, to!string(hdr.compression), savings, puncomp);
+                    to!string(hdr.type), hdr.numRecords,
+                    to!string(hdr.compression), savings, puncomp);
             switch (hdr.type)
             {
             case PayloadType.Meta:
@@ -187,7 +188,7 @@ public struct InfoCommand
 
         for (int i = 3; i >= 0; i--)
         {
-            auto correctsize = bytes/(k^^i);
+            auto correctsize = bytes / (k ^^ i);
             if (correctsize > 1)
             {
                 return "%.*f %s".format(deci[i], correctsize, units[i]);
