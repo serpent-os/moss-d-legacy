@@ -86,8 +86,8 @@ package:
     pure @property void root(const(string) s) @safe
     {
         _root = absolutePath(s);
-        _db = _root.buildPath("moss", "db");
-        _cache = _root.buildPath("moss", "cache");
+        _db = _root.buildPath(".moss", "db");
+        _cache = _root.buildPath(."moss", "cache");
     }
 
 private:
