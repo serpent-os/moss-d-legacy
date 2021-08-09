@@ -28,6 +28,7 @@ import std.file : exists;
 
 public import moss.client : MossClient;
 
+import moss.storage.db.layoutdb;
 import moss.storage.db.statedb;
 
 /**
@@ -50,8 +51,9 @@ public final class DirectMossClient : MossClient
         /* Enforce creation of all required paths */
         context.paths.mkdirs();
 
+        /* Construct our DBs.. */
+        layoutDB = new LayoutDB();
         stateDB = new StateDB();
-        stateDB.reloadDB();
     }
 
     override void installLocalArchives(string[] archivePaths)
@@ -66,10 +68,12 @@ public final class DirectMossClient : MossClient
 
     override void close()
     {
+        layoutDB.close();
         stateDB.close();
     }
 
 private:
 
+    LayoutDB layoutDB = null;
     StateDB stateDB = null;
 }
