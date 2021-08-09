@@ -28,6 +28,8 @@ import std.file : exists;
 
 public import moss.client : MossClient;
 
+import moss.core : hardLink;
+
 import moss.storage.pool;
 import moss.storage.db.layoutdb;
 import moss.storage.db.statedb;
@@ -101,11 +103,10 @@ public final class DirectMossClient : MossClient
         /* Store new State */
         stateDB.addState(stateNew);
 
-        /* TODO: Actually install the selections */
-        foreach (p; archivePaths)
-        {
-            writefln("Failed to install: %s", p);
-        }
+        /* Mark installed in new state */
+        newCandidates.each!((e) => stateDB.markSelection(stateNew.id,
+                Selection(e, SelectionReason.ManuallyInstalled)));
+        constructRootSnapshot(stateNew);
     }
 
     override void close()
@@ -211,7 +212,73 @@ private:
         indexPayload.each!((entry, id) => extractIndex(mappedFile, entry, id));
         layoutDB.installPayload(pkgIDName, payload);
 
-        return pkgName;
+        return pkgIDName;
+    }
+
+    /**
+    * Construct root snapshot for the given identifier
+    */
+    void constructRootSnapshot(ref State newState)
+    {
+        import std.algorithm : sort, uniq, map, each;
+        import std.array : array, join;
+        import std.stdio : writeln;
+
+        /* Copy all installed candidates */
+        auto installedCandidates = stateDB.entries(newState.id).array();
+        auto finalLayouts = installedCandidates.map!((s) => layoutDB.entries(s.target)).join;
+        finalLayouts.sort!((esA, esB) => esA.target < esB.target);
+
+        /* Build set of layouts for all candidates */
+        import std.stdio : writeln;
+
+        writeln(" => Beginning filesystem blit");
+        finalLayouts.uniq!((esA, esB) => esA.target == esB.target)
+            .each!((es) => applyLayout(newState, es));
+        writeln(" => Ended filesystem blit");
+    }
+
+    void applyLayout(ref State newState, ref EntrySet es)
+    {
+        import std.path : buildPath;
+        import std.conv : to;
+
+        /* /.moss/store/root/1 .. */
+        auto targetNode = context.paths.store.buildPath("root",
+                to!string(newState.id), es.target[1 .. $]);
+
+        import moss.format.binary : FileType;
+        import std.file : mkdirRecurse, symlink;
+
+        /* Update attributes on the layout item. */
+        void updateAttrs()
+        {
+            import std.file : setAttributes, setTimes;
+            import std.datetime : SysTime;
+
+            targetNode.setAttributes(es.entry.mode);
+            targetNode.setTimes(SysTime.fromUnixTime(es.entry.time),
+                    SysTime.fromUnixTime(es.entry.time));
+        }
+
+        /* Handle basic file types now */
+        switch (es.entry.type)
+        {
+        case FileType.Directory:
+            targetNode.mkdirRecurse();
+            updateAttrs();
+            break;
+        case FileType.Symlink:
+            es.source.symlink(targetNode);
+            break;
+        case FileType.Regular:
+            auto sourcePath = pool.fullPath(es.source);
+            hardLink(sourcePath, targetNode);
+            updateAttrs();
+            break;
+        default:
+            break;
+        }
     }
 
     LayoutDB layoutDB = null;
