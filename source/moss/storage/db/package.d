@@ -21,3 +21,5 @@
  */
 
 module moss.storage.db;
+
+public import moss.storage.db.statedb;
