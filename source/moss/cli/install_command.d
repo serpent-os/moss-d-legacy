@@ -48,6 +48,10 @@ public struct InstallCommand
         /* Set up context and our client */
         context.setRootDirectory((pt.findAncestor!MossCLI).rootDirectory);
         auto client = new DirectMossClient();
+        scope (exit)
+        {
+            client.close();
+        }
 
         try
         {

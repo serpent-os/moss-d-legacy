@@ -34,6 +34,11 @@ interface MossClient
      * Request install of local archive files
      */
     void installLocalArchives(string[] archivePaths);
+
+    /**
+     * Close all client resources
+     */
+    void close();
 }
 
 /**

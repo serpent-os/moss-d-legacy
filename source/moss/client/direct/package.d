@@ -28,6 +28,8 @@ import std.file : exists;
 
 public import moss.client : MossClient;
 
+import moss.storage.db.statedb;
+
 /**
  * The direct implementation for MossClient
  *
@@ -47,6 +49,9 @@ public final class DirectMossClient : MossClient
 
         /* Enforce creation of all required paths */
         context.paths.mkdirs();
+
+        stateDB = new StateDB();
+        stateDB.reloadDB();
     }
 
     override void installLocalArchives(string[] archivePaths)
@@ -58,4 +63,13 @@ public final class DirectMossClient : MossClient
             writefln("Failed to install: %s", p);
         }
     }
+
+    override void close()
+    {
+        stateDB.close();
+    }
+
+private:
+
+    StateDB stateDB = null;
 }
