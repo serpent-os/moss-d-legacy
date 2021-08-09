@@ -28,6 +28,7 @@ import std.file : exists;
 
 public import moss.client : MossClient;
 
+import moss.storage.pool;
 import moss.storage.db.layoutdb;
 import moss.storage.db.statedb;
 
@@ -54,6 +55,7 @@ public final class DirectMossClient : MossClient
         /* Construct our DBs.. */
         layoutDB = new LayoutDB();
         stateDB = new StateDB();
+        pool = new DiskPool();
     }
 
     override void installLocalArchives(string[] archivePaths)
@@ -76,4 +78,5 @@ private:
 
     LayoutDB layoutDB = null;
     StateDB stateDB = null;
+    DiskPool pool = null;
 }
