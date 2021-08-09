@@ -38,7 +38,7 @@ final class DiskPool
      */
     this()
     {
-        rootDirectory = context.paths.store.buildPath("os", "v1");
+        rootDirectory = context.paths.store.buildPath("assets", "v1");
         rootDirectory.mkdirRecurse();
     }
 
