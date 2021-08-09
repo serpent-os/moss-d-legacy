@@ -26,6 +26,8 @@ import moss.context;
 import std.path : buildPath;
 import std.file : mkdirRecurse;
 
+import moss.core : hardLink;
+
 /**
  * Simple implementation for now, provide hardlinking of hashed assets
  */
@@ -38,6 +40,38 @@ final class DiskPool
     {
         rootDirectory = context.paths.store.buildPath("os", "v1");
         rootDirectory.mkdirRecurse();
+    }
+
+    /**
+     * Return the full path of the input hash
+     */
+    string fullPath(const(string) inp)
+    {
+        if (inp.length >= 10)
+        {
+            return rootDirectory.buildPath(inp[0 .. 5], inp[$ - 5 .. $], inp);
+        }
+
+        return rootDirectory.buildPath(inp);
+    }
+
+    /**
+     * Promote a local store item to the final path.
+     * TODO: Increase refCount
+     */
+    void refAsset(const(string) inp, const(string) destination)
+    {
+        hardLink(fullPath(inp), destination);
+    }
+
+    /**
+     * Return true if we have the given asset
+     */
+    bool contains(const(string) inp)
+    {
+        import std.file : exists;
+
+        return fullPath(inp).exists;
     }
 
 private:
