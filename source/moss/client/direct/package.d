@@ -32,6 +32,14 @@ import moss.storage.pool;
 import moss.storage.db.layoutdb;
 import moss.storage.db.statedb;
 
+import moss.format.binary.payload.index;
+import moss.format.binary.payload.layout;
+import moss.format.binary.payload.meta;
+import moss.format.binary.payload.content;
+import moss.format.binary.reader;
+
+import std.mmfile;
+
 /**
  * The direct implementation for MossClient
  *
@@ -58,10 +66,42 @@ public final class DirectMossClient : MossClient
         pool = new DiskPool();
     }
 
+    /**
+     * Install some .stone files on the CLI
+     */
     override void installLocalArchives(string[] archivePaths)
     {
         import std.stdio : writefln;
+        import std.string : format;
+        import std.array : array;
+        import std.algorithm : each, canFind, map;
 
+        auto stateOld = stateDB.lastState();
+        auto stateNew = State(stateDB.nextStateID(),
+                "Installation of %d packages".format(archivePaths.length), null);
+        auto oldSelections = stateDB.entries(stateOld.id).array();
+
+        /* Anything to do? */
+        if (oldSelections.length == 0 && archivePaths.length == 0)
+        {
+            return;
+        }
+
+        /* Precache assets */
+        auto newCandidates = archivePaths.map!((p) => precacheArchive(p)).array();
+        enforce(!newCandidates.canFind(null) && !newCandidates.canFind(""),
+                "Failure in precacheAssets");
+        import std.stdio : writeln;
+
+        writeln(newCandidates);
+
+        /* Persist old selections. */
+        oldSelections.each!((sel) => stateDB.markSelection(stateNew.id, sel));
+
+        /* Store new State */
+        stateDB.addState(stateNew);
+
+        /* TODO: Actually install the selections */
         foreach (p; archivePaths)
         {
             writefln("Failed to install: %s", p);
@@ -75,6 +115,104 @@ public final class DirectMossClient : MossClient
     }
 
 private:
+
+    void extractIndex(MmFile mappedFile, ref IndexEntry entry, const(string) id)
+    {
+        import std.conv : to;
+        import std.range : chunks;
+        import std.algorithm : each;
+        import std.path : dirName;
+        import std.file : mkdirRecurse;
+
+        if (pool.contains(id))
+        {
+            return;
+        }
+
+        /* Copy file to targets. */
+        auto fileName = pool.fullPath(id);
+        auto dirPath = fileName.dirName();
+        dirPath.mkdirRecurse();
+
+        auto targetFile = File(fileName, "wb");
+        auto copyableRange = cast(ubyte[]) mappedFile[entry.start .. entry.end];
+        copyableRange.chunks(4 * 1024 * 1024).each!((b) => targetFile.rawWrite(b));
+        targetFile.close();
+    }
+
+    /**
+     * Introduce assets into the store, return the candidate ID
+     */
+    string precacheArchive(const(string) path)
+    {
+        import std.stdio : writefln;
+        import std.file : exists;
+
+        auto pkgFile = File(path, "rb");
+        auto reader = new Reader(pkgFile);
+        writefln("Caching: %s", path);
+
+        /* Must exist first.. */
+        if (!path.exists)
+        {
+            return null;
+        }
+
+        auto metaPayload = reader.payload!MetaPayload;
+        auto payload = reader.payload!LayoutPayload;
+        auto indexPayload = reader.payload!IndexPayload;
+        auto contentPayload = reader.payload!ContentPayload;
+
+        enforce(payload !is null, "Should have a LayoutPayload..");
+        enforce(metaPayload !is null, "Should have a MetaPayload..");
+
+        string pkgName = null;
+        uint64_t pkgRelease = 0;
+        string pkgVersion = null;
+        string pkgArchitecture = null;
+
+        import std.algorithm : each;
+
+        metaPayload.each!((t) => {
+            switch (t.tag)
+            {
+            case RecordTag.Name:
+                pkgName = t.val_string;
+                break;
+            case RecordTag.Release:
+                pkgRelease = t.val_u64;
+                break;
+            case RecordTag.Version:
+                pkgVersion = t.val_string;
+                break;
+            case RecordTag.Architecture:
+                pkgArchitecture = t.val_string;
+                break;
+            default:
+                break;
+            }
+        }());
+
+        import std.string : format;
+
+        /* Unpack to the cache directory */
+        auto pkgIDName = "%s-%s-%d.%s".format(pkgName, pkgVersion, pkgRelease, pkgArchitecture);
+        auto contentFile = context.paths.cache.buildPath("content-%s".format(pkgIDName));
+        reader.unpackContent(contentPayload, contentFile);
+
+        /** Memory map the content file */
+        auto mappedFile = new MmFile(File(contentFile, "rb"));
+        scope (exit)
+        {
+            mappedFile.destroy();
+        }
+
+        /* Extract all index files from content, install layout payload */
+        indexPayload.each!((entry, id) => extractIndex(mappedFile, entry, id));
+        layoutDB.installPayload(pkgIDName, payload);
+
+        return pkgName;
+    }
 
     LayoutDB layoutDB = null;
     StateDB stateDB = null;
