@@ -107,6 +107,7 @@ public final class DirectMossClient : MossClient
         newCandidates.each!((e) => stateDB.markSelection(stateNew.id,
                 Selection(e, SelectionReason.ManuallyInstalled)));
         constructRootSnapshot(stateNew);
+        updateCurrentState(stateNew);
     }
 
     override void close()
@@ -303,6 +304,28 @@ private:
         default:
             break;
         }
+    }
+
+    /**
+     * Update the current state / pointer
+     */
+    void updateCurrentState(ref State currentState)
+    {
+        import std.conv : to;
+        import std.file : remove, symlink, rename;
+
+        /* Relative path only! */
+        auto targetPath = buildPath(".moss", "store", "root", to!string(currentState.id));
+        auto sourceLinkAtomic = context.paths.root.buildPath("usr.next");
+        auto finalUsr = context.paths.root.buildPath("usr");
+        if (sourceLinkAtomic.exists)
+        {
+            sourceLinkAtomic.remove();
+        }
+
+        /* Update atomically with new link then rename */
+        targetPath.symlink(sourceLinkAtomic);
+        sourceLinkAtomic.rename(finalUsr);
     }
 
     LayoutDB layoutDB = null;
