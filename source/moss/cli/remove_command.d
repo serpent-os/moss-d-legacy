@@ -20,33 +20,48 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module moss.client;
+module moss.cli.remove_command;
+
+public import moss.core.cli;
+import moss.core;
+import moss.cli : MossCLI;
+import moss.context;
+import moss.client;
 
 /**
- * The MossClient is responsible for interacting with moss managed systems.
- * Currently we only support direct APIs so only a direct implementation is
- * provided.
+ * The removeCommand provides a CLI system to remove a package, whether from
+ * a local file or a repository.
  */
-
-interface MossClient
+@CommandName("remove")
+@CommandHelp("remove a local package")
+public struct RemoveCommand
 {
-    /**
-     * Request install of local archive files
-     */
-    void installLocalArchives(string[] archivePaths);
+    /** Extend BaseCommand with remove utility */
+    BaseCommand pt;
+    alias pt this;
 
     /**
-     * Request removal of the given package IDs
+     * Main entry point into the RemoveCommand
      */
-    void removePackages(string[] pkgIDs);
+    @CommandEntry() int run(ref string[] argv)
+    {
+        /* Set up context and our client */
+        context.setRootDirectory((pt.findAncestor!MossCLI).rootDirectory);
+        auto client = new DirectMossClient();
+        scope (exit)
+        {
+            client.close();
+        }
 
-    /**
-     * Close all client resources
-     */
-    void close();
+        try
+        {
+            client.removePackages(argv);
+        }
+        catch (Exception ex)
+        {
+            return ExitStatus.Failure;
+        }
+
+        return ExitStatus.Success;
+    }
 }
-
-/**
- * Currently, the only supported implementation
- */
-public import moss.client.direct;

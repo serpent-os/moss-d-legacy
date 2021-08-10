@@ -116,6 +116,39 @@ public final class DirectMossClient : MossClient
         stateDB.close();
     }
 
+    /**
+     * Very simple implementation to remove packages by their full ID
+     */
+    override void removePackages(string[] pkgIDs)
+    {
+        import std.stdio : writeln;
+        import std.string : format;
+        import std.array : array;
+        import std.algorithm : filter, canFind, each;
+
+        if (pkgIDs.length < 1)
+        {
+            writeln("Cannot remove zero packages");
+            return;
+        }
+        auto stateOld = stateDB.lastState();
+        auto stateNew = State(stateDB.nextStateID(),
+                "Removal of %d packages".format(pkgIDs.length), null);
+        auto oldSelections = stateDB.entries(stateOld.id).array();
+
+        auto newSelections = oldSelections.filter!((sel) => !pkgIDs.canFind(sel.target)).array();
+        if (oldSelections.length == newSelections.length)
+        {
+            writeln("No removals needed");
+            return;
+        }
+        newSelections.each!((sel) => stateDB.markSelection(stateNew.id, sel));
+        stateDB.addState(stateNew);
+
+        constructRootSnapshot(stateNew);
+        updateCurrentState(stateNew);
+    }
+
 private:
 
     void extractIndex(MmFile mappedFile, ref IndexEntry entry, const(string) id)

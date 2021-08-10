@@ -31,6 +31,7 @@ int main(string[] args)
     clip.addCommand!ExtractCommand;
     clip.addCommand!InfoCommand;
     clip.addCommand!InstallCommand;
+    clip.addCommand!RemoveCommand;
     clip.addCommand!VersionCommand;
     clip.addCommand!HelpCommand;
     return clip.process(args);
