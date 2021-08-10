@@ -68,7 +68,7 @@ public struct ExtractCommand
         import moss.format.binary.payload.layout : LayoutPayload, LayoutEntry;
         import std.exception : enforce;
         import std.path : buildPath;
-        import std.file : mkdir, remove;
+        import std.file : mkdir, remove, mkdirRecurse;
 
         if (!packageName.exists())
         {
@@ -136,7 +136,6 @@ public struct ExtractCommand
             import std.stdio : writefln;
             import std.string : startsWith;
             import moss.format.binary : FileType;
-            import std.file : mkdirRecurse;
 
             auto targetPath = installDir.buildPath(target.startsWith("/") ? target[1 .. $] : target);
             writefln("Constructing target: %s", targetPath);
@@ -180,6 +179,8 @@ public struct ExtractCommand
                 break;
             }
         }
+
+        installDir.mkdirRecurse();
 
         indexPayload.each!((entry, id) => extractIndex(entry, id));
         layoutPayload.each!((e) => applyLayout(e.entry, e.source, e.target));
