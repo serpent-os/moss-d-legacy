@@ -223,6 +223,8 @@ private:
         import std.algorithm : sort, uniq, map, each;
         import std.array : array, join;
         import std.stdio : writeln;
+        import std.conv : to;
+        import std.file : mkdirRecurse;
 
         /* Copy all installed candidates */
         auto installedCandidates = stateDB.entries(newState.id).array();
@@ -233,6 +235,9 @@ private:
         import std.stdio : writeln;
 
         writeln(" => Beginning filesystem blit");
+        /* Ensure we have a rootfs dir for root level nodes */
+        auto rootfsDir = context.paths.store.buildPath("root", to!string(newState.id));
+        rootfsDir.mkdirRecurse();
         finalLayouts.uniq!((esA, esB) => esA.target == esB.target)
             .each!((es) => applyLayout(newState, es));
         writeln(" => Ended filesystem blit");
