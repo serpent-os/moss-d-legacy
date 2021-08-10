@@ -147,7 +147,7 @@ private:
     string precacheArchive(const(string) path)
     {
         import std.stdio : writefln;
-        import std.file : exists;
+        import std.file : exists, remove;
 
         auto pkgFile = File(path, "rb");
         auto reader = new Reader(pkgFile);
@@ -206,6 +206,7 @@ private:
         scope (exit)
         {
             mappedFile.destroy();
+            contentFile.remove();
         }
 
         /* Extract all index files from content, install layout payload */
