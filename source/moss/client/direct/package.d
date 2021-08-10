@@ -315,7 +315,7 @@ private:
         import std.file : remove, symlink, rename;
 
         /* Relative path only! */
-        auto targetPath = buildPath(".moss", "store", "root", to!string(currentState.id));
+        auto targetPath = buildPath(".moss", "store", "root", to!string(currentState.id), "usr");
         auto sourceLinkAtomic = context.paths.root.buildPath("usr.next");
         auto finalUsr = context.paths.root.buildPath("usr");
         if (sourceLinkAtomic.exists)
