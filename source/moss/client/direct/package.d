@@ -148,6 +148,7 @@ private:
     {
         import std.stdio : writefln;
         import std.file : exists, remove;
+        import core.sys.posix.stdlib : mkstemp;
 
         auto pkgFile = File(path, "rb");
         auto reader = new Reader(pkgFile);
@@ -196,17 +197,34 @@ private:
 
         import std.string : format;
 
-        /* Unpack to the cache directory */
+        /* Unique identifier*/
         auto pkgIDName = "%s-%s-%d.%s".format(pkgName, pkgVersion, pkgRelease, pkgArchitecture);
-        auto contentFile = context.paths.cache.buildPath("content-%s".format(pkgIDName));
-        reader.unpackContent(contentPayload, contentFile);
+
+        /* Get ourselves a tmpfile */
+        auto tmpname = "/tmp/moss-content-%s-XXXXXX".format(pkgIDName);
+        auto copy = new char[tmpname.length + 1];
+        copy[0 .. tmpname.length] = tmpname[];
+        copy[tmpname.length] = '\0';
+        const int fd = mkstemp(copy.ptr);
+        enforce(fd > 0, "precacheArchive(): Failed to mkstemp()");
+
+        /* Map the tmpfile back to path + File object */
+        File fi;
+        fi.fdopen(fd, "rb");
+        const auto li = cast(long) copy.length;
+        auto contentPath = cast(string) copy[0 .. li - 1];
+
+        /* Unpack it now */
+        reader.unpackContent(contentPayload, contentPath);
 
         /** Memory map the content file */
-        auto mappedFile = new MmFile(File(contentFile, "rb"));
+        auto mappedFile = new MmFile(fi, MmFile.Mode.read, 0, null, 0);
         scope (exit)
         {
             mappedFile.destroy();
-            contentFile.remove();
+            fi.close();
+            enforce(copy.length > 1, "Runtime error: copy.length < 1");
+            remove(contentPath);
         }
 
         /* Extract all index files from content, install layout payload */
