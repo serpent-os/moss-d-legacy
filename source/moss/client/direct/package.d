@@ -204,6 +204,8 @@ private:
 
         enforce(payload !is null, "Should have a LayoutPayload..");
         enforce(metaPayload !is null, "Should have a MetaPayload..");
+        enforce(indexPayload !is null, "Should have an IndexPayload..");
+        enforce(contentPayload !is null, "Should have a ContentPayload..");
 
         string pkgName = null;
         uint64_t pkgRelease = 0;
