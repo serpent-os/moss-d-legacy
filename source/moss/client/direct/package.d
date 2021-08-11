@@ -31,6 +31,7 @@ public import moss.client : MossClient;
 import moss.core : hardLink;
 
 import moss.storage.pool;
+import moss.storage.db.installdb;
 import moss.storage.db.layoutdb;
 import moss.storage.db.statedb;
 
@@ -63,6 +64,7 @@ public final class DirectMossClient : MossClient
         context.paths.mkdirs();
 
         /* Construct our DBs.. */
+        installDB = new InstallDB();
         layoutDB = new LayoutDB();
         stateDB = new StateDB();
         pool = new DiskPool();
@@ -112,6 +114,7 @@ public final class DirectMossClient : MossClient
 
     override void close()
     {
+        installDB.close();
         layoutDB.close();
         stateDB.close();
     }
@@ -361,6 +364,7 @@ private:
         sourceLinkAtomic.rename(finalUsr);
     }
 
+    InstallDB installDB = null;
     LayoutDB layoutDB = null;
     StateDB stateDB = null;
     DiskPool pool = null;
