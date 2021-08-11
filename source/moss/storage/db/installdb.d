@@ -95,7 +95,7 @@ public final class InstallDB
 
         auto metabucket = db.bucket(metadataBucket(pkgID));
 
-        auto result = db.bucket("index").get!string(pkgID);
+        const auto result = db.bucket("index").get!string(pkgID);
         if (result.found)
         {
             /* Already stored this asset. */
