@@ -186,6 +186,8 @@ private:
         import std.stdio : writefln;
         import std.file : exists, remove;
         import core.sys.posix.stdlib : mkstemp;
+        import std.string : format;
+        import std.algorithm : each;
 
         auto pkgFile = File(path, "rb");
         auto reader = new Reader(pkgFile);
@@ -207,40 +209,11 @@ private:
         enforce(indexPayload !is null, "Should have an IndexPayload..");
         enforce(contentPayload !is null, "Should have a ContentPayload..");
 
-        string pkgName = null;
-        uint64_t pkgRelease = 0;
-        string pkgVersion = null;
-        string pkgArchitecture = null;
-
-        import std.algorithm : each;
-
-        metaPayload.each!((t) => {
-            switch (t.tag)
-            {
-            case RecordTag.Name:
-                pkgName = t.val_string;
-                break;
-            case RecordTag.Release:
-                pkgRelease = t.val_u64;
-                break;
-            case RecordTag.Version:
-                pkgVersion = t.val_string;
-                break;
-            case RecordTag.Architecture:
-                pkgArchitecture = t.val_string;
-                break;
-            default:
-                break;
-            }
-        }());
-
-        import std.string : format;
-
-        /* Unique identifier*/
-        auto pkgIDName = "%s-%s-%d.%s".format(pkgName, pkgVersion, pkgRelease, pkgArchitecture);
+        auto pkgID = installDB.installPayload(metaPayload);
+        enforce(pkgID !is null, "precacheArchive(): Could not inspect MetaPayload");
 
         /* Get ourselves a tmpfile */
-        auto tmpname = "/tmp/moss-content-%s-XXXXXX".format(pkgIDName);
+        auto tmpname = "/tmp/moss-content-%s-XXXXXX".format(pkgID);
         auto copy = new char[tmpname.length + 1];
         copy[0 .. tmpname.length] = tmpname[];
         copy[tmpname.length] = '\0';
@@ -268,9 +241,9 @@ private:
 
         /* Extract all index files from content, install layout payload */
         indexPayload.each!((entry, id) => extractIndex(mappedFile, entry, id));
-        layoutDB.installPayload(pkgIDName, payload);
+        layoutDB.installPayload(pkgID, payload);
 
-        return pkgIDName;
+        return pkgID;
     }
 
     /**

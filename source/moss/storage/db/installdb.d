@@ -25,6 +25,10 @@ module moss.storage.db.installdb;
 import moss.context;
 import moss.db;
 import moss.db.rocksdb;
+import moss.format.binary.payload.meta;
+import std.stdint : uint64_t;
+import std.string : format;
+import std.exception : enforce;
 
 /**
  * InstallDB tracks packages installed across various states and doesn't specifically
@@ -79,7 +83,118 @@ public final class InstallDB
         db = new RDBDatabase(path, DatabaseMutability.ReadWrite);
     }
 
+    /**
+     * Install the given payload into our system. It is keyed by the
+     * unique pkgID, so we can only retain a single payload per pkgID
+     * and increase/decrease refcount as appropriate.
+     */
+    string installPayload(MetaPayload payload)
+    {
+        auto pkgID = getPkgID(payload);
+        enforce(pkgID !is null, "installPayload(): Unable to get pkgID");
+
+        auto metabucket = db.bucket(metadataBucket(pkgID));
+
+        auto result = db.bucket("index").get!string(pkgID);
+        if (result.found)
+        {
+            /* Already stored this asset. */
+            return pkgID;
+        }
+
+        /* Store this in the index now */
+        db.bucket("index").set(pkgID, metadataBucket(pkgID));
+
+        foreach (record; payload)
+        {
+            switch (record.tag)
+            {
+            case RecordTag.Name:
+                enforce(record.type == RecordType.String,
+                        "installPayload(): Type should be string, not %s".format(record.type));
+                metabucket.set("name", record.val_string);
+                break;
+            case RecordTag.Unknown:
+            default:
+                break;
+            }
+        }
+
+        /* When we know the pkg will be definitely used, bump to 1. Start at 0 */
+        setRefCount(pkgID, 0);
+        return pkgID;
+    }
+
 private:
+
+    /** 
+     * Return the full pkgID for a given meta payload
+     */
+    string getPkgID(MetaPayload payload)
+    {
+        import std.algorithm : each;
+
+        string pkgName = null;
+        uint64_t pkgRelease = 0;
+        string pkgVersion = null;
+        string pkgArchitecture = null;
+
+        payload.each!((t) => {
+            switch (t.tag)
+            {
+            case RecordTag.Name:
+                pkgName = t.val_string;
+                break;
+            case RecordTag.Release:
+                pkgRelease = t.val_u64;
+                break;
+            case RecordTag.Version:
+                pkgVersion = t.val_string;
+                break;
+            case RecordTag.Architecture:
+                pkgArchitecture = t.val_string;
+                break;
+            default:
+                break;
+            }
+        }());
+
+        enforce(pkgName !is null, "getPkgID(): Missing Name field");
+        enforce(pkgVersion !is null, "getPkgID(): Missing Version field");
+        enforce(pkgArchitecture !is null, "getPkgID(): Missing Architecture field");
+
+        return "%s-%s-%d.%s".format(pkgName, pkgVersion, pkgRelease, pkgArchitecture);
+    }
+
+    /**
+     * Set an explicit refCount for the pkgID
+     */
+    void setRefCount(const(string) pkgID, uint64_t refCount)
+    {
+        db.bucket(metadataBucket(pkgID)).set("refCount", refCount);
+    }
+
+    /**
+     * Get current refcount for the pkg
+     */
+    uint64_t getRefCount(const(string) pkgID)
+    {
+        auto result = db.bucket(metadataBucket(pkgID)).get!uint64_t(pkgID);
+        if (!result.found)
+        {
+            return 0;
+        }
+
+        return result.value;
+    }
+
+    /**
+     * Return the per package metadata bucket name
+     */
+    pragma(inline, true) string metadataBucket(const(string) pkgID)
+    {
+        return "metadata.%s".format(pkgID);
+    }
 
     Database db = null;
 }
