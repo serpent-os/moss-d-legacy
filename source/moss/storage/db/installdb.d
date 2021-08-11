@@ -105,6 +105,7 @@ public final class InstallDB
         /* Store this in the index now */
         db.bucket("index").set(pkgID, metadataBucket(pkgID));
 
+        /* Walk through and retrieve all supported values */
         foreach (record; payload)
         {
             switch (record.tag)
