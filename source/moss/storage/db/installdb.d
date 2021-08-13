@@ -117,6 +117,16 @@ public final class InstallDB : QuerySource
                         "installPayload(): Type should be string, not %s".format(record.type));
                 metabucket.set("name", record.val_string);
                 break;
+            case RecordTag.Version:
+                enforce(record.type == RecordType.String,
+                        "installPayload(): Type should be string, not %s".format(record.type));
+                metabucket.set("version", record.val_string);
+                break;
+            case RecordTag.Release:
+                enforce(record.type == RecordType.Uint64,
+                        "installPayload(): Type should be uint64_t, not %s".format(record.type));
+                metabucket.set("release", record.val_u64);
+                break;
             case RecordTag.Unknown:
             default:
                 break;
