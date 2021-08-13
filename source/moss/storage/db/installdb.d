@@ -133,7 +133,29 @@ public final class InstallDB : QuerySource
      */
     QueryResult queryID(const(string) pkgID)
     {
-        return QueryResult(PackageCandidate.init, false);
+        auto bucketID = db.bucket("index").get!string(pkgID);
+
+        /* No bucket, no findy. */
+        if (!bucketID.found)
+        {
+            return QueryResult(PackageCandidate.init, false);
+        }
+
+        /* Cache the bucket now */
+        auto pkgBucket = db.bucket(bucketID.value);
+
+        /* Absolutely require minimum values */
+        auto nameRes = pkgBucket.get!string("name");
+        enforce(nameRes.found, "queryID(): Local db corruption");
+        auto versionRes = pkgBucket.get!string("version");
+        enforce(versionRes.found, "queryID(): Local db corruption");
+        auto releaseRes = pkgBucket.get!uint64_t("release");
+        enforce(releaseRes.found, "queryID(): Local db corruption");
+
+        /* Ensure the candidate goes back now */
+        auto candidate = PackageCandidate(pkgID, nameRes.value,
+                versionRes.value, releaseRes.value);
+        return QueryResult(candidate, true);
     }
 
 private:
