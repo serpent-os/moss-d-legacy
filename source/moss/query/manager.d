@@ -25,6 +25,8 @@ module moss.query.manager;
 import serpent.ecs;
 import moss.query.components;
 
+public import moss.query.source;
+
 /**
  * The QueryManager is a centralisation point within moss to permit loading
  * "Hot" packages into the runtime system, and query those packages for potential
@@ -59,10 +61,30 @@ public final class QueryManager
      */
     void close()
     {
+        sources = [];
         entityManager.clear();
+    }
+
+    /**
+     * Add a source to the QueryManager
+     */
+    void addSource(QuerySource source)
+    {
+        sources ~= source;
+    }
+
+    /**
+     * Remove an existing source from this manager
+     */
+    void removeSource(QuerySource source)
+    {
+        import std.algorithm : remove;
+
+        sources = sources.remove!((s) => s == source);
     }
 
 private:
 
     EntityManager entityManager;
+    QuerySource[] sources;
 }
