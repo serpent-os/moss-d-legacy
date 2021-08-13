@@ -7,3 +7,6 @@
 [submodule "external/moss-db"]
 	path = external/moss-db
 	url = https://gitlab.com/serpent-os/core/moss-db.git
+[submodule "external/serpent-ecs"]
+	path = external/serpent-ecs
+	url = https://gitlab.com/serpent-engine/serpent-ecs.git

@@ -9,6 +9,9 @@
 	"name": "moss",
 	"targetPath": "bin",
 	"dependencies": {
+		"serpent-ecs": {
+			"path": "external/serpent-ecs"
+		},
 		"moss-core": {
 			"path": "external/moss-core"
 		},
