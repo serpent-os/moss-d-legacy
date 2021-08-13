@@ -143,12 +143,12 @@ public final class InstallDB : QuerySource
                 joinRecord("release", RecordType.Uint64,
                         record.type, record.val_u64);
                 break;
-            case RecordTag.Summary:
-                joinRecord("summary", RecordType.String,
-                        record.type, record.val_string);
-                break;
             case RecordTag.SourceID:
                 joinRecord("sourceID", RecordType.String,
+                        record.type, record.val_string);
+                break;
+            case RecordTag.Summary:
+                joinRecord("summary", RecordType.String,
                         record.type, record.val_string);
                 break;
             case RecordTag.Version:
