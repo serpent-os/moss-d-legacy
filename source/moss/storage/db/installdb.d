@@ -119,17 +119,41 @@ public final class InstallDB : QuerySource
         {
             switch (record.tag)
             {
-            case RecordTag.Name:
-                joinRecord("name", RecordType.String,
+            case RecordTag.Architecture:
+                joinRecord("architecture",
+                        RecordType.String, record.type, record.val_string);
+                break;
+            case RecordTag.BuildRelease:
+                joinRecord("buildRelease",
+                        RecordType.Uint64, record.type, record.val_u64);
+                break;
+            case RecordTag.Description:
+                joinRecord("description",
+                        RecordType.String, record.type, record.val_string);
+                break;
+            case RecordTag.Homepage:
+                joinRecord("homepage", RecordType.String,
                         record.type, record.val_string);
                 break;
-            case RecordTag.Version:
-                joinRecord("version", RecordType.String,
+            case RecordTag.Name:
+                joinRecord("name", RecordType.String,
                         record.type, record.val_string);
                 break;
             case RecordTag.Release:
                 joinRecord("release", RecordType.Uint64,
                         record.type, record.val_u64);
+                break;
+            case RecordTag.Summary:
+                joinRecord("summary", RecordType.String,
+                        record.type, record.val_string);
+                break;
+            case RecordTag.SourceID:
+                joinRecord("sourceID", RecordType.String,
+                        record.type, record.val_string);
+                break;
+            case RecordTag.Version:
+                joinRecord("version", RecordType.String,
+                        record.type, record.val_string);
                 break;
             case RecordTag.Unknown:
             default:
