@@ -107,25 +107,29 @@ public final class InstallDB : QuerySource
         /* Store this in the index now */
         db.bucket("index").set(pkgID, metadataBucket(pkgID));
 
+        void joinRecord(V)(const(string) keyName, RecordType expType, RecordType realType, in V value)
+        {
+            enforce(expType == realType,
+                    "installPayload(): Type should be %s, not %s".format(expType, realType));
+            metabucket.set(keyName, value);
+        }
+
         /* Walk through and retrieve all supported values */
         foreach (record; payload)
         {
             switch (record.tag)
             {
             case RecordTag.Name:
-                enforce(record.type == RecordType.String,
-                        "installPayload(): Type should be string, not %s".format(record.type));
-                metabucket.set("name", record.val_string);
+                joinRecord("name", RecordType.String,
+                        record.type, record.val_string);
                 break;
             case RecordTag.Version:
-                enforce(record.type == RecordType.String,
-                        "installPayload(): Type should be string, not %s".format(record.type));
-                metabucket.set("version", record.val_string);
+                joinRecord("version", RecordType.String,
+                        record.type, record.val_string);
                 break;
             case RecordTag.Release:
-                enforce(record.type == RecordType.Uint64,
-                        "installPayload(): Type should be uint64_t, not %s".format(record.type));
-                metabucket.set("release", record.val_u64);
+                joinRecord("release", RecordType.Uint64,
+                        record.type, record.val_u64);
                 break;
             case RecordTag.Unknown:
             default:
