@@ -23,6 +23,7 @@
 module moss.query.manager;
 
 import serpent.ecs;
+import moss.query.components;
 
 /**
  * The QueryManager is a centralisation point within moss to permit loading
@@ -42,6 +43,13 @@ public final class QueryManager
     this()
     {
         entityManager = new EntityManager();
+
+        /* PackageCandidate */
+        entityManager.registerComponent!IDComponent;
+        entityManager.registerComponent!NameComponent;
+        entityManager.registerComponent!VersionComponent;
+        entityManager.registerComponent!ReleaseComponent;
+
         entityManager.build();
     }
 
