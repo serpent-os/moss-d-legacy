@@ -27,6 +27,7 @@ import moss.core;
 import moss.cli : MossCLI;
 import moss.context;
 import moss.client;
+import std.stdio : writeln;
 
 /**
  * The InstallCommand provides a CLI system to install a package, whether from
@@ -59,6 +60,7 @@ public struct InstallCommand
         }
         catch (Exception ex)
         {
+            writeln(ex);
             return ExitStatus.Failure;
         }
 
