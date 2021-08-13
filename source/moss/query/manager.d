@@ -108,6 +108,29 @@ public final class QueryManager
         }());
     }
 
+    /**
+     * Return all PackageCandidates by Name
+     */
+    auto byName(const(string) pkgName)
+    {
+        import std.algorithm : filter, map;
+
+        auto view = View!ReadOnly(entityManager);
+        return view.withComponents!(IDComponent, NameComponent,
+                VersionComponent, ReleaseComponent)
+            .filter!((tup) => tup[2].name == pkgName)
+            .map!((tup) => PackageCandidate(tup[1].id, tup[2].name,
+                    tup[3].versionID, tup[4].release));
+    }
+
+    /**
+     * Sync all writes for reading
+     */
+    void update()
+    {
+        entityManager.step();
+    }
+
 private:
 
     EntityManager entityManager;

@@ -129,34 +129,41 @@ public final class DirectMossClient : MossClient
     }
 
     /**
-     * Very simple implementation to remove packages by their full ID
+     * Very simple implementation to remove packages by their name
      */
-    override void removePackages(string[] pkgIDs)
+    override void removePackages(string[] pkgNames)
     {
         import std.stdio : writeln;
         import std.string : format;
         import std.array : array;
         import std.algorithm : filter, canFind, each;
 
-        if (pkgIDs.length < 1)
+        if (pkgNames.length < 1)
         {
             writeln("Cannot remove zero packages");
             return;
         }
         auto stateOld = stateDB.lastState();
         auto stateNew = State(stateDB.nextStateID(),
-                "Removal of %d packages".format(pkgIDs.length), null);
+                "Removal of %d packages".format(pkgNames.length), null);
         auto oldSelections = stateDB.entries(stateOld.id).array();
 
         /* We can't look up names until they're merged */
         mergeInstalledIDs(oldSelections);
 
-        auto newSelections = oldSelections.filter!((sel) => !pkgIDs.canFind(sel.target)).array();
+        import std.algorithm : map;
+        import std.algorithm : joiner;
+
+        auto removalIDs = pkgNames.map!((p) => queryManager.byName(p).map!((q) => q.id)).joiner;
+
+        auto newSelections = oldSelections.filter!((sel) => !removalIDs.canFind(sel.target))
+            .array();
         if (oldSelections.length == newSelections.length)
         {
             writeln("No removals needed");
             return;
         }
+        writeln("Removing: ", removalIDs);
         newSelections.each!((sel) => stateDB.markSelection(stateNew.id, sel));
         stateDB.addState(stateNew);
 
@@ -174,6 +181,7 @@ private:
         import std.algorithm : each;
 
         oldSelections.each!((s) => queryManager.loadID(s.target));
+        queryManager.update();
     }
 
     void extractIndex(MmFile mappedFile, ref IndexEntry entry, const(string) id)

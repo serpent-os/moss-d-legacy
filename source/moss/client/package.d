@@ -36,9 +36,9 @@ interface MossClient
     void installLocalArchives(string[] archivePaths);
 
     /**
-     * Request removal of the given package IDs
+     * Request removal of the given package names
      */
-    void removePackages(string[] pkgIDs);
+    void removePackages(string[] pkgNames);
 
     /**
      * Close all client resources

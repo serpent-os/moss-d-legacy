@@ -28,7 +28,7 @@ public import serpent.ecs.component;
 /**
  * Store the "pkgID" at runtime
  */
-@serpentComponent package struct IDComponent
+@serpentComponent public struct IDComponent
 {
     string id = null;
 }
@@ -36,7 +36,7 @@ public import serpent.ecs.component;
 /**
  * Store the package name at runtime
  */
-@serpentComponent package struct NameComponent
+@serpentComponent public struct NameComponent
 {
     string name = null;
 }
@@ -44,7 +44,7 @@ public import serpent.ecs.component;
 /**
  * Store the package version at runtime
  */
-@serpentComponent package struct VersionComponent
+@serpentComponent public struct VersionComponent
 {
     string versionID = null;
 }
@@ -52,7 +52,7 @@ public import serpent.ecs.component;
 /**
  * Store the package release at runtime
  */
-@serpentComponent package struct ReleaseComponent
+@serpentComponent public struct ReleaseComponent
 {
     uint64_t release = 0;
 }
