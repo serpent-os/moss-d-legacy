@@ -22,6 +22,7 @@
 
 module moss.storage.db;
 
+public import moss.storage.db.cachedb;
 public import moss.storage.db.installdb;
 public import moss.storage.db.layoutdb;
 public import moss.storage.db.statedb;
