@@ -20,7 +20,33 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module moss.query;
+module moss.query.candidate;
 
-public import moss.query.candidate;
-public import moss.query.manager;
+public import std.stdint : uint64_t;
+
+/**
+ * A PackageCandidate is a set of minimal fields used for further
+ * resolution purposes.
+ */
+struct PackageCandidate
+{
+    /**
+     * Unique ID for the package candidate within DBs. Internal format
+     */
+    const(string) id = null;
+
+    /**
+     * Real package name, i.e. "nano"
+     */
+    const(string) name = null;
+
+    /**
+     * Software version. Display purposes only.
+     */
+    const(string) versionID = null;
+
+    /**
+     * Release field, increments only.
+     */
+    const(uint64_t) release = 0;
+}
