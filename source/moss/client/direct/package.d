@@ -148,6 +148,9 @@ public final class DirectMossClient : MossClient
                 "Removal of %d packages".format(pkgIDs.length), null);
         auto oldSelections = stateDB.entries(stateOld.id).array();
 
+        /* We can't look up names until they're merged */
+        mergeInstalledIDs(oldSelections);
+
         auto newSelections = oldSelections.filter!((sel) => !pkgIDs.canFind(sel.target)).array();
         if (oldSelections.length == newSelections.length)
         {
@@ -162,6 +165,16 @@ public final class DirectMossClient : MossClient
     }
 
 private:
+
+    /**
+     * boilerplate, for all installed IDs ("last state"), load into runtime
+     */
+    void mergeInstalledIDs(ref Selection[] oldSelections)
+    {
+        import std.algorithm : each;
+
+        oldSelections.each!((s) => queryManager.loadID(s.target));
+    }
 
     void extractIndex(MmFile mappedFile, ref IndexEntry entry, const(string) id)
     {

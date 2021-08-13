@@ -53,6 +53,7 @@ public final class QueryManager
         entityManager.registerComponent!ReleaseComponent;
 
         entityManager.build();
+        entityManager.step();
     }
 
     /**
@@ -62,6 +63,7 @@ public final class QueryManager
     void close()
     {
         sources = [];
+        entityManager.step();
         entityManager.clear();
     }
 
@@ -81,6 +83,29 @@ public final class QueryManager
         import std.algorithm : remove;
 
         sources = sources.remove!((s) => s == source);
+    }
+
+    /**
+     * Attempt to load the ID into our runtime
+     */
+    void loadID(const(string) pkgID)
+    {
+        import std.algorithm : each;
+
+        auto v = View!ReadWrite(entityManager);
+
+        sources.each!((s) => {
+            auto qRes = s.queryID(pkgID);
+            if (!qRes.found)
+            {
+                return;
+            }
+            auto entity = v.createEntity();
+            v.addComponent(entity, IDComponent(qRes.candidate.id));
+            v.addComponent(entity, NameComponent(qRes.candidate.name));
+            v.addComponent(entity, VersionComponent(qRes.candidate.versionID));
+            v.addComponent(entity, ReleaseComponent(qRes.candidate.release));
+        }());
     }
 
 private:

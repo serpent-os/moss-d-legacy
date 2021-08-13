@@ -163,8 +163,8 @@ public final class InstallDB : QuerySource
         enforce(releaseRes.found, "queryID(): Local db corruption");
 
         /* Ensure the candidate goes back now */
-        auto candidate = PackageCandidate(pkgID, nameRes.value,
-                versionRes.value, releaseRes.value);
+        auto candidate = PackageCandidate(pkgID, nameRes.value.dup,
+                versionRes.value.dup, releaseRes.value);
         return QueryResult(candidate, true);
     }
 
