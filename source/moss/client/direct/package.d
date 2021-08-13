@@ -41,6 +41,8 @@ import moss.format.binary.payload.meta;
 import moss.format.binary.payload.content;
 import moss.format.binary.reader;
 
+import moss.query;
+
 import std.mmfile;
 
 /**
@@ -62,6 +64,9 @@ public final class DirectMossClient : MossClient
 
         /* Enforce creation of all required paths */
         context.paths.mkdirs();
+
+        /* Initialise query system */
+        queryManager = new QueryManager();
 
         /* Construct our DBs.. */
         installDB = new InstallDB();
@@ -114,6 +119,7 @@ public final class DirectMossClient : MossClient
 
     override void close()
     {
+        queryManager.close();
         installDB.close();
         layoutDB.close();
         stateDB.close();
@@ -343,4 +349,5 @@ private:
     LayoutDB layoutDB = null;
     StateDB stateDB = null;
     DiskPool pool = null;
+    QueryManager queryManager = null;
 }
