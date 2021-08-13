@@ -73,6 +73,9 @@ public final class DirectMossClient : MossClient
         layoutDB = new LayoutDB();
         stateDB = new StateDB();
         pool = new DiskPool();
+
+        /* Load the QueryManager up */
+        queryManager.addSource(installDB);
     }
 
     /**

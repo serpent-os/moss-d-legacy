@@ -30,13 +30,15 @@ import std.stdint : uint64_t;
 import std.string : format;
 import std.exception : enforce;
 
+public import moss.query.source;
+
 /**
  * InstallDB tracks packages installed across various states and doesn't specifically
  * link them to any given state. Instead it retains MetaData for locally installed
  * candidates to provide a system level of resolution for packages no longer referenced
  * from a repository.
  */
-public final class InstallDB
+public final class InstallDB : QuerySource
 {
     /**
      * Construct a new InstallDB which will immediately force a reload of the
@@ -124,6 +126,14 @@ public final class InstallDB
         /* When we know the pkg will be definitely used, bump to 1. Start at 0 */
         setRefCount(pkgID, 0);
         return pkgID;
+    }
+
+    /**
+     * Search our local DB for a match to the pkgID
+     */
+    QueryResult queryID(const(string) pkgID)
+    {
+        return QueryResult(PackageCandidate.init, false);
     }
 
 private:
