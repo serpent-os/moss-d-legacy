@@ -20,21 +20,32 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module main;
+module moss.cli.list_installed;
 
-import std.stdio;
-import moss.cli;
+public import moss.core.cli;
 
-int main(string[] args)
+import moss.core;
+
+/**
+ * List all installed packages
+ */
+@CommandName("installed")
+@CommandHelp("List all installed packages")
+@CommandAlias("li")
+public struct ListInstalledCommand
 {
-    auto clip = cliProcessor!MossCLI(args);
-    clip.addCommand!ExtractCommand;
-    auto ls = clip.addCommand!ListCommand;
-    ls.addCommand!ListInstalledCommand;
-    clip.addCommand!InfoCommand;
-    clip.addCommand!InstallCommand;
-    clip.addCommand!RemoveCommand;
-    clip.addCommand!VersionCommand;
-    clip.addCommand!HelpCommand;
-    return clip.process(args);
+    /** Extend BaseCommand to provide a root group of commands */
+    BaseCommand pt;
+    alias pt this;
+
+    /**
+     * Main entry point into the ListInstalledCommand
+     */
+    @CommandEntry() int run(ref string[] argv)
+    {
+        import std.stdio : writeln;
+
+        writeln("TODO: List packages");
+        return ExitStatus.Failure;
+    }
 }

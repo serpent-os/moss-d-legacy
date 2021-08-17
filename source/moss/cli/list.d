@@ -20,21 +20,19 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module main;
+module moss.cli.list;
 
-import std.stdio;
-import moss.cli;
+public import moss.core.cli;
 
-int main(string[] args)
+/**
+ * The MossCLI type holds some global configuration bits
+ */
+@CommandName("list")
+@CommandHelp("Emit listing of moss items")
+@CommandUsage("[--args] [command]")
+public struct ListCommand
 {
-    auto clip = cliProcessor!MossCLI(args);
-    clip.addCommand!ExtractCommand;
-    auto ls = clip.addCommand!ListCommand;
-    ls.addCommand!ListInstalledCommand;
-    clip.addCommand!InfoCommand;
-    clip.addCommand!InstallCommand;
-    clip.addCommand!RemoveCommand;
-    clip.addCommand!VersionCommand;
-    clip.addCommand!HelpCommand;
-    return clip.process(args);
+    /** Extend BaseCommand to provide a root group of commands */
+    BaseCommand pt;
+    alias pt this;
 }
