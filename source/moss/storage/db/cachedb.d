@@ -25,6 +25,7 @@ module moss.storage.db.cachedb;
 import moss.context;
 import moss.db;
 import moss.db.rocksdb;
+import std.stdint : uint64_t, int64_t;
 
 /**
  * The CacheDB stores various system wide cache asset refcounts so that
@@ -75,6 +76,54 @@ final class CacheDB
         /* Recreate DB now */
         const auto path = context().paths.db.buildPath("cacheDB");
         db = new RDBDatabase(path, DatabaseMutability.ReadWrite);
+    }
+
+    /**
+     * Increase the reference count for the given asset within bucketID.
+     * Initial inclusion of an asset will always set the new refcount to
+     * 1.
+     */
+    void refAsset(const(string) bucketID, const(string) assetID)
+    {
+        auto bucket = db.bucket(bucketID);
+        uint64_t refcount = 0;
+
+        /* Find stored value to increase */
+        const auto refcountLookup = bucket.get!uint64_t(assetID);
+        if (refcountLookup.found)
+        {
+            refcount = refcountLookup.value;
+        }
+
+        /* Always increment now */
+        ++refcount;
+        bucket.set(assetID, refcount);
+    }
+
+    /**
+     * Decrease the reference count for the given asset within bucketID
+     * Any asset reaching 0 will eventually be marked for garbage collection
+     */
+    void unrefAsset(const(string) bucketID, const(string) assetID)
+    {
+        auto bucket = db.bucket(bucketID);
+
+        uint64_t refcount = 1;
+
+        const auto refcountLookup = bucket.get!uint64_t(assetID);
+        if (refcountLookup.found)
+        {
+            refcount = refcountLookup.value;
+        }
+
+        /* Don't wrap unsigned.. */
+        if (refcount > 0)
+        {
+            refcount = (cast(int64_t) refcount) - 1;
+        }
+
+        /* Store decreased value */
+        bucket.set(assetID, refcount);
     }
 
 private:
