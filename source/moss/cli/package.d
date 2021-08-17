@@ -46,5 +46,5 @@ public struct MossCLI
     alias pt this;
 
     /** Option to set the root directory for filesystem operations */
-    @Option("D", "destDir", "Root directory for all operations") string rootDirectory = "/";
+    @Option("D", "destdir", "Root directory for all operations") string rootDirectory = "/";
 }
