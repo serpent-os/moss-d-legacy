@@ -34,7 +34,9 @@ import std.stdio : writeln;
  * a local file or a repository.
  */
 @CommandName("install")
-@CommandHelp("Install a local package")
+@CommandHelp("Install a package to the system (named or .stone file)")
+@CommandAlias("it")
+@CommandUsage("[.stone file] [package name]")
 public struct InstallCommand
 {
     /** Extend BaseCommand with install utility */

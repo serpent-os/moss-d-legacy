@@ -34,6 +34,8 @@ import std.stdio : writeln, stderr;
  */
 @CommandName("extract")
 @CommandHelp("Extract a local package to the working directory")
+@CommandAlias("xf")
+@CommandUsage("[.stone file]")
 public struct ExtractCommand
 {
     /** Extend BaseCommand with extraction utility */

@@ -33,7 +33,9 @@ import moss.client;
  * a local file or a repository.
  */
 @CommandName("remove")
-@CommandHelp("remove a local package")
+@CommandHelp("Remove the named package(s) from the system")
+@CommandAlias("rm")
+@CommandUsage("[package name]")
 public struct RemoveCommand
 {
     /** Extend BaseCommand with remove utility */
