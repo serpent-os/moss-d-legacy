@@ -20,22 +20,31 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module main;
+module moss.cli.index_command;
 
-import std.stdio;
-import moss.cli;
+public import moss.core.cli;
 
-int main(string[] args)
+import moss.core;
+
+/**
+ * Generate repository index for all encountered packages
+ */
+@CommandName("index")
+@CommandHelp("Generate basic repository index")
+public struct IndexCommand
 {
-    auto clip = cliProcessor!MossCLI(args);
-    clip.addCommand!ExtractCommand;
-    clip.addCommand!InfoCommand;
-    clip.addCommand!IndexCommand;
-    clip.addCommand!InstallCommand;
-    auto ls = clip.addCommand!ListCommand;
-    ls.addCommand!ListInstalledCommand;
-    clip.addCommand!RemoveCommand;
-    clip.addCommand!VersionCommand;
-    clip.addCommand!HelpCommand;
-    return clip.process(args);
+    /** Extend BaseCommand to provide indexing capability */
+    BaseCommand pt;
+    alias pt this;
+
+    /**
+     * Main entry point into the IndexCommand
+     */
+    @CommandEntry() int run(ref string[] argv)
+    {
+        import std.stdio : writeln;
+
+        writeln("TODO: Index packages");
+        return ExitStatus.Failure;
+    }
 }
