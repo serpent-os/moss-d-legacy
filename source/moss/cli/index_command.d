@@ -25,6 +25,12 @@ module moss.cli.index_command;
 public import moss.core.cli;
 
 import moss.core;
+import moss.format.binary.repo;
+import moss.context;
+import std.stdio;
+import std.file : exists, dirEntries, SpanMode;
+import std.string : endsWith;
+import std.path : relativePath, absolutePath;
 
 /**
  * Generate repository index for all encountered packages
@@ -42,9 +48,36 @@ public struct IndexCommand
      */
     @CommandEntry() int run(ref string[] argv)
     {
-        import std.stdio : writeln;
+        auto workDir = ".";
+        if (argv.length > 0)
+        {
+            workDir = argv[0];
+        }
 
-        writeln("TODO: Index packages");
+        if (!workDir.exists)
+        {
+            stderr.writefln("Indexing directory does not exist");
+        }
+
+        workDir = workDir.absolutePath;
+
+        /* Either emit to current directory, or the output directory. */
+        auto writer = new RepoWriter(context.paths.root == "/" ? "." : context.paths.root);
+        scope (exit)
+        {
+            writer.close();
+        }
+
+        /* Walk to find each .stone file */
+        foreach (string path; dirEntries(workDir, SpanMode.shallow))
+        {
+            if (!path.endsWith(".stone"))
+            {
+                continue;
+            }
+            writefln("Indexing: %s", path);
+            writer.addPackage(path, path.relativePath(workDir));
+        }
         return ExitStatus.Failure;
     }
 }
