@@ -123,7 +123,7 @@ public final class MossContext
     }
 
     /**
-     * U;date the root directory for all operations
+     * Update the root directory for all operations
      */
     void setRootDirectory(const(string) rootDir)
     {
