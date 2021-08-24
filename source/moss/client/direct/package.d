@@ -124,7 +124,6 @@ public final class DirectMossClient : MossClient
 
     override void close()
     {
-        queryManager.close();
         cacheDB.close();
         installDB.close();
         layoutDB.close();

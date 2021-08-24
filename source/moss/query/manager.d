@@ -24,6 +24,7 @@ module moss.query.manager;
 
 import serpent.ecs;
 import moss.query.components;
+import moss.context;
 
 public import moss.query.source;
 
@@ -44,27 +45,14 @@ public final class QueryManager
      */
     this()
     {
-        entityManager = new EntityManager();
-
         /* PackageCandidate */
-        entityManager.registerComponent!IDComponent;
-        entityManager.registerComponent!NameComponent;
-        entityManager.registerComponent!VersionComponent;
-        entityManager.registerComponent!ReleaseComponent;
+        context.entityManager.registerComponent!IDComponent;
+        context.entityManager.registerComponent!NameComponent;
+        context.entityManager.registerComponent!VersionComponent;
+        context.entityManager.registerComponent!ReleaseComponent;
 
-        entityManager.build();
-        entityManager.step();
-    }
-
-    /**
-     * Close any EntityManager resources before associated DBs are
-     * cleared from memory
-     */
-    void close()
-    {
-        sources = [];
-        entityManager.step();
-        entityManager.clear();
+        context.entityManager.build();
+        context.entityManager.step();
     }
 
     /**
@@ -92,7 +80,7 @@ public final class QueryManager
     {
         import std.algorithm : each;
 
-        auto v = View!ReadWrite(entityManager);
+        auto v = View!ReadWrite(context.entityManager);
 
         sources.each!((s) => {
             auto qRes = s.queryID(pkgID);
@@ -115,7 +103,7 @@ public final class QueryManager
     {
         import std.algorithm : filter, map;
 
-        auto view = View!ReadOnly(entityManager);
+        auto view = View!ReadOnly(context.entityManager);
         return view.withComponents!(IDComponent, NameComponent,
                 VersionComponent, ReleaseComponent)
             .filter!((tup) => tup[2].name == pkgName)
@@ -128,7 +116,7 @@ public final class QueryManager
      */
     void update()
     {
-        entityManager.step();
+        context.entityManager.step();
     }
 
 private:
