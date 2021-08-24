@@ -38,6 +38,18 @@ MossContext context() @trusted
 private __gshared MossContext _sharedContext = null;
 
 /**
+ * Always free the loop instance during the module destructor
+ */
+shared static ~this()
+{
+    if (_sharedContext !is null)
+    {
+        _sharedContext.destroy();
+        _sharedContext = null;
+    }
+}
+
+/**
  * Helper to safely encapsulate the paths used within Moss
  */
 public struct MossPaths
