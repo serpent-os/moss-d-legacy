@@ -20,6 +20,9 @@
 		},
 		"moss-db": {
 			"path": "external/moss-db"
+		},
+		"moss-jobs": {
+			"path": "external/moss-jobs"
 		}
 	},
 	"buildTypes": {
