@@ -10,3 +10,6 @@
 [submodule "external/serpent-ecs"]
 	path = external/serpent-ecs
 	url = https://gitlab.com/serpent-engine/serpent-ecs.git
+[submodule "external/moss-jobs"]
+	path = external/moss-jobs
+	url = https://gitlab.com/serpent-os/core/moss-jobs.git
