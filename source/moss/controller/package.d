@@ -32,6 +32,9 @@ import moss.storage.db.layoutdb;
 import moss.storage.db.statedb;
 import moss.query;
 
+import moss.controller.changeprocessor;
+import moss.controller.cacheprocessor;
+
 /**
  * MossController is required to access the underlying Moss resources and to
  * manipulate the filesystem in any way.
@@ -43,6 +46,7 @@ final class MossController
      */
     this()
     {
+        context.paths.mkdirs();
         diskPool = new DiskPool();
         cacheDB = new CacheDB();
         layoutDB = new LayoutDB();
@@ -50,7 +54,11 @@ final class MossController
         installDB = new InstallDB();
         query = new QueryManager();
 
-        /* TODO: Register job types and processors */
+        /* Register the new CacheProcessor */
+        mainLoop.systemGroup.append(new ChangeProcessor());
+        mainLoop.systemGroup.append(new CacheProcessor());
+
+        context.entityManager.build();
     }
 
     /**
@@ -72,5 +80,4 @@ private:
     StateDB stateDB = null;
     InstallDB installDB = null;
     QueryManager query = null;
-
 }
