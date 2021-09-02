@@ -28,6 +28,8 @@ import moss.cli : MossCLI;
 import moss.context;
 import moss.client;
 import std.stdio : writeln;
+import moss.controller;
+import moss.jobs;
 
 /**
  * The InstallCommand provides a CLI system to install a package, whether from
@@ -48,23 +50,27 @@ public struct InstallCommand
      */
     @CommandEntry() int run(ref string[] argv)
     {
-        /* Set up context and our client */
         context.setRootDirectory((pt.findAncestor!MossCLI).rootDirectory);
-        auto client = new DirectMossClient();
+
+        auto con = new MossController();
         scope (exit)
         {
-            client.close();
+            con.close();
         }
 
-        try
-        {
-            client.installLocalArchives(argv);
-        }
-        catch (Exception ex)
-        {
-            writeln(ex);
-            return ExitStatus.Failure;
-        }
+        /* Install the packages */
+        con.installPackages(argv);
+
+        /* Hack, exit when needed */
+        mainLoop.idleAdd(() => {
+            if (context.jobs.hasJobs)
+            {
+                return CallbackControl.Continue;
+            }
+            mainLoop.quit();
+            return CallbackControl.Stop;
+        }());
+        mainLoop.run();
 
         return ExitStatus.Success;
     }
