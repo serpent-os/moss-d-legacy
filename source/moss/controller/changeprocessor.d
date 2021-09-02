@@ -26,6 +26,41 @@ import moss.context;
 import moss.jobs;
 
 /**
+ * A ChangeType accompanies each ChangeRequest so we know what the user wants
+ * us to do with the targets.
+ */
+public enum ChangeType
+{
+    /**
+     * Install local archives
+     */
+    InstallArchives = 0,
+    /* InstallPackages, */
+
+    /**
+     * Remove packages by name
+     */
+    RemovePackages,
+}
+
+/**
+ * A ChangeRequest is sent to the ChangeProcessor to begin the mutation of
+ * a base state into a new state.
+ */
+@Job public struct ChangeRequest
+{
+    /**
+     * Type of change requested
+     */
+    ChangeType type;
+
+    /**
+     * Targets to operate on, i.e. list of names
+     */
+    string[] targets;
+}
+
+/**
  * The ChangeProcessor is responsible for accepting incoming change requests,
  * working on them sequentially and sending off the appropriate jobs.
  */
@@ -37,6 +72,7 @@ package final class ChangeProcessor : SystemProcessor
     this()
     {
         super("changeProcessor", ProcessorMode.Interleaved, () => context.jobs.hasJobs());
+        context.jobs.registerJobType!ChangeRequest;
     }
 
     /**
