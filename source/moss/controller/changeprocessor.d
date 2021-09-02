@@ -80,9 +80,21 @@ package final class ChangeProcessor : SystemProcessor
      */
     override void run()
     {
+        JobIDComponent jobID;
+        ChangeRequest req;
         import std.stdio : writeln;
 
-        writeln("Running ChangeProcessor");
+        if (!context.jobs.claimJob(jobID, req))
+        {
+            return;
+        }
+
+        scope (exit)
+        {
+            context.jobs.finishJob(jobID.jobID, JobStatus.Completed);
+        }
+
+        writeln("Processing change: ", req);
     }
 
     /**
