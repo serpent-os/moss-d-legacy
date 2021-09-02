@@ -50,9 +50,6 @@ public final class QueryManager
         context.entityManager.registerComponent!NameComponent;
         context.entityManager.registerComponent!VersionComponent;
         context.entityManager.registerComponent!ReleaseComponent;
-
-        context.entityManager.build();
-        context.entityManager.step();
     }
 
     /**
