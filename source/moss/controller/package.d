@@ -72,6 +72,46 @@ final class MossController
         installDB.close();
     }
 
+    /**
+     * Request installation of the given packages
+     */
+    void installPackages(in string[] paths)
+    {
+        import std.array : array;
+        import std.algorithm : filter, canFind;
+        import std.stdio : writeln;
+        import std.file : exists;
+        import std.string : endsWith;
+
+        auto localPaths = paths.filter!((p) => p.endsWith(".stone") && p.exists).array();
+        auto repoPaths = paths.filter!((p) => !p.endsWith(".stone")).array();
+        auto wonkyPaths = paths.filter!((p) => !localPaths.canFind(p) && !repoPaths.canFind(p));
+
+        /* No wonky paths please */
+        if (!wonkyPaths.empty)
+        {
+            writeln("Cannot find the following packages: ", wonkyPaths);
+            return;
+        }
+
+        /* Not yet doing repos,sorry */
+        if (repoPaths.length > 0)
+        {
+            writeln("Repository installation not yet supported");
+            return;
+        }
+
+        /* Seriously, gimme some local archives */
+        if (localPaths.length < 1)
+        {
+            writeln("Must provide local paths to install");
+            return;
+        }
+
+        /* Alright, go install now */
+        context.jobs.pushJob(ChangeRequest(ChangeType.InstallArchives, cast(string[]) localPaths));
+    }
+
 private:
 
     DiskPool diskPool = null;
