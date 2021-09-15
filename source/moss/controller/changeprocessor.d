@@ -251,10 +251,11 @@ private:
     }
 
     /**
-     * TODO: Update system pointer
+     * Update the system pointers atomically
      */
     void applySystemState()
     {
+        controller.updateSystemPointer(targetState);
     }
 
     /**

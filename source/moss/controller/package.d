@@ -151,6 +151,29 @@ package:
         return _query;
     }
 
+    /**
+     * Currently this repoints /usr. This may be extended to other directories in
+     * future.
+     */
+    void updateSystemPointer(ref State currentState)
+    {
+        import std.conv : to;
+        import std.file : remove, symlink, rename, exists;
+
+        /* Relative path only! */
+        auto targetPath = buildPath(".moss", "store", "root", to!string(currentState.id), "usr");
+        auto sourceLinkAtomic = context.paths.root.buildPath("usr.next");
+        auto finalUsr = context.paths.root.buildPath("usr");
+        if (sourceLinkAtomic.exists)
+        {
+            sourceLinkAtomic.remove();
+        }
+
+        /* Update atomically with new link then rename */
+        targetPath.symlink(sourceLinkAtomic);
+        sourceLinkAtomic.rename(finalUsr);
+    }
+
 private:
 
     DiskPool diskPool = null;
