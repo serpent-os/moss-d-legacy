@@ -22,6 +22,7 @@
 
 module moss.controller.changeprocessor;
 
+import moss.controller : MossController;
 import moss.context;
 import moss.jobs;
 
@@ -93,12 +94,16 @@ public enum ChangeType
  */
 package final class ChangeProcessor : SystemProcessor
 {
+
+    @disable this();
+
     /**
      * Construct a new ChangeProcessor on the main thread
      */
-    this()
+    this(MossController controller)
     {
         super("changeProcessor", ProcessorMode.Main);
+        this.controller = controller;
         context.jobs.registerJobType!ChangeRequest;
     }
 
@@ -170,10 +175,13 @@ package final class ChangeProcessor : SystemProcessor
     }
 
 private:
+
     JobIDComponent jobID;
     ChangeRequest req;
     ChangeState state = ChangeState.None;
     ulong cacheNeeded = 0;
     ulong cachedTotal = 0;
     ulong cachedSuccess = 0;
+
+    MossController controller;
 }

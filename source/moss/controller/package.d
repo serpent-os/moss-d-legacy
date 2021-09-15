@@ -56,7 +56,7 @@ public final class MossController
         query = new QueryManager();
 
         /* Register the new CacheProcessor */
-        mainLoop.systemGroup.append(new ChangeProcessor());
+        mainLoop.systemGroup.append(new ChangeProcessor(this));
         mainLoop.systemGroup.append(new CacheProcessor(this));
 
         context.entityManager.build();
