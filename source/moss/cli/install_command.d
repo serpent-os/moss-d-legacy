@@ -26,7 +26,6 @@ public import moss.core.cli;
 import moss.core;
 import moss.cli : MossCLI;
 import moss.context;
-import moss.client;
 import std.stdio : writeln;
 import moss.controller;
 import moss.jobs;
