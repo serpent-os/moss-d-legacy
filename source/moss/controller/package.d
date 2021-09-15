@@ -35,6 +35,7 @@ import moss.query;
 import moss.controller.archivecacher;
 import moss.controller.changeprocessor;
 import moss.controller.cacheprocessor;
+import moss.controller.rootconstructor;
 
 /**
  * MossController is required to access the underlying Moss resources and to
@@ -124,6 +125,14 @@ package:
     ArchiveCacher archiveCacher()
     {
         return ArchiveCacher(installDB, layoutDB, diskPool);
+    }
+
+    /**
+     * Return a utility RootConstructor
+     */
+    RootConstructor rootContructor()
+    {
+        return RootConstructor(diskPool, stateDB, layoutDB);
     }
 
     /**

@@ -62,6 +62,11 @@ enum ChangeState
     Caching,
 
     /**
+     * Blit the filesystem
+     */
+    Blit,
+
+    /**
      * Finalise the install
      */
     Finalise,
@@ -206,7 +211,7 @@ package final class ChangeProcessor : SystemProcessor
                 if (cachedSuccess == cachedTotal)
                 {
                     writeln("Caching success");
-                    state = ChangeState.Finalise;
+                    state = ChangeState.Blit;
                 }
                 else
                 {
@@ -214,6 +219,11 @@ package final class ChangeProcessor : SystemProcessor
                     state = ChangeState.Failed;
                 }
             }
+            break;
+        case ChangeState.Blit:
+            writeln("Blitting filesystem");
+            state = ChangeState.Finalise;
+            emitNewState();
             break;
         case ChangeState.Failed:
             writeln("Complete failure");
@@ -232,9 +242,19 @@ package final class ChangeProcessor : SystemProcessor
 
 private:
 
+    /**
+     * Emit the new /usr tree and such
+     */
+    void emitNewState()
+    {
+        controller.rootContructor.construct(targetState);
+    }
+
+    /**
+     * TODO: Update system pointer
+     */
     void applySystemState()
     {
-
     }
 
     /**
