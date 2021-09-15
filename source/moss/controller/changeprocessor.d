@@ -26,6 +26,10 @@ import moss.controller : MossController;
 import moss.context;
 import moss.jobs;
 
+/**
+ * Used for state machine purposes, making the ChangeProcessor reentrant on
+ * singular jobs
+ */
 enum ChangeState
 {
     /**
