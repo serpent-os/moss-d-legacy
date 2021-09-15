@@ -25,6 +25,33 @@ module moss.controller.changeprocessor;
 import moss.context;
 import moss.jobs;
 
+enum ChangeState
+{
+    /**
+     * If our ChangeSet is None, we can retrieve a job.
+     */
+    None = 0,
+
+    /**
+     * Fetching things
+     */
+    Fetching,
+
+    /**
+     * Caching those things
+     */
+    Caching,
+
+    /**
+     * Finalise the install
+     */
+    Finalise,
+
+    /**
+     * Failure to work
+     */
+    Failed,
+}
 /**
  * A ChangeType accompanies each ChangeRequest so we know what the user wants
  * us to do with the targets.
@@ -75,36 +102,82 @@ package final class ChangeProcessor : SystemProcessor
         context.jobs.registerJobType!ChangeRequest;
     }
 
+    /**
+     * Pull new job if we can, otherwise keep working
+     */
     override bool allocateWork()
     {
-        return context.jobs.claimJob(jobID, req);
+        if (state == ChangeState.None)
+        {
+            return context.jobs.claimJob(jobID, req);
+        }
+        return state != ChangeState.None;
     }
     /**
-     * Retrieve a single job
+     * All work must be processed safely within syncWork
      */
     override void performWork()
     {
-        import std.stdio : writeln;
-
-        writeln("Processing change: ", req);
     }
 
     override void syncWork()
     {
         import std.stdio : writeln;
-
-        writeln("Syncing change: CHANGEPROCESSOR");
+        import std.algorithm : each;
         import moss.controller.cacheprocessor : CacheAssetJob;
 
-        foreach (j; req.targets)
+        switch (state)
         {
-            context.jobs.pushJob(CacheAssetJob(j.dup));
+        case ChangeState.None:
+            writeln("Starting the ChangeSet");
+            state = ChangeState.Caching;
+            cacheNeeded = req.targets.length;
+            req.targets.each!((e) => {
+                context.jobs.pushJob(CacheAssetJob(e), () => {
+                    cachedTotal++;
+                    cachedSuccess++;
+                }(), () => { cachedTotal++; }());
+            }());
+            break;
+        case ChangeState.Caching:
+            /* Break caching when all are cached.. */
+            if (cachedTotal == cacheNeeded)
+            {
+                if (cachedSuccess == cachedTotal)
+                {
+                    writeln("Caching success");
+                    state = ChangeState.Finalise;
+                }
+                else
+                {
+                    writeln("Caching failure");
+                    state = ChangeState.Failed;
+                }
+            }
+            else
+            {
+                writeln(" ... still caching");
+            }
+            break;
+        case ChangeState.Failed:
+            writeln("Complete failure");
+            context.jobs.finishJob(jobID.jobID, JobStatus.Failed);
+            break;
+        case ChangeState.Finalise:
+            writeln("Finalising the ChangeSet");
+            context.jobs.finishJob(jobID.jobID, JobStatus.Completed);
+            state = ChangeState.None;
+            break;
+        default:
+            break;
         }
-
-        context.jobs.finishJob(jobID.jobID, JobStatus.Completed);
     }
 
 private:
     JobIDComponent jobID;
     ChangeRequest req;
+    ChangeState state = ChangeState.None;
+    ulong cacheNeeded = 0;
+    ulong cachedTotal = 0;
+    ulong cachedSuccess = 0;
 }
