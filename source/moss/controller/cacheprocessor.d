@@ -22,6 +22,7 @@
 
 module moss.controller.cacheprocessor;
 
+import moss.controller : MossController;
 import moss.context;
 import moss.jobs;
 
@@ -41,13 +42,17 @@ import moss.jobs;
  */
 package final class CacheProcessor : SystemProcessor
 {
+
+    @disable this();
+
     /**
      * Construct a new CacheProcessor on its own thread that will process caching
      * as and when a cache job is available
      */
-    this()
+    this(MossController controller)
     {
         super("cacheProcessor", ProcessorMode.Branched);
+        this.controller = controller;
         context.jobs.registerJobType!CacheAssetJob;
     }
 
@@ -61,9 +66,7 @@ package final class CacheProcessor : SystemProcessor
      */
     override void performWork()
     {
-        import std.stdio : writeln;
-
-        writeln("Caching asset: ", cacheJob);
+        controller.archiveCacher.cache(cacheJob.localPath);
     }
 
     override void syncWork()
@@ -77,4 +80,5 @@ package final class CacheProcessor : SystemProcessor
 private:
     JobIDComponent jobID;
     CacheAssetJob cacheJob;
+    MossController controller;
 }

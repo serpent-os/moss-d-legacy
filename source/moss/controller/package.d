@@ -32,6 +32,7 @@ import moss.storage.db.layoutdb;
 import moss.storage.db.statedb;
 import moss.query;
 
+import moss.controller.archivecacher;
 import moss.controller.changeprocessor;
 import moss.controller.cacheprocessor;
 
@@ -39,7 +40,7 @@ import moss.controller.cacheprocessor;
  * MossController is required to access the underlying Moss resources and to
  * manipulate the filesystem in any way.
  */
-final class MossController
+public final class MossController
 {
     /**
      * Construct a new MossController
@@ -56,7 +57,7 @@ final class MossController
 
         /* Register the new CacheProcessor */
         mainLoop.systemGroup.append(new ChangeProcessor());
-        mainLoop.systemGroup.append(new CacheProcessor());
+        mainLoop.systemGroup.append(new CacheProcessor(this));
 
         context.entityManager.build();
     }
@@ -110,6 +111,16 @@ final class MossController
 
         /* Alright, go install now */
         context.jobs.pushJob(ChangeRequest(ChangeType.InstallArchives, cast(string[]) localPaths));
+    }
+
+package:
+
+    /**
+     * Return a utility ArchiveCacher
+     */
+    ArchiveCacher archiveCacher()
+    {
+        return ArchiveCacher(installDB, layoutDB);
     }
 
 private:
