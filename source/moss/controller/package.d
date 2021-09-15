@@ -59,6 +59,9 @@ public final class MossController
         mainLoop.systemGroup.append(new ChangeProcessor(this));
         mainLoop.systemGroup.append(new CacheProcessor(this));
 
+        /* Seed the query manager */
+        _query.addSource(installDB);
+
         context.entityManager.build();
     }
 
