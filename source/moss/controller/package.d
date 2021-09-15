@@ -51,9 +51,9 @@ public final class MossController
         diskPool = new DiskPool();
         cacheDB = new CacheDB();
         layoutDB = new LayoutDB();
-        stateDB = new StateDB();
+        _stateDB = new StateDB();
         installDB = new InstallDB();
-        query = new QueryManager();
+        _query = new QueryManager();
 
         /* Register the new CacheProcessor */
         mainLoop.systemGroup.append(new ChangeProcessor(this));
@@ -123,12 +123,28 @@ package:
         return ArchiveCacher(installDB, layoutDB, diskPool);
     }
 
+    /**
+     * Return the underlying StateDB handle
+     */
+    pragma(inline, true) pure @property StateDB stateDB() @safe @nogc nothrow
+    {
+        return _stateDB;
+    }
+
+    /**
+     * Return the underlying QueryManager
+     */
+    pragma(inline, true) pure @property QueryManager queryManager() @safe @nogc nothrow
+    {
+        return _query;
+    }
+
 private:
 
     DiskPool diskPool = null;
     CacheDB cacheDB = null;
     LayoutDB layoutDB = null;
-    StateDB stateDB = null;
+    StateDB _stateDB = null;
     InstallDB installDB = null;
-    QueryManager query = null;
+    QueryManager _query = null;
 }
