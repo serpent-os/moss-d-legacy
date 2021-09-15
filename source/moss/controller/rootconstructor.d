@@ -28,13 +28,15 @@ import moss.storage.db.layoutdb;
 import moss.format.binary.payload.layout;
 import moss.context;
 
-import std.algorithm : sort, uniq, map, each;
+import std.algorithm : sort, uniq, map, each, filter;
 import std.array : array, join;
 import std.stdio : writeln;
 import std.conv : to;
 import std.file : mkdirRecurse;
+import std.path : dirName;
 
 import moss.core.util : hardLink;
+import moss.format.binary : FileType;
 
 /**
  * Construct a rootfs for a given state ID
@@ -69,7 +71,17 @@ package struct RootConstructor
         /* Ensure we have a rootfs dir for root level nodes */
         auto rootfsDir = context.paths.store.buildPath("root", to!string(newState.id));
         rootfsDir.mkdirRecurse();
-        finalLayouts.uniq!((esA, esB) => esA.target == esB.target)
+
+        /* Create all directories first and work from that */
+        auto uniqSet = finalLayouts.uniq!((esA, esB) => esA.target == esB.target);
+        uniqSet.filter!((es) => es.entry.type == FileType.Directory)
+            .each!((es) => applyLayout(newState, es));
+        /* Layer with broken symlinks */
+        uniqSet.filter!((es) => es.entry.type == FileType.Symlink)
+            .each!((es) => applyLayout(newState, es));
+        /* Fill in the blanks */
+        uniqSet.filter!((es) => es.entry.type != FileType.Symlink
+                && es.entry.type != FileType.Directory)
             .each!((es) => applyLayout(newState, es));
     }
 
@@ -84,7 +96,6 @@ private:
         auto targetNode = context.paths.store.buildPath("root",
                 to!string(newState.id), es.target[1 .. $]);
 
-        import moss.format.binary : FileType;
         import std.file : mkdirRecurse, symlink;
 
         /* Update attributes on the layout item. */
