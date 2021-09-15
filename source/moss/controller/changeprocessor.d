@@ -276,6 +276,7 @@ package final class ChangeProcessor : SystemProcessor
         case ChangeState.Failed:
             writeln("Complete failure");
             context.jobs.finishJob(jobID.jobID, JobStatus.Failed);
+            state = ChangeState.None;
             break;
         case ChangeState.Finalise:
             writeln("Finalising the ChangeSet");
