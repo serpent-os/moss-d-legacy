@@ -30,7 +30,7 @@ import moss.controller : MossController;
 import moss.context;
 import moss.jobs;
 import std.array : array;
-import std.algorithm : each;
+import std.algorithm : each, canFind, remove;
 import std.exception : enforce;
 import std.string : format;
 import std.stdint : uint64_t;
@@ -146,6 +146,8 @@ package final class ChangeProcessor : SystemProcessor
      */
     override void performWork()
     {
+        import std.stdio : writeln;
+
         if (state != ChangeState.Solving)
         {
             return;
@@ -159,6 +161,7 @@ package final class ChangeProcessor : SystemProcessor
 
         switch (req.type)
         {
+            /* Handle installation of local packages */
         case ChangeType.InstallArchives:
 
             /* Resolve pkgIDs */
@@ -176,6 +179,52 @@ package final class ChangeProcessor : SystemProcessor
                 auto sel = Selection(resolvedArchiveIDs[p], SelectionReason.ManuallyInstalled);
                 controller.stateDB().markSelection(targetState.id, sel);
             }());
+            cacheNeeded = req.targets.length;
+
+            break;
+            /* Handle removal of local packages */
+        case ChangeType.RemovePackages:
+
+            /* Load existing IDs into the DB */
+            auto oldSelections = controller.stateDB.entries(systemState.id).array;
+            oldSelections.each!((sel) => controller.queryManager.loadID(sel.target));
+            controller.queryManager.update();
+            string[] removalIDs;
+
+            foreach (removable; req.targets)
+            {
+                auto candidates = controller.queryManager.byName(removable);
+                if (candidates.empty)
+                {
+                    writeln("Unknown package: ", removable);
+                    state = ChangeState.Failed;
+                    return;
+                }
+                auto candidateSet = candidates.array();
+                bool didRemove = false;
+                foreach (candidate; candidateSet)
+                {
+                    if (!oldSelections.canFind!((s) => s.target == candidate.id))
+                    {
+                        continue;
+                    }
+                    oldSelections = oldSelections.remove!((s) => s.target == candidate.id);
+                    didRemove = true;
+                    removalIDs ~= candidate.id;
+                }
+                if (!didRemove)
+                {
+                    state = ChangeState.Failed;
+                    writeln("Package not installed, so cannot be removed: ", removable);
+                    return;
+                }
+            }
+
+            /* Use the trimmed list */
+            oldSelections.each!((sel) => controller.stateDB.markSelection(targetState.id, sel));
+            writeln("New selections: ", oldSelections);
+            writeln("Removing the following packages: ", removalIDs);
+            state = ChangeState.Blit;
             break;
         default:
             break;
@@ -196,7 +245,6 @@ package final class ChangeProcessor : SystemProcessor
         case ChangeState.Solving:
             writeln("Begin caching");
             state = ChangeState.Caching;
-            cacheNeeded = req.targets.length;
             req.targets.each!((e) => {
                 context.jobs.pushJob(CacheAssetJob(e), () => {
                     cachedTotal++;

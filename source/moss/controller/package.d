@@ -78,6 +78,14 @@ public final class MossController
     }
 
     /**
+     * Request removal of the given packages
+     */
+    void removePackages(in string[] packages)
+    {
+        context.jobs.pushJob(ChangeRequest(ChangeType.RemovePackages, cast(string[]) packages));
+    }
+
+    /**
      * Request installation of the given packages
      */
     void installPackages(in string[] paths)
