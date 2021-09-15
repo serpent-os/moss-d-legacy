@@ -83,9 +83,35 @@ package struct RootConstructor
         uniqSet.filter!((es) => es.entry.type != FileType.Symlink
                 && es.entry.type != FileType.Directory)
             .each!((es) => applyLayout(newState, es));
+
+        /* Reverse sort */
+        finalLayouts.sort!((esA, esB) => esA.target > esB.target);
+
+        /* Only apply attributes to directories and regular files */
+        finalLayouts.uniq
+            .filter!((es) => es.entry.type == FileType.Directory || es.entry.type
+                    == FileType.Regular)
+            .each!((es) => updateAttrs(newState, es));
     }
 
 private:
+
+    void updateAttrs(ref State newState, ref EntrySet es)
+    {
+        import std.file : setAttributes, setTimes;
+        import std.datetime : SysTime;
+
+        import std.path : buildPath;
+        import std.conv : to;
+
+        /* /.moss/store/root/1 .. */
+        auto targetNode = context.paths.store.buildPath("root",
+                to!string(newState.id), es.target[1 .. $]);
+
+        targetNode.setAttributes(es.entry.mode);
+        targetNode.setTimes(SysTime.fromUnixTime(es.entry.time),
+                SysTime.fromUnixTime(es.entry.time));
+    }
 
     void applyLayout(ref State newState, ref EntrySet es)
     {
@@ -98,23 +124,11 @@ private:
 
         import std.file : mkdirRecurse, symlink;
 
-        /* Update attributes on the layout item. */
-        void updateAttrs()
-        {
-            import std.file : setAttributes, setTimes;
-            import std.datetime : SysTime;
-
-            targetNode.setAttributes(es.entry.mode);
-            targetNode.setTimes(SysTime.fromUnixTime(es.entry.time),
-                    SysTime.fromUnixTime(es.entry.time));
-        }
-
         /* Handle basic file types now */
         switch (es.entry.type)
         {
         case FileType.Directory:
             targetNode.mkdirRecurse();
-            updateAttrs();
             break;
         case FileType.Symlink:
             es.source.symlink(targetNode);
@@ -122,7 +136,6 @@ private:
         case FileType.Regular:
             auto sourcePath = diskPool.fullPath(es.source);
             hardLink(sourcePath, targetNode);
-            updateAttrs();
             break;
         default:
             break;
