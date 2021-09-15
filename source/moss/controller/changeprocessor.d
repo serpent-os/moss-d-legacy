@@ -154,10 +154,6 @@ package final class ChangeProcessor : SystemProcessor
                     state = ChangeState.Failed;
                 }
             }
-            else
-            {
-                writeln(" ... still caching");
-            }
             break;
         case ChangeState.Failed:
             writeln("Complete failure");

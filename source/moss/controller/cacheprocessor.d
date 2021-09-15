@@ -62,7 +62,7 @@ package final class CacheProcessor : SystemProcessor
     }
 
     /**
-     * Retrieve a single job
+     * Cache a single archive
      */
     override void performWork()
     {
@@ -71,9 +71,6 @@ package final class CacheProcessor : SystemProcessor
 
     override void syncWork()
     {
-        import std.stdio : writeln;
-
-        writeln("Syncing cache");
         context.jobs.finishJob(jobID.jobID, JobStatus.Completed);
     }
 

@@ -120,7 +120,7 @@ package:
      */
     ArchiveCacher archiveCacher()
     {
-        return ArchiveCacher(installDB, layoutDB);
+        return ArchiveCacher(installDB, layoutDB, diskPool);
     }
 
 private:
