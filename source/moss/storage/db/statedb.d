@@ -77,10 +77,10 @@ struct State
     uint64_t id = 0;
 
     /** Display name for state */
-    const(string) name = null;
+    string name = null;
 
     /** Some description for archival purposes */
-    const(string) description = null;
+    string description = null;
 }
 
 /**

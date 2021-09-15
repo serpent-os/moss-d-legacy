@@ -24,10 +24,12 @@ module moss.controller.changeprocessor;
 
 import moss.format.binary.reader;
 import moss.format.binary.payload.meta;
+import moss.storage.db.statedb;
 
 import moss.controller : MossController;
 import moss.context;
 import moss.jobs;
+import std.array : array;
 import std.algorithm : each;
 import std.exception : enforce;
 import std.string : format;
@@ -144,15 +146,34 @@ package final class ChangeProcessor : SystemProcessor
             return;
         }
 
-        if (req.type != ChangeType.InstallArchives)
-        {
-            return;
-        }
+        systemState = controller.stateDB.lastState();
+        /* The real state ID will be added in time. */
+        targetState = State(controller.stateDB.nextStateID(),
+                "Automatically generated state", "%s".format(req));
+        controller.stateDB.addState(targetState);
 
-        /* Note: This should be changed to use locally cached archives. */
-        foreach (p; req.targets)
+        switch (req.type)
         {
-            resolvedArchiveIDs[p] = resolveArchiveID(p);
+        case ChangeType.InstallArchives:
+
+            /* Resolve pkgIDs */
+            foreach (p; req.targets)
+            {
+                resolvedArchiveIDs[p] = resolveArchiveID(p);
+            }
+
+            /* Copy all manual */
+            const auto oldSelections = controller.stateDB.entries(systemState.id).array;
+            oldSelections.each!((sel) => controller.stateDB.markSelection(targetState.id, sel));
+
+            /* Mark them for installation */
+            req.targets.each!((p) => {
+                auto sel = Selection(resolvedArchiveIDs[p], SelectionReason.ManuallyInstalled);
+                controller.stateDB().markSelection(targetState.id, sel);
+            }());
+            break;
+        default:
+            break;
         }
     }
 
@@ -202,6 +223,7 @@ package final class ChangeProcessor : SystemProcessor
             writeln("Finalising the ChangeSet");
             context.jobs.finishJob(jobID.jobID, JobStatus.Completed);
             state = ChangeState.None;
+            applySystemState();
             break;
         default:
             break;
@@ -209,6 +231,11 @@ package final class ChangeProcessor : SystemProcessor
     }
 
 private:
+
+    void applySystemState()
+    {
+
+    }
 
     /**
      * Duplicate of installDB.getPkgID
@@ -261,4 +288,6 @@ private:
     string[string] resolvedArchiveIDs;
 
     MossController controller;
+    State systemState;
+    State targetState;
 }
