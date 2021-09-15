@@ -196,6 +196,28 @@ public final class InstallDB : QuerySource
         return QueryResult(candidate, true);
     }
 
+    /**
+     * Set an explicit refCount for the pkgID
+     */
+    void setRefCount(const(string) pkgID, uint64_t refCount)
+    {
+        db.bucket(metadataBucket(pkgID)).set("refCount", refCount);
+    }
+
+    /**
+     * Get current refcount for the pkg
+     */
+    uint64_t getRefCount(const(string) pkgID)
+    {
+        auto result = db.bucket(metadataBucket(pkgID)).get!uint64_t("refCount");
+        if (!result.found)
+        {
+            return 0;
+        }
+
+        return result.value;
+    }
+
 private:
 
     /** 
@@ -235,28 +257,6 @@ private:
         enforce(pkgArchitecture !is null, "getPkgID(): Missing Architecture field");
 
         return "%s-%s-%d.%s".format(pkgName, pkgVersion, pkgRelease, pkgArchitecture);
-    }
-
-    /**
-     * Set an explicit refCount for the pkgID
-     */
-    void setRefCount(const(string) pkgID, uint64_t refCount)
-    {
-        db.bucket(metadataBucket(pkgID)).set("refCount", refCount);
-    }
-
-    /**
-     * Get current refcount for the pkg
-     */
-    uint64_t getRefCount(const(string) pkgID)
-    {
-        auto result = db.bucket(metadataBucket(pkgID)).get!uint64_t(pkgID);
-        if (!result.found)
-        {
-            return 0;
-        }
-
-        return result.value;
     }
 
     /**

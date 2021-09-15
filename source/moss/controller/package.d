@@ -53,7 +53,7 @@ public final class MossController
         cacheDB = new CacheDB();
         layoutDB = new LayoutDB();
         _stateDB = new StateDB();
-        installDB = new InstallDB();
+        _installDB = new InstallDB();
         _query = new QueryManager();
 
         /* Register the new CacheProcessor */
@@ -144,6 +144,14 @@ package:
     }
 
     /**
+     * Return the underlying InstallDB
+     */
+    pragma(inline, true) pure @property InstallDB installDB() @safe @nogc nothrow
+    {
+        return _installDB;
+    }
+
+    /**
      * Return the underlying StateDB handle
      */
     pragma(inline, true) pure @property StateDB stateDB() @safe @nogc nothrow
@@ -188,6 +196,6 @@ private:
     CacheDB cacheDB = null;
     LayoutDB layoutDB = null;
     StateDB _stateDB = null;
-    InstallDB installDB = null;
+    InstallDB _installDB = null;
     QueryManager _query = null;
 }

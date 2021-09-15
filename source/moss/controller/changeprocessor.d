@@ -295,6 +295,12 @@ private:
      */
     void emitNewState()
     {
+        /* Update all refcounts */
+        auto wantedSelections = controller.stateDB.entries(targetState.id).array();
+        wantedSelections.each!((s) => {
+            auto r = controller.installDB.getRefCount(s.target);
+            controller.installDB.setRefCount(s.target, r + 1);
+        }());
         controller.rootContructor.construct(targetState);
     }
 
