@@ -71,36 +71,40 @@ package final class ChangeProcessor : SystemProcessor
      */
     this()
     {
-        super("changeProcessor", ProcessorMode.Interleaved, () => context.jobs.hasJobs());
+        super("changeProcessor", ProcessorMode.Main);
         context.jobs.registerJobType!ChangeRequest;
     }
 
+    override bool allocateWork()
+    {
+        return context.jobs.claimJob(jobID, req);
+    }
     /**
      * Retrieve a single job
      */
-    override void run()
+    override void performWork()
     {
-        JobIDComponent jobID;
-        ChangeRequest req;
         import std.stdio : writeln;
-
-        if (!context.jobs.claimJob(jobID, req))
-        {
-            return;
-        }
-
-        scope (exit)
-        {
-            context.jobs.finishJob(jobID.jobID, JobStatus.Completed);
-        }
 
         writeln("Processing change: ", req);
     }
 
-    /**
-     * Stop all processing
-     */
-    override void stop()
+    override void syncWork()
     {
+        import std.stdio : writeln;
+
+        writeln("Syncing change: CHANGEPROCESSOR");
+        import moss.controller.cacheprocessor : CacheAssetJob;
+
+        foreach (j; req.targets)
+        {
+            context.jobs.pushJob(CacheAssetJob(j.dup));
+        }
+
+        context.jobs.finishJob(jobID.jobID, JobStatus.Completed);
     }
+
+private:
+    JobIDComponent jobID;
+    ChangeRequest req;
 }

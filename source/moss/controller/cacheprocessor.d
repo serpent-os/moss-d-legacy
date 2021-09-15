@@ -47,42 +47,34 @@ package final class CacheProcessor : SystemProcessor
      */
     this()
     {
-        super("cacheProcessor", ProcessorMode.Branched, () => context.jobs.hasJobs());
+        super("cacheProcessor", ProcessorMode.Branched);
         context.jobs.registerJobType!CacheAssetJob;
+    }
+
+    override bool allocateWork()
+    {
+        return context.jobs.claimJob(jobID, cacheJob);
     }
 
     /**
      * Retrieve a single job
      */
-    override void run()
+    override void performWork()
     {
-        JobIDComponent jobID;
-        CacheAssetJob cacheJob;
-
-        if (!context.jobs.claimJob(jobID, cacheJob))
-        {
-            status = ProcessorStatus.Available;
-            return;
-        }
-
-        /* Temporarily busy for this job */
-        status = ProcessorStatus.Busy;
-        scope (exit)
-        {
-            status = ProcessorStatus.Available;
-        }
-
         import std.stdio : writeln;
 
         writeln("Caching asset: ", cacheJob);
+    }
+
+    override void syncWork()
+    {
+        import std.stdio : writeln;
+
+        writeln("Syncing cache");
         context.jobs.finishJob(jobID.jobID, JobStatus.Completed);
     }
 
-    /**
-     * Stop all processing
-     */
-    override void stop()
-    {
-
-    }
+private:
+    JobIDComponent jobID;
+    CacheAssetJob cacheJob;
 }
