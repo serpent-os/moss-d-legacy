@@ -46,12 +46,11 @@ package final class CacheProcessor : SystemProcessor
     @disable this();
 
     /**
-     * Construct a new CacheProcessor on its own thread that will process caching
-     * as and when a cache job is available
+     * Construct a new CacheProcessor on the main thread that awaits CacheAssetJobs
      */
     this(MossController controller)
     {
-        super("cacheProcessor", ProcessorMode.Branched);
+        super("cacheProcessor", ProcessorMode.Main);
         this.controller = controller;
         context.jobs.registerJobType!CacheAssetJob;
     }
