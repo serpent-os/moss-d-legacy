@@ -22,9 +22,16 @@
 
 module moss.controller.changeprocessor;
 
+import moss.format.binary.reader;
+import moss.format.binary.payload.meta;
+
 import moss.controller : MossController;
 import moss.context;
 import moss.jobs;
+import std.algorithm : each;
+import std.exception : enforce;
+import std.string : format;
+import std.stdint : uint64_t;
 
 /**
  * Used for state machine purposes, making the ChangeProcessor reentrant on
@@ -41,6 +48,11 @@ enum ChangeState
      * Fetching things
      */
     Fetching,
+
+    /**
+     * Working things out
+     */
+    Solving,
 
     /**
      * Caching those things
@@ -127,18 +139,36 @@ package final class ChangeProcessor : SystemProcessor
      */
     override void performWork()
     {
+        if (state != ChangeState.Solving)
+        {
+            return;
+        }
+
+        if (req.type != ChangeType.InstallArchives)
+        {
+            return;
+        }
+
+        /* Note: This should be changed to use locally cached archives. */
+        foreach (p; req.targets)
+        {
+            resolvedArchiveIDs[p] = resolveArchiveID(p);
+        }
     }
 
     override void syncWork()
     {
         import std.stdio : writeln;
-        import std.algorithm : each;
         import moss.controller.cacheprocessor : CacheAssetJob;
 
         switch (state)
         {
         case ChangeState.None:
             writeln("Starting the ChangeSet");
+            state = ChangeState.Solving;
+            break;
+        case ChangeState.Solving:
+            writeln("Begin caching");
             state = ChangeState.Caching;
             cacheNeeded = req.targets.length;
             req.targets.each!((e) => {
@@ -180,12 +210,55 @@ package final class ChangeProcessor : SystemProcessor
 
 private:
 
+    /**
+     * Duplicate of installDB.getPkgID
+     */
+    string resolveArchiveID(const(string) path)
+    {
+        auto pkgFile = File(path, "rb");
+        auto reader = new Reader(pkgFile);
+        auto payload = reader.payload!MetaPayload;
+
+        string pkgName = null;
+        uint64_t pkgRelease = 0;
+        string pkgVersion = null;
+        string pkgArchitecture = null;
+
+        payload.each!((t) => {
+            switch (t.tag)
+            {
+            case RecordTag.Name:
+                pkgName = t.val_string;
+                break;
+            case RecordTag.Release:
+                pkgRelease = t.val_u64;
+                break;
+            case RecordTag.Version:
+                pkgVersion = t.val_string;
+                break;
+            case RecordTag.Architecture:
+                pkgArchitecture = t.val_string;
+                break;
+            default:
+                break;
+            }
+        }());
+
+        enforce(pkgName !is null, "getPkgID(): Missing Name field");
+        enforce(pkgVersion !is null, "getPkgID(): Missing Version field");
+        enforce(pkgArchitecture !is null, "getPkgID(): Missing Architecture field");
+
+        return "%s-%s-%d.%s".format(pkgName, pkgVersion, pkgRelease, pkgArchitecture);
+    }
+
     JobIDComponent jobID;
     ChangeRequest req;
     ChangeState state = ChangeState.None;
     ulong cacheNeeded = 0;
     ulong cachedTotal = 0;
     ulong cachedSuccess = 0;
+
+    string[string] resolvedArchiveIDs;
 
     MossController controller;
 }
