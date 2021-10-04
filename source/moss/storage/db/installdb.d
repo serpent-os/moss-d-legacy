@@ -30,7 +30,7 @@ import std.stdint : uint64_t;
 import std.string : format;
 import std.exception : enforce;
 
-public import moss.query.source;
+public import moss.deps.query.source;
 
 /**
  * InstallDB tracks packages installed across various states and doesn't specifically

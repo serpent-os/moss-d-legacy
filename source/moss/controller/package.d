@@ -30,7 +30,7 @@ import moss.storage.db.cachedb;
 import moss.storage.db.installdb;
 import moss.storage.db.layoutdb;
 import moss.storage.db.statedb;
-import moss.query;
+import moss.deps.query;
 
 import moss.controller.archivecacher;
 import moss.controller.changeprocessor;
@@ -54,7 +54,7 @@ public final class MossController
         layoutDB = new LayoutDB();
         _stateDB = new StateDB();
         _installDB = new InstallDB();
-        _query = new QueryManager();
+        _query = new QueryManager(context.entityManager);
 
         /* Register the new CacheProcessor */
         mainLoop.systemGroup.append(new ChangeProcessor(this));
