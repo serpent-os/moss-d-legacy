@@ -23,6 +23,9 @@
 		},
 		"moss-jobs": {
 			"path": "external/moss-jobs"
+		},
+		"moss-deps": {
+			"path": "external/moss-deps"
 		}
 	},
 	"buildTypes": {
