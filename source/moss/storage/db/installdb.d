@@ -171,7 +171,7 @@ public final class InstallDB : QuerySource
      */
     override void queryProviders(in ProviderType type, in string matcher, QueryCallback merger)
     {
-        final switch (type)
+        switch (type)
         {
         case ProviderType.PackageID:
             auto result = queryID(matcher);
@@ -180,8 +180,8 @@ public final class InstallDB : QuerySource
                 merger(result.candidate);
             }
             break;
-        case ProviderType.PackageName:
-            assert("oops");
+        default:
+            break;
         }
     }
 
