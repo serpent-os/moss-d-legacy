@@ -167,6 +167,25 @@ public final class InstallDB : QuerySource
     }
 
     /**
+     * We only support loading by ID.
+     */
+    override void queryProviders(in ProviderType type, in string matcher, QueryCallback merger)
+    {
+        final switch (type)
+        {
+        case ProviderType.PackageID:
+            auto result = queryID(matcher);
+            if (result.found)
+            {
+                merger(result.candidate);
+            }
+            break;
+        case ProviderType.PackageName:
+            assert("oops");
+        }
+    }
+
+    /**
      * Search our local DB for a match to the pkgID
      */
     QueryResult queryID(const(string) pkgID)
