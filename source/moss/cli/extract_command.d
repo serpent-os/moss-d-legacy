@@ -137,7 +137,7 @@ public struct ExtractCommand
         {
             import std.stdio : writefln;
             import std.string : startsWith;
-            import moss.format.binary : FileType;
+            import moss.core : FileType;
 
             auto targetPath = installDir.buildPath(target.startsWith("/") ? target[1 .. $] : target);
             writefln("Constructing target: %s", targetPath);

@@ -36,7 +36,7 @@ import std.file : mkdirRecurse;
 import std.path : dirName;
 
 import moss.core.util : hardLink;
-import moss.format.binary : FileType;
+import moss.core : FileType;
 
 /**
  * Construct a rootfs for a given state ID
