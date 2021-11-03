@@ -29,6 +29,7 @@ import moss.format.binary.payload.meta;
 import std.stdint : uint64_t;
 import std.string : format;
 import std.exception : enforce;
+import std.typecons : Nullable;
 
 public import moss.deps.query.source;
 
@@ -166,36 +167,35 @@ public final class InstallDB : QuerySource
         return pkgID;
     }
 
-    /**
-     * We only support loading by ID.
-     */
-    override void queryProviders(in ProviderType type, in string matcher, QueryCallback merger)
+    override const(PackageCandidate)[] queryProviders(in MatchType type, in string matcher)
     {
         switch (type)
         {
-        case ProviderType.PackageID:
+        case MatchType.PackageID:
             auto result = queryID(matcher);
-            if (result.found)
+            if (result.isNull)
             {
-                merger(result.candidate);
+                return [];
             }
-            break;
+            return [result.get];
         default:
-            break;
+            return [];
         }
     }
 
     /**
      * Search our local DB for a match to the pkgID
      */
-    QueryResult queryID(const(string) pkgID)
+    Nullable!PackageCandidate queryID(const(string) pkgID)
     {
+        Nullable!PackageCandidate ret;
+
         auto bucketID = db.bucket("index").get!string(pkgID);
 
         /* No bucket, no findy. */
         if (!bucketID.found)
         {
-            return QueryResult(PackageCandidate.init, false);
+            return ret;
         }
 
         /* Cache the bucket now */
@@ -212,7 +212,9 @@ public final class InstallDB : QuerySource
         /* Ensure the candidate goes back now */
         auto candidate = PackageCandidate(pkgID, nameRes.value.dup,
                 versionRes.value.dup, releaseRes.value);
-        return QueryResult(candidate, true);
+
+        ret = candidate;
+        return ret;
     }
 
     /**

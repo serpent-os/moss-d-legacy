@@ -54,7 +54,7 @@ public final class MossController
         layoutDB = new LayoutDB();
         _stateDB = new StateDB();
         _installDB = new InstallDB();
-        _query = new QueryManager(context.entityManager);
+        _query = new QueryManager();
 
         /* Register the new CacheProcessor */
         mainLoop.systemGroup.append(new ChangeProcessor(this));

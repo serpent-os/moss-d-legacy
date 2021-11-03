@@ -187,8 +187,6 @@ package final class ChangeProcessor : SystemProcessor
 
             /* Load existing IDs into the DB */
             auto oldSelections = controller.stateDB.entries(systemState.id).array;
-            oldSelections.each!((sel) => controller.queryManager.loadID(sel.target));
-            controller.queryManager.update();
             string[] removalIDs;
 
             foreach (removable; req.targets)
