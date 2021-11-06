@@ -24,6 +24,9 @@ module moss.storage.db.cobbledb;
 
 public import moss.deps.query;
 
+import std.array : array;
+import std.algorithm : filter;
+
 /**
  * The CobbleDB provides a temporary source to emulate a repository of local
  * .stone archives as passed from "moss install" CLI to allow full integration
@@ -34,8 +37,33 @@ public final class CobbleDB : QuerySource
     /**
      * Provide matching facilities for the local set of stones
      */
-    const(PackageCandidate)[] queryProviders(in MatchType type, in string matcher)
+    override const(PackageCandidate)[] queryProviders(in MatchType type, in string matcher)
     {
-        return [];
+        switch (type)
+        {
+        case MatchType.PackageID:
+            if (matcher in candidates)
+            {
+                return [candidates[matcher]];
+            }
+            return [];
+        case MatchType.PackageName:
+            return candidates.values.filter!((p) => p.name == matcher).array();
+        default:
+            return [];
+        }
     }
+
+    /**
+     * Return the package IDs loaded (successfully) into this CobbleDB to allow
+     * use with states.
+     */
+    auto pkgIDs()
+    {
+        return candidates.keys;
+    }
+
+private:
+
+    PackageCandidate[string] candidates;
 }
