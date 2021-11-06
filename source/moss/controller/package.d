@@ -56,14 +56,8 @@ public final class MossController
         _installDB = new InstallDB();
         _query = new QueryManager();
 
-        /* Register the new CacheProcessor */
-        mainLoop.systemGroup.append(new ChangeProcessor(this));
-        mainLoop.systemGroup.append(new CacheProcessor(this));
-
         /* Seed the query manager */
         _query.addSource(installDB);
-
-        context.entityManager.build();
     }
 
     /**
@@ -77,12 +71,19 @@ public final class MossController
         installDB.close();
     }
 
+    ~this()
+    {
+        close();
+    }
+
     /**
      * Request removal of the given packages
      */
     void removePackages(in string[] packages)
     {
-        context.jobs.pushJob(ChangeRequest(ChangeType.RemovePackages, cast(string[]) packages));
+        import std.stdio : writeln;
+
+        writeln("Not yet implemented");
     }
 
     /**
@@ -121,8 +122,7 @@ public final class MossController
             return;
         }
 
-        /* Alright, go install now */
-        context.jobs.pushJob(ChangeRequest(ChangeType.InstallArchives, cast(string[]) localPaths));
+        writeln("Not yet implemented");
     }
 
 package:
