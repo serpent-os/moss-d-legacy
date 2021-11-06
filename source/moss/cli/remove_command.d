@@ -26,7 +26,6 @@ public import moss.core.cli;
 import moss.core;
 import moss.cli : MossCLI;
 import moss.context;
-import moss.jobs;
 import moss.controller;
 
 /**
@@ -51,24 +50,9 @@ public struct RemoveCommand
         context.setRootDirectory((pt.findAncestor!MossCLI).rootDirectory);
 
         auto con = new MossController();
-        scope (exit)
-        {
-            con.close();
-        }
 
         /* Install the packages */
         con.removePackages(argv);
-
-        /* Hack, exit when needed */
-        mainLoop.idleAdd(() => {
-            if (context.jobs.hasJobs)
-            {
-                return CallbackControl.Continue;
-            }
-            mainLoop.quit();
-            return CallbackControl.Stop;
-        }());
-        mainLoop.run();
 
         return ExitStatus.Success;
     }
