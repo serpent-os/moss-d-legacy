@@ -121,6 +121,7 @@ public final class MossController
         localPaths.each!((p) => cobble.load(p));
 
         writeln("Not yet implemented");
+        writeln(cobble.pkgIDs);
     }
 
 package:
