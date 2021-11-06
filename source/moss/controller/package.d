@@ -34,6 +34,8 @@ import moss.deps.query;
 
 import moss.controller.archivecacher;
 import moss.controller.rootconstructor;
+import std.algorithm : each, filter, canFind;
+import std.array : array;
 
 /**
  * MossController is required to access the underlying Moss resources and to
@@ -91,8 +93,6 @@ public final class MossController
      */
     void installPackages(in string[] paths)
     {
-        import std.array : array;
-        import std.algorithm : filter, canFind;
         import std.stdio : writeln;
         import std.file : exists;
         import std.string : endsWith;
@@ -121,6 +121,9 @@ public final class MossController
             writeln("Must provide local paths to install");
             return;
         }
+
+        /* Load each path into the cobble db */
+        localPaths.each!((p) => cobble.load(p));
 
         writeln("Not yet implemented");
     }

@@ -55,6 +55,14 @@ public final class CobbleDB : QuerySource
     }
 
     /**
+     * Load a package into our store
+     */
+    void load(in string path)
+    {
+
+    }
+
+    /**
      * Return the package IDs loaded (successfully) into this CobbleDB to allow
      * use with states.
      */
