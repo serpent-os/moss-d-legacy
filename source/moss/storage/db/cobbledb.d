@@ -26,6 +26,9 @@ public import moss.deps.query;
 
 import std.array : array;
 import std.algorithm : filter;
+import moss.format.binary.reader;
+import moss.format.binary.payload.meta;
+import std.stdio : File;
 
 /**
  * The CobbleDB provides a temporary source to emulate a repository of local
@@ -62,7 +65,39 @@ public final class CobbleDB : QuerySource
      */
     void load(in string path)
     {
+        auto fp = File(path, "rb");
+        auto reader = new Reader(fp);
 
+        /* Extract the metapayload */
+        auto metaPayload = reader.payload!MetaPayload();
+
+        scope (exit)
+        {
+            reader.close();
+        }
+
+        auto candidate = PackageCandidate();
+        immutable auto id = metaPayload.getPkgID();
+
+        foreach (record; metaPayload)
+        {
+            switch (record.tag)
+            {
+            case RecordTag.Name:
+                candidate.name = record.val_string;
+                break;
+            case RecordTag.Release:
+                candidate.release = record.val_u64;
+                break;
+            case RecordTag.Version:
+                candidate.versionID = record.val_string;
+                break;
+            default:
+                break;
+            }
+        }
+        candidate.id = id;
+        candidates[id] = candidate;
     }
 
     /**
