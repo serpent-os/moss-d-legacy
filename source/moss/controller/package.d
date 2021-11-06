@@ -23,7 +23,6 @@
 module moss.controller;
 
 import moss.context;
-import moss.jobs;
 
 import moss.storage.pool;
 import moss.storage.db.cachedb;
@@ -33,8 +32,6 @@ import moss.storage.db.statedb;
 import moss.deps.query;
 
 import moss.controller.archivecacher;
-import moss.controller.changeprocessor;
-import moss.controller.cacheprocessor;
 import moss.controller.rootconstructor;
 
 /**
