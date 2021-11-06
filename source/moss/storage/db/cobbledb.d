@@ -36,6 +36,9 @@ public final class CobbleDB : QuerySource
 {
     /**
      * Provide matching facilities for the local set of stones
+     * Currently this is limited solely to PkgID + Name matching but we will
+     * have to tie in providers too like LibraryName, etc, for dependency
+     * solving to function.
      */
     override const(PackageCandidate)[] queryProviders(in MatchType type, in string matcher)
     {
