@@ -93,7 +93,7 @@ public final class InstallDB : QuerySource
      */
     string installPayload(MetaPayload payload)
     {
-        auto pkgID = getPkgID(payload);
+        auto pkgID = payload.getPkgID();
         enforce(pkgID !is null, "installPayload(): Unable to get pkgID");
 
         auto metabucket = db.bucket(metadataBucket(pkgID));
@@ -240,45 +240,6 @@ public final class InstallDB : QuerySource
     }
 
 private:
-
-    /** 
-     * Return the full pkgID for a given meta payload
-     */
-    string getPkgID(MetaPayload payload)
-    {
-        import std.algorithm : each;
-
-        string pkgName = null;
-        uint64_t pkgRelease = 0;
-        string pkgVersion = null;
-        string pkgArchitecture = null;
-
-        payload.each!((t) => {
-            switch (t.tag)
-            {
-            case RecordTag.Name:
-                pkgName = t.val_string;
-                break;
-            case RecordTag.Release:
-                pkgRelease = t.val_u64;
-                break;
-            case RecordTag.Version:
-                pkgVersion = t.val_string;
-                break;
-            case RecordTag.Architecture:
-                pkgArchitecture = t.val_string;
-                break;
-            default:
-                break;
-            }
-        }());
-
-        enforce(pkgName !is null, "getPkgID(): Missing Name field");
-        enforce(pkgVersion !is null, "getPkgID(): Missing Version field");
-        enforce(pkgArchitecture !is null, "getPkgID(): Missing Architecture field");
-
-        return "%s-%s-%d.%s".format(pkgName, pkgVersion, pkgRelease, pkgArchitecture);
-    }
 
     /**
      * Return the per package metadata bucket name
