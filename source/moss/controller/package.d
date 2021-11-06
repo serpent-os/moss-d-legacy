@@ -26,6 +26,7 @@ import moss.context;
 
 import moss.storage.pool;
 import moss.storage.db.cachedb;
+import moss.storage.db.cobbledb;
 import moss.storage.db.installdb;
 import moss.storage.db.layoutdb;
 import moss.storage.db.statedb;
@@ -52,9 +53,11 @@ public final class MossController
         _stateDB = new StateDB();
         _installDB = new InstallDB();
         _query = new QueryManager();
+        cobble = new CobbleDB();
 
         /* Seed the query manager */
         _query.addSource(installDB);
+        _query.addSource(cobble);
     }
 
     /**
@@ -195,4 +198,5 @@ private:
     StateDB _stateDB = null;
     InstallDB _installDB = null;
     QueryManager _query = null;
+    CobbleDB cobble = null;
 }
