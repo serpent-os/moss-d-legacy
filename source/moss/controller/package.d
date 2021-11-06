@@ -73,11 +73,6 @@ public final class MossController
         installDB.close();
     }
 
-    ~this()
-    {
-        close();
-    }
-
     /**
      * Request removal of the given packages
      */

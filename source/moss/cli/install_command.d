@@ -50,6 +50,10 @@ public struct InstallCommand
         context.setRootDirectory((pt.findAncestor!MossCLI).rootDirectory);
 
         auto con = new MossController();
+        scope (exit)
+        {
+            con.close();
+        }
 
         /* Install the packages */
         con.installPackages(argv);
