@@ -9,9 +9,6 @@
 	"name": "moss",
 	"targetPath": "bin",
 	"dependencies": {
-		"serpent-ecs": {
-			"path": "external/serpent-ecs"
-		},
 		"moss-core": {
 			"path": "external/moss-core"
 		},
@@ -20,9 +17,6 @@
 		},
 		"moss-db": {
 			"path": "external/moss-db"
-		},
-		"moss-jobs": {
-			"path": "external/moss-jobs"
 		},
 		"moss-deps": {
 			"path": "external/moss-deps"

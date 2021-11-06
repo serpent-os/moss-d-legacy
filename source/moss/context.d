@@ -25,8 +25,6 @@ module moss.context;
 import std.path : absolutePath;
 public import std.path : buildPath;
 import std.concurrency : initOnce;
-import serpent.ecs;
-import moss.jobs;
 
 /**
  * Return the current shared Context for all moss operations
@@ -46,7 +44,6 @@ shared static ~this()
 {
     if (_sharedContext !is null)
     {
-        _sharedContext.close();
         _sharedContext.destroy();
         _sharedContext = null;
     }
@@ -145,22 +142,6 @@ public final class MossContext
         _paths.root = rootDir;
     }
 
-    /**
-     * Return the process wide EntityManager
-     */
-    @property EntityManager entityManager() @trusted @nogc nothrow
-    {
-        return _entityManager;
-    }
-
-    /**
-     * Return the process wide JobSystem
-     */
-    @property JobSystem jobs() @trusted @nogc nothrow
-    {
-        return _jobs;
-    }
-
 private:
 
     /**
@@ -170,17 +151,7 @@ private:
     {
         _paths = MossPaths();
         _paths.root = "/";
-        _entityManager = new EntityManager();
-        _jobs = new JobSystem(_entityManager);
-    }
-
-    void close()
-    {
-        _entityManager.clear();
-        _entityManager.destroy();
     }
 
     MossPaths _paths;
-    __gshared EntityManager _entityManager;
-    __gshared JobSystem _jobs;
 }
