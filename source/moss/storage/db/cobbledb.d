@@ -22,10 +22,10 @@
 
 module moss.storage.db.cobbledb;
 
-public import moss.deps.query;
+public import moss.deps.registry;
 
 import std.array : array;
-import std.algorithm : filter;
+import std.algorithm : filter, map;
 import moss.format.binary.reader;
 import moss.format.binary.payload.meta;
 import std.stdio : File;
@@ -35,7 +35,7 @@ import std.stdio : File;
  * .stone archives as passed from "moss install" CLI to allow full integration
  * of side-loaded stone archives.
  */
-public final class CobbleDB : QuerySource
+public final class CobbleDB : RegistryPlugin
 {
     /**
      * Provide matching facilities for the local set of stones
@@ -43,21 +43,50 @@ public final class CobbleDB : QuerySource
      * have to tie in providers too like LibraryName, etc, for dependency
      * solving to function.
      */
-    override const(PackageCandidate)[] queryProviders(in MatchType type, in string matcher)
+    override RegistryItem[] queryProviders(in ProviderType type, in string matcher)
     {
         switch (type)
         {
-        case MatchType.PackageID:
-            if (matcher in candidates)
-            {
-                return [candidates[matcher]];
-            }
-            return [];
-        case MatchType.PackageName:
-            return candidates.values.filter!((p) => p.name == matcher).array();
+        case ProviderType.PackageName:
+            return candidates.values
+                .filter!((p) => p.name == matcher)
+                .map!((r) => RegistryItem(r.id, this))
+                .array();
         default:
             return [];
         }
+    }
+
+    /**
+     * Provide details on a singular package
+     */
+    override Nullable!RegistryItem queryID(in string pkgID)
+    {
+        Nullable!RegistryItem item = Nullable!RegistryItem(RegistryItem.init);
+
+        auto match = pkgID in candidates;
+        if (match !is null)
+        {
+            item = RegistryItem(match.id, this);
+        }
+
+        return item;
+    }
+
+    /**
+     * TODO: Implement dependencies
+     */
+    override const(Dependency)[] dependencies(in string pkgID) const
+    {
+        return null;
+    }
+
+    /**
+     * TODO: Implement providers
+     */
+    override const(Provider)[] providers(in string pkgID) const
+    {
+        return null;
     }
 
     /**
