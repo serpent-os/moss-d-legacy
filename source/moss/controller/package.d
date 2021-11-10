@@ -30,7 +30,7 @@ import moss.storage.db.cobbledb;
 import moss.storage.db.installdb;
 import moss.storage.db.layoutdb;
 import moss.storage.db.statedb;
-import moss.deps.query;
+import moss.deps.registry;
 
 import moss.controller.archivecacher;
 import moss.controller.rootconstructor;
@@ -54,12 +54,12 @@ public final class MossController
         layoutDB = new LayoutDB();
         _stateDB = new StateDB();
         _installDB = new InstallDB();
-        _query = new QueryManager();
+        _registryManager = new RegistryManager();
         cobble = new CobbleDB();
 
         /* Seed the query manager */
-        _query.addSource(installDB);
-        _query.addSource(cobble);
+        _registryManager.addPlugin(installDB);
+        _registryManager.addPlugin(cobble);
     }
 
     /**
@@ -159,11 +159,11 @@ package:
     }
 
     /**
-     * Return the underlying QueryManager
+     * Return the underlying registryManager
      */
-    pragma(inline, true) pure @property QueryManager queryManager() @safe @nogc nothrow
+    pragma(inline, true) pure @property RegistryManager registryManager() @safe @nogc nothrow
     {
-        return _query;
+        return _registryManager;
     }
 
     /**
@@ -196,6 +196,6 @@ private:
     LayoutDB layoutDB = null;
     StateDB _stateDB = null;
     InstallDB _installDB = null;
-    QueryManager _query = null;
+    RegistryManager _registryManager = null;
     CobbleDB cobble = null;
 }
