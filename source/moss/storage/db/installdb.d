@@ -179,13 +179,12 @@ public final class InstallDB : RegistryPlugin
     {
         Nullable!RegistryItem ret = Nullable!RegistryItem(RegistryItem.init);
 
-        auto bucketID = db.bucket("index").get!string(pkgID);
+        immutable auto bucketID = db.bucket("index").get!string(pkgID);
 
-        /* No bucket, no findy. */
+        /* Set if exists */
         if (bucketID.found)
         {
             ret = RegistryItem(pkgID, this);
-            return ret;
         }
 
         return ret;
