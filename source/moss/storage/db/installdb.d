@@ -31,7 +31,7 @@ import std.string : format;
 import std.exception : enforce;
 import std.typecons : Nullable;
 
-public import moss.deps.query.source;
+public import moss.deps.registry.plugin;
 
 /**
  * InstallDB tracks packages installed across various states and doesn't specifically
@@ -39,7 +39,7 @@ public import moss.deps.query.source;
  * candidates to provide a system level of resolution for packages no longer referenced
  * from a repository.
  */
-public final class InstallDB : QuerySource
+public final class InstallDB : RegistryPlugin
 {
     /**
      * Construct a new InstallDB which will immediately force a reload of the
@@ -167,54 +167,38 @@ public final class InstallDB : QuerySource
         return pkgID;
     }
 
-    override const(PackageCandidate)[] queryProviders(in MatchType type, in string matcher)
+    override RegistryItem[] queryProviders(in ProviderType type, in string matcher)
     {
-        switch (type)
-        {
-        case MatchType.PackageID:
-            auto result = queryID(matcher);
-            if (result.isNull)
-            {
-                return [];
-            }
-            return [result.get];
-        default:
-            return [];
-        }
+        return [];
     }
 
     /**
      * Search our local DB for a match to the pkgID
      */
-    Nullable!PackageCandidate queryID(const(string) pkgID)
+    override Nullable!RegistryItem queryID(const(string) pkgID)
     {
-        Nullable!PackageCandidate ret;
+        Nullable!RegistryItem ret = Nullable!RegistryItem(RegistryItem.init);
 
         auto bucketID = db.bucket("index").get!string(pkgID);
 
         /* No bucket, no findy. */
-        if (!bucketID.found)
+        if (bucketID.found)
         {
+            ret = RegistryItem(pkgID, this);
             return ret;
         }
 
-        /* Cache the bucket now */
-        auto pkgBucket = db.bucket(bucketID.value);
-
-        /* Absolutely require minimum values */
-        auto nameRes = pkgBucket.get!string("name");
-        enforce(nameRes.found, "queryID(): Local db corruption");
-        auto versionRes = pkgBucket.get!string("version");
-        enforce(versionRes.found, "queryID(): Local db corruption");
-        auto releaseRes = pkgBucket.get!uint64_t("release");
-        enforce(releaseRes.found, "queryID(): Local db corruption");
-
-        /* Ensure the candidate goes back now */
-        auto candidate = PackageCandidate(pkgID, nameRes.value.dup,
-                versionRes.value.dup, releaseRes.value);
-
-        ret = candidate;
         return ret;
+    }
+
+    override const(Dependency)[] dependencies(in string pkgID) const
+    {
+        return null;
+    }
+
+    override const(Provider)[] providers(in string pkgID) const
+    {
+        return null;
     }
 
     /**
