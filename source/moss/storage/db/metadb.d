@@ -154,7 +154,7 @@ private:
     /**
      * Add a provider to the package-private providers set
      */
-    void addPackageProvider(scope IReadWritable bucket, in Provider provider)
+    pragma(inline, true) void addPackageProvider(scope IReadWritable bucket, in Provider provider)
     {
         /* Value required, we only care for key, set value as 1 */
         bucket.setDatum(cast(Datum) provider.mossEncode, cast(Datum) 1.mossEncode);
@@ -163,7 +163,7 @@ private:
     /**
      * Add a provider to the global provider set referencing this package
      */
-    void addGlobalProvider(in string pkgID, in Provider provider)
+    pragma(inline, true) void addGlobalProvider(in string pkgID, in Provider provider)
     {
         auto bucket = db.bucket("%s.%s.%s".format(globalProvs,
                 provider.type.to!string, provider.target));
@@ -173,7 +173,7 @@ private:
     /**
      * Add a dependency to the package-private dependency set
      */
-    void addPackageDependency(scope IReadWritable bucket, in Dependency dependency)
+    pragma(inline, true) void addPackageDependency(scope IReadWritable bucket, in Dependency dependency)
     {
         /* Value required, we only care for key, set value as 1 */
         bucket.setDatum(cast(Datum) dependency.mossEncode, cast(Datum) 1.mossEncode);
