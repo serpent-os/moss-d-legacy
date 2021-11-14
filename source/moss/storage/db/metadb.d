@@ -31,6 +31,21 @@ import std.string : format;
 import std.conv : to;
 
 /**
+ * Per package metadata lives in ".meta.pkgID" namespace
+ */
+private static immutable auto perPackageMeta = ".meta";
+
+/**
+ * Per package dependencies live in ".deps.pkgID" namespace
+ */
+private static immutable auto perPackageDeps = ".deps";
+
+/**
+ * Per package providers live in ".provs.pkgID" namespace
+ */
+private static immutable auto perPackageProvs = ".provs";
+
+/**
  * MetaDB is used as a storage mechanism for the MetaPayload within the
  * binary packages and repository index files. Internally it relies on RocksDB
  * via moss-db for all KV storage.
@@ -70,7 +85,9 @@ public final class MetaDB
         immutable auto pkgID = payload.getPkgID();
         enforce(pkgID !is null, "MetaDB.install(): Unable to obtain pkgID");
 
-        auto pkgBucket = db.bucket(".metadata.%s".format(pkgID));
+        auto pkgBucket = db.bucket("%s.%s".format(perPackageMeta, pkgID));
+        auto depBucket = db.bucket("%s.%s".format(perPackageDeps, pkgID));
+        auto provBucket = db.bucket("%s.%s".format(perPackageProvs, pkgID));
 
         void dbSetter(T)(in RecordType type, in RecordTag tag, in T data)
         {
@@ -111,8 +128,14 @@ public final class MetaDB
                 dbSetter!string(pair.type, pair.tag, pair.get!string);
                 break;
             case RecordType.Provider:
+                enforce(pair.tag == RecordTag.Provides);
+                immutable auto provider = pair.get!Provider;
+                addPackageProvider(provBucket, provider);
+                addGlobalProvider(pkgID, provider);
                 break;
             case RecordType.Dependency:
+                enforce(pair.tag == RecordTag.Depends);
+                addPackageDependency(depBucket, pair.get!Dependency);
                 break;
             case RecordType.Unknown:
                 break;
