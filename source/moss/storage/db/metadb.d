@@ -27,6 +27,8 @@ import moss.db.rocksdb;
 import moss.deps;
 import moss.format.binary.payload.meta;
 import std.exception : enforce;
+import std.string : format;
+import std.conv : to;
 
 /**
  * MetaDB is used as a storage mechanism for the MetaPayload within the
@@ -68,19 +70,51 @@ public final class MetaDB
         immutable auto pkgID = payload.getPkgID();
         enforce(pkgID !is null, "MetaDB.install(): Unable to obtain pkgID");
 
+        auto pkgBucket = db.bucket(".metadata.%s".format(pkgID));
+
+        void dbSetter(T)(in RecordType type, in RecordTag tag, in T data)
+        {
+            immutable auto keyname = tag.to!string;
+            pkgBucket.set(keyname, data);
+        }
+
         foreach (ref pair; payload)
         {
-            switch (pair.tag)
+            /* Dispatch correct handling */
+            final switch (pair.type)
             {
-            case RecordTag.Depends:
-                //addPackageDependency(depBucket, pair.get!Dependency);
+            case RecordType.Uint8:
+                dbSetter!uint8_t(pair.type, pair.tag, pair.get!uint8_t);
                 break;
-            case RecordTag.Provides:
-                //auto provider = pair.get!Provider;
-                //addPackageProvider(provBucket, provider);
-                //addGlobalProvider(pkgID, provider);
+            case RecordType.Int8:
+                dbSetter!int8_t(pair.type, pair.tag, pair.get!int8_t);
                 break;
-            default:
+            case RecordType.Uint16:
+                dbSetter!uint16_t(pair.type, pair.tag, pair.get!uint16_t);
+                break;
+            case RecordType.Int16:
+                dbSetter!int16_t(pair.type, pair.tag, pair.get!int16_t);
+                break;
+            case RecordType.Uint32:
+                dbSetter!uint32_t(pair.type, pair.tag, pair.get!uint32_t);
+                break;
+            case RecordType.Int32:
+                dbSetter!int32_t(pair.type, pair.tag, pair.get!int32_t);
+                break;
+            case RecordType.Uint64:
+                dbSetter!uint64_t(pair.type, pair.tag, pair.get!uint64_t);
+                break;
+            case RecordType.Int64:
+                dbSetter!int64_t(pair.type, pair.tag, pair.get!int64_t);
+                break;
+            case RecordType.String:
+                dbSetter!string(pair.type, pair.tag, pair.get!string);
+                break;
+            case RecordType.Provider:
+                break;
+            case RecordType.Dependency:
+                break;
+            case RecordType.Unknown:
                 break;
             }
         }
