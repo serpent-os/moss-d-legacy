@@ -24,6 +24,9 @@ module moss.storage.db.metadb;
 
 import moss.db;
 import moss.db.rocksdb;
+import moss.deps;
+import moss.format.binary.payload.meta;
+import std.exception : enforce;
 
 /**
  * MetaDB is used as a storage mechanism for the MetaPayload within the
@@ -56,7 +59,58 @@ public final class MetaDB
         db = null;
     }
 
+    /**
+     * Install metadata for this given payload. It will become referenced
+     * by the internal pkgID of the payload.
+     */
+    void install(scope MetaPayload payload)
+    {
+        immutable auto pkgID = payload.getPkgID();
+        enforce(pkgID !is null, "MetaDB.install(): Unable to obtain pkgID");
+
+        foreach (ref pair; payload)
+        {
+            switch (pair.tag)
+            {
+            case RecordTag.Depends:
+                //addPackageDependency(depBucket, pair.get!Dependency);
+                break;
+            case RecordTag.Provides:
+                //auto provider = pair.get!Provider;
+                //addPackageProvider(provBucket, provider);
+                //addGlobalProvider(pkgID, provider);
+                break;
+            default:
+                break;
+            }
+        }
+    }
+
 private:
+
+    /**
+     * Add a provider to the package-private providers set
+     */
+    void addPackageProvider(scope IReadWritable bucket, in Provider provider)
+    {
+
+    }
+
+    /**
+     * Add a provider to the global provider set referencing this package
+     */
+    void addGlobalProvider(in string pkgID, in Provider provider)
+    {
+
+    }
+
+    /**
+     * Add a dependency to the package-private dependency set
+     */
+    void addPackageDependency(scope IReadWritable bucket, in Dependency dependency)
+    {
+
+    }
 
     Database db = null;
 }
