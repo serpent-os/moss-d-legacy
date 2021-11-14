@@ -24,6 +24,7 @@ module moss.cli.info_command;
 
 public import moss.core.cli;
 import moss.core;
+import moss.deps.dependency;
 import moss.format.binary.reader;
 import moss.format.binary.payload;
 import std.stdio;
@@ -124,7 +125,7 @@ public struct InfoCommand
         {
             writef("%-15s : ", pair.tag.to!string);
 
-            /* TODO: Care more about other values :)) */
+            /* TODO: Care more about otheru values :)) */
             switch (pair.type)
             {
             case RecordType.Int8:
@@ -135,6 +136,12 @@ public struct InfoCommand
                 break;
             case RecordType.String:
                 writeln(pair.get!string);
+                break;
+            case RecordType.Dependency:
+                writeln(pair.get!Dependency);
+                break;
+            case RecordType.Provider:
+                writeln(pair.get!Provider);
                 break;
             default:
                 writeln("Unsupported value type: ", pair.type);
