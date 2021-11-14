@@ -122,39 +122,39 @@ public final class InstallDB : RegistryPlugin
             {
             case RecordTag.Architecture:
                 joinRecord("architecture",
-                        RecordType.String, record.type, record.val_string);
+                        RecordType.String, record.type, record.get!string);
                 break;
             case RecordTag.BuildRelease:
                 joinRecord("buildRelease",
-                        RecordType.Uint64, record.type, record.val_u64);
+                        RecordType.Uint64, record.type, record.get!uint64_t);
                 break;
             case RecordTag.Description:
                 joinRecord("description",
-                        RecordType.String, record.type, record.val_string);
+                        RecordType.String, record.type, record.get!string);
                 break;
             case RecordTag.Homepage:
                 joinRecord("homepage", RecordType.String,
-                        record.type, record.val_string);
+                        record.type, record.get!string);
                 break;
             case RecordTag.Name:
                 joinRecord("name", RecordType.String,
-                        record.type, record.val_string);
+                        record.type, record.get!string);
                 break;
             case RecordTag.Release:
                 joinRecord("release", RecordType.Uint64,
-                        record.type, record.val_u64);
+                        record.type, record.get!string);
                 break;
             case RecordTag.SourceID:
                 joinRecord("sourceID", RecordType.String,
-                        record.type, record.val_string);
+                        record.type, record.get!string);
                 break;
             case RecordTag.Summary:
                 joinRecord("summary", RecordType.String,
-                        record.type, record.val_string);
+                        record.type, record.get!string);
                 break;
             case RecordTag.Version:
                 joinRecord("version", RecordType.String,
-                        record.type, record.val_string);
+                        record.type, record.get!string);
                 break;
             case RecordTag.Unknown:
             default:
