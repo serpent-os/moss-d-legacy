@@ -124,14 +124,21 @@ public struct InfoCommand
         {
             writef("%-15s : ", pair.tag.to!string);
 
-            /* TODO: Care more about signed values :)) */
-            if (pair.type == RecordType.String)
+            /* TODO: Care more about other values :)) */
+            switch (pair.type)
             {
-                writeln(pair.val_string);
-            }
-            else
-            {
-                writeln(pair.val_i64);
+            case RecordType.Int8:
+                writeln(pair.get!int8_t);
+                break;
+            case RecordType.Uint64:
+                writeln(pair.get!uint64_t);
+                break;
+            case RecordType.String:
+                writeln(pair.get!string);
+                break;
+            default:
+                writeln("Unsupported value type: ", pair.type);
+                break;
             }
         }
         writeln();
