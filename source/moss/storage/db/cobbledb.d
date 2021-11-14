@@ -113,13 +113,13 @@ public final class CobbleDB : RegistryPlugin
             switch (record.tag)
             {
             case RecordTag.Name:
-                candidate.name = record.val_string;
+                candidate.name = record.get!string;
                 break;
             case RecordTag.Release:
-                candidate.release = record.val_u64;
+                candidate.release = record.get!uint64_t;
                 break;
             case RecordTag.Version:
-                candidate.versionID = record.val_string;
+                candidate.versionID = record.get!string;
                 break;
             default:
                 break;
