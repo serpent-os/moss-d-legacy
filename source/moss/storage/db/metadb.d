@@ -66,6 +66,7 @@ public final class MetaDB
     this(in string dbPath)
     {
         db = new RDBDatabase(dbPath, DatabaseMutability.ReadWrite);
+        indexBucket = db.bucket("index");
     }
 
     /**
@@ -147,6 +148,12 @@ public final class MetaDB
                 break;
             }
         }
+
+        /* Mark this package as existing in the index for quicker queries
+         * and to permit iterations. We don't care about the value here
+         * but the DB needs one.
+         */
+        indexBucket.set(pkgID, 1);
     }
 
 private:
@@ -173,11 +180,13 @@ private:
     /**
      * Add a dependency to the package-private dependency set
      */
-    pragma(inline, true) void addPackageDependency(scope IReadWritable bucket, in Dependency dependency)
+    pragma(inline, true) void addPackageDependency(scope IReadWritable bucket,
+            in Dependency dependency)
     {
         /* Value required, we only care for key, set value as 1 */
         bucket.setDatum(cast(Datum) dependency.mossEncode, cast(Datum) 1.mossEncode);
     }
 
     Database db = null;
+    IReadWritable indexBucket = null;
 }
