@@ -20,22 +20,22 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module moss.storage.db.metadata;
+module moss.storage.db.metadb;
 
 import moss.db;
 import moss.db.rocksdb;
 
 /**
- * MetadataDB is used as a storage mechanism for the MetaPayload within the
+ * MetaDB is used as a storage mechanism for the MetaPayload within the
  * binary packages and repository index files. Internally it relies on RocksDB
  * via moss-db for all KV storage.
  */
-public final class MetadataDB
+public final class MetaDB
 {
     @disable this();
 
     /**
-     * Construct a new MetadataDB with the absolute database path
+     * Construct a new MetaDB with the absolute database path
      */
     this(in string dbPath)
     {
@@ -43,7 +43,7 @@ public final class MetadataDB
     }
 
     /**
-     * Users of MetadataDB should always explicitly close it to ensure
+     * Users of MetaDB should always explicitly close it to ensure
      * correct order of destruction for owned references.
      */
     void close()
