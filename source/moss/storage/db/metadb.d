@@ -25,6 +25,7 @@ module moss.storage.db.metadb;
 import moss.db;
 import moss.db.rocksdb;
 import moss.deps;
+import moss.core.encoding;
 import moss.format.binary.payload.meta;
 import std.exception : enforce;
 import std.string : format;
@@ -44,6 +45,11 @@ private static immutable auto perPackageDeps = ".deps";
  * Per package providers live in ".provs.pkgID" namespace
  */
 private static immutable auto perPackageProvs = ".provs";
+
+/**
+ * Global package providers
+ */
+private static immutable auto globalProvs = "provs";
 
 /**
  * MetaDB is used as a storage mechanism for the MetaPayload within the
@@ -150,7 +156,8 @@ private:
      */
     void addPackageProvider(scope IReadWritable bucket, in Provider provider)
     {
-
+        /* Value required, we only care for key, set value as 1 */
+        bucket.setDatum(cast(Datum) provider.mossEncode, cast(Datum) 1.mossEncode);
     }
 
     /**
@@ -158,7 +165,9 @@ private:
      */
     void addGlobalProvider(in string pkgID, in Provider provider)
     {
-
+        auto bucket = db.bucket("%s.%s.%s".format(globalProvs,
+                provider.type.to!string, provider.target));
+        bucket.setDatum(cast(Datum) pkgID.mossEncode, cast(Datum) provider.mossEncode);
     }
 
     /**
@@ -166,7 +175,8 @@ private:
      */
     void addPackageDependency(scope IReadWritable bucket, in Dependency dependency)
     {
-
+        /* Value required, we only care for key, set value as 1 */
+        bucket.setDatum(cast(Datum) dependency.mossEncode, cast(Datum) 1.mossEncode);
     }
 
     Database db = null;
