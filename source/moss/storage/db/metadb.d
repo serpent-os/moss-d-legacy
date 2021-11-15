@@ -193,6 +193,21 @@ public final class MetaDB
         }());
     }
 
+    /**
+     * Return a range of (string) pkgIDs matchin the input string specification
+     * and provider type
+     */
+    auto byProvider(in ProviderType type, in string specification)
+    {
+        auto bucket = db.bucket("%s.%s.%s".format(globalProvs, type.to!string, specification));
+
+        return bucket.iterator().map!((p) => {
+            string s = null;
+            s.mossDecode(cast(ImmutableDatum) p.value);
+            return s;
+        }());
+    }
+
 private:
 
     /**
