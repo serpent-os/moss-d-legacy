@@ -30,6 +30,7 @@ import moss.format.binary.payload.meta;
 import std.exception : enforce;
 import std.string : format;
 import std.conv : to;
+import std.algorithm : map;
 
 /**
  * Per package metadata lives in ".meta.pkgID" namespace
@@ -154,6 +155,42 @@ public final class MetaDB
          * but the DB needs one.
          */
         indexBucket.set(pkgID, 1);
+    }
+
+    /**
+     * Intended for integration with moss-deps RegistryPlugin, simply return
+     * true if this pkgID exists
+     */
+    bool hasID(in string pkgID)
+    {
+        auto result = indexBucket.get!int(pkgID);
+        return result.found;
+    }
+
+    /**
+     * Return all dependencies for a given pkgID
+     */
+    auto dependencies(in string pkgID)
+    {
+        auto depBucket = db.bucket("%s.%s".format(perPackageDeps, pkgID));
+        return depBucket.iterator().map!((i) => {
+            Dependency d = Dependency.init;
+            d.mossDecode(cast(ImmutableDatum) i.value);
+            return cast(const(Dependency)) d;
+        }());
+    }
+
+    /**
+     * Return all providers for a given pkgID
+     */
+    auto providers(in string pkgID)
+    {
+        auto provBucket = db.bucket("%s.%s".format(perPackageProvs, pkgID));
+        return provBucket.iterator().map!((i) => {
+            Provider p = Provider.init;
+            p.mossDecode(cast(ImmutableDatum) i.value);
+            return cast(const(Provider)) p;
+        }());
     }
 
 private:
