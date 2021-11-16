@@ -57,7 +57,7 @@ private static immutable auto globalProvs = "provs";
  * binary packages and repository index files. Internally it relies on RocksDB
  * via moss-db for all KV storage.
  */
-public final class MetaDB
+public class MetaDB
 {
     @disable this();
 
@@ -74,7 +74,7 @@ public final class MetaDB
      * Users of MetaDB should always explicitly close it to ensure
      * correct order of destruction for owned references.
      */
-    void close()
+    final void close()
     {
         if (db is null)
         {
@@ -88,7 +88,7 @@ public final class MetaDB
      * Install metadata for this given payload. It will become referenced
      * by the internal pkgID of the payload.
      */
-    void install(scope MetaPayload payload)
+    final void install(scope MetaPayload payload)
     {
         immutable auto pkgID = payload.getPkgID();
         enforce(pkgID !is null, "MetaDB.install(): Unable to obtain pkgID");
@@ -161,7 +161,7 @@ public final class MetaDB
      * Intended for integration with moss-deps RegistryPlugin, simply return
      * true if this pkgID exists
      */
-    bool hasID(in string pkgID)
+    final bool hasID(in string pkgID)
     {
         auto result = indexBucket.get!int(pkgID);
         return result.found;
@@ -170,7 +170,7 @@ public final class MetaDB
     /**
      * Return all dependencies for a given pkgID
      */
-    auto dependencies(in string pkgID)
+    final auto dependencies(in string pkgID)
     {
         auto depBucket = db.bucket("%s.%s".format(perPackageDeps, pkgID));
         return depBucket.iterator().map!((i) => {
@@ -183,7 +183,7 @@ public final class MetaDB
     /**
      * Return all providers for a given pkgID
      */
-    auto providers(in string pkgID)
+    final auto providers(in string pkgID)
     {
         auto provBucket = db.bucket("%s.%s".format(perPackageProvs, pkgID));
         return provBucket.iterator().map!((i) => {
@@ -197,7 +197,7 @@ public final class MetaDB
      * Return a range of (string) pkgIDs matchin the input string specification
      * and provider type
      */
-    auto byProvider(in ProviderType type, in string specification)
+    final auto byProvider(in ProviderType type, in string specification)
     {
         auto bucket = db.bucket("%s.%s.%s".format(globalProvs, type.to!string, specification));
 
