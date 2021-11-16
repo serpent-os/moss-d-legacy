@@ -149,9 +149,9 @@ public final class CobblePlugin : RegistryPlugin
      * Return the package IDs loaded (successfully) into this CobblePlugin to allow
      * use with states.
      */
-    auto pkgIDs()
+    auto items()
     {
-        return candidates.keys;
+        return candidates.keys.map!((c) => RegistryItem(c, this));
     }
 
 private:
