@@ -87,7 +87,7 @@ public final class CobblePlugin : RegistryPlugin
     }
 
     /**
-     * TODO: Implement providers
+     * Return the providers for the given pkgID
      */
     override const(Provider)[] providers(in string pkgID) const
     {
