@@ -66,6 +66,18 @@ public class MetaDB
      */
     this(in string dbPath)
     {
+        this.dbPath = dbPath;
+        reloadDB();
+        db = new RDBDatabase(dbPath, DatabaseMutability.ReadWrite);
+        indexBucket = db.bucket("index");
+    }
+
+    /**
+     * Request a full reload of the database
+     */
+    final void reloadDB()
+    {
+        close();
         db = new RDBDatabase(dbPath, DatabaseMutability.ReadWrite);
         indexBucket = db.bucket("index");
     }
@@ -82,6 +94,7 @@ public class MetaDB
         }
         db.close();
         db = null;
+        indexBucket = null;
     }
 
     /**
@@ -241,4 +254,5 @@ private:
 
     Database db = null;
     IReadWritable indexBucket = null;
+    string dbPath = null;
 }
