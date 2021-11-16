@@ -58,7 +58,6 @@ public final class MossController
         cobble = new CobbleDB();
 
         /* Seed the query manager */
-        _registryManager.addPlugin(installDB);
         _registryManager.addPlugin(cobble);
     }
 
