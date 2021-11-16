@@ -30,17 +30,51 @@ public import std.stdint : uint64_t;
 public alias StateID = uint64_t;
 
 /**
- * State simply wraps some metadata around the identifier number, descriptions,
- * etc.
+ * Any future state is automatically assigned the value 0, so that it can be
+ * correctly computed before StateDB saves to the underlying RocksDB.
  */
-public struct State
+public immutable(StateID) futureState = 0;
+
+/**
+ * A State object encapsulates the system state (Selections) at a given point
+ * in time, and can be created manually or automatically through transactions.
+ * The State may have some associated metadata and is used to control transition
+ * from the current system state to a new target state.
+ *
+ * Note that unlike conventional package managers this encapsulated state requires
+ * no mutation to attain the final outcome, instead we apply each state as if it
+ * were the root state (deduplication farming)
+ */
+public final class State
 {
-    /** Unique State identifier */
-    StateID id = 0;
 
-    /** Display name for state */
-    string name = null;
+    /**
+     * Return the ID for this state. 0 is assumed to be a target state
+     */
+    pragma(inline, true) pure @property StateID id() @safe @nogc nothrow const
+    {
+        return _id;
+    }
 
-    /** Some description for archival purposes */
-    string description = null;
+    /**
+     * Return the name of this state
+     */
+    pragma(inline, true) pure @property string name() @safe @nogc nothrow const
+    {
+        return _name;
+    }
+
+    /**
+     * Return a description of this state
+     */
+    pragma(inline, true) pure @property string description() @safe @nogc nothrow const
+    {
+        return _description;
+    }
+
+private:
+
+    StateID _id = futureState;
+    string _name = null;
+    string _description = null;
 }
