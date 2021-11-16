@@ -68,8 +68,6 @@ public class MetaDB
     {
         this.dbPath = dbPath;
         reloadDB();
-        db = new RDBDatabase(dbPath, DatabaseMutability.ReadWrite);
-        indexBucket = db.bucket("index");
     }
 
     /**
