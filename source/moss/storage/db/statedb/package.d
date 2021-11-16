@@ -27,45 +27,7 @@ import moss.db;
 import moss.db.rocksdb;
 import std.stdint : uint64_t;
 
-/**
- * Reason for a target being specified
- */
-enum SelectionReason
-{
-    ManuallyInstalled = 0,
-}
-
-/**
- * A Selection is specially encoded to have a reason for selection, etc.
- */
-struct Selection
-{
-    /**
-     * Target (packageID) of this selection
-     */
-    const(string) target = null;
-
-    /**
-     * Reason for selection
-     */
-    SelectionReason reason = SelectionReason.ManuallyInstalled;
-
-    /**
-     * For now just encode the reason as target is in the key
-     */
-    ImmutableDatum mossdbEncode()
-    {
-        return reason.mossdbEncode();
-    }
-
-    /**
-     * Just decode reason
-     */
-    void mossdbDecode(in ImmutableDatum rawBytes)
-    {
-        reason.mossdbDecode(rawBytes);
-    }
-}
+public import moss.storage.db.statedb.selection;
 
 /**
  * State simply wraps some metadata around the identifier number, descriptions,
