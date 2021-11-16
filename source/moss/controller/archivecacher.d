@@ -88,7 +88,7 @@ package struct ArchiveCacher
         enforce(contentPayload !is null, "Should have a ContentPayload..");
 
         auto pkgID = metaPayload.getPkgID();
-        enforce(pkgID !is null, "ArchiveCacher.cache()(): Could not inspect MetaPayload");
+        enforce(pkgID !is null, "ArchiveCacher.cache(): Could not inspect MetaPayload");
         packagesDB.install(metaPayload);
 
         /* Get ourselves a tmpfile */
