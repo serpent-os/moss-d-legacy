@@ -26,7 +26,7 @@ import moss.context;
 
 import moss.storage.pool;
 import moss.storage.db.cachedb;
-import moss.storage.db.installdb;
+import moss.storage.db.packagesdb;
 import moss.storage.db.layoutdb;
 import moss.storage.db.statedb;
 
@@ -54,7 +54,7 @@ public final class MossController
         cacheDB = new CacheDB();
         layoutDB = new LayoutDB();
         _stateDB = new StateDB();
-        _installDB = new InstallDB();
+        _packagesDB = new SystemPackagesDB();
         _registryManager = new RegistryManager();
         cobble = new CobblePlugin();
 
@@ -70,7 +70,7 @@ public final class MossController
         cacheDB.close();
         layoutDB.close();
         stateDB.close();
-        installDB.close();
+        packagesDB.close();
     }
 
     /**
@@ -131,7 +131,7 @@ package:
      */
     ArchiveCacher archiveCacher()
     {
-        return ArchiveCacher(installDB, layoutDB, diskPool);
+        return ArchiveCacher(packagesDB, layoutDB, diskPool);
     }
 
     /**
@@ -143,11 +143,11 @@ package:
     }
 
     /**
-     * Return the underlying InstallDB
+     * Return the underlying SystemPackagesDB
      */
-    pragma(inline, true) pure @property InstallDB installDB() @safe @nogc nothrow
+    pragma(inline, true) pure @property SystemPackagesDB packagesDB() @safe @nogc nothrow
     {
-        return _installDB;
+        return _packagesDB;
     }
 
     /**
@@ -195,7 +195,7 @@ private:
     CacheDB cacheDB = null;
     LayoutDB layoutDB = null;
     StateDB _stateDB = null;
-    InstallDB _installDB = null;
+    SystemPackagesDB _packagesDB = null;
     RegistryManager _registryManager = null;
     CobblePlugin cobble = null;
 }

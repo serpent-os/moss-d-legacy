@@ -20,7 +20,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module moss.storage.db.installdb;
+module moss.storage.db.packagesdb;
 
 import moss.context;
 import moss.db;
@@ -34,15 +34,15 @@ import std.typecons : Nullable;
 public import moss.deps.registry.plugin;
 
 /**
- * InstallDB tracks packages installed across various states and doesn't specifically
+ * SystemPackagesDB tracks packages installed across various states and doesn't specifically
  * link them to any given state. Instead it retains MetaData for locally installed
  * candidates to provide a system level of resolution for packages no longer referenced
  * from a repository.
  */
-public final class InstallDB : RegistryPlugin
+public final class SystemPackagesDB : RegistryPlugin
 {
     /**
-     * Construct a new InstallDB which will immediately force a reload of the
+     * Construct a new SystemPackagesDB which will immediately force a reload of the
      * on-disk database if it exists
      */
     this()
@@ -82,7 +82,7 @@ public final class InstallDB : RegistryPlugin
         }
 
         /* Recreate DB now */
-        const auto path = context().paths.db.buildPath("installDB");
+        const auto path = context().paths.db.buildPath("packagesDB");
         db = new RDBDatabase(path, DatabaseMutability.ReadWrite);
     }
 

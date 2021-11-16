@@ -23,7 +23,7 @@
 module moss.controller.archivecacher;
 
 import moss.storage.pool;
-import moss.storage.db.installdb;
+import moss.storage.db.packagesdb;
 import moss.storage.db.layoutdb;
 import std.exception : enforce;
 import std.stdio : File;
@@ -52,9 +52,9 @@ package struct ArchiveCacher
      * Construct a new ArchiveCacher. Should only be done by the
      * MossController
      */
-    this(InstallDB installDB, LayoutDB layoutDB, DiskPool diskPool)
+    this(SystemPackagesDB packagesDB, LayoutDB layoutDB, DiskPool diskPool)
     {
-        this.installDB = installDB;
+        this.packagesDB = packagesDB;
         this.layoutDB = layoutDB;
         this.diskPool = diskPool;
     }
@@ -87,7 +87,7 @@ package struct ArchiveCacher
         enforce(indexPayload !is null, "Should have an IndexPayload..");
         enforce(contentPayload !is null, "Should have a ContentPayload..");
 
-        auto pkgID = installDB.installPayload(metaPayload);
+        auto pkgID = packagesDB.installPayload(metaPayload);
         enforce(pkgID !is null, "ArchiveCacher.cache()(): Could not inspect MetaPayload");
 
         /* Get ourselves a tmpfile */
@@ -142,7 +142,7 @@ private:
         targetFile.close();
     }
 
-    InstallDB installDB;
+    SystemPackagesDB packagesDB;
     LayoutDB layoutDB;
     DiskPool diskPool;
 }
