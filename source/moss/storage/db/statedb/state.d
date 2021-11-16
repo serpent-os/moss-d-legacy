@@ -24,6 +24,7 @@ module moss.storage.db.statedb.state;
 
 public import std.stdint : uint64_t;
 public import moss.storage.db.statedb.selection;
+import std.algorithm : map;
 
 /**
  * Associate each state with a unique incrementing ID
@@ -90,6 +91,14 @@ public final class State
         {
             _selections.remove(pkgID);
         }
+    }
+
+    /**
+     * Return the selections as Selection range
+     */
+    auto selections() @trusted
+    {
+        return _selections.keys.map!((k) => Selection(k, _selections[k]));
     }
 
 package:
