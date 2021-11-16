@@ -144,7 +144,16 @@ public class MetaDB
                 dbSetter!int64_t(pair.type, pair.tag, pair.get!int64_t);
                 break;
             case RecordType.String:
-                dbSetter!string(pair.type, pair.tag, pair.get!string);
+                auto sz = pair.get!string;
+
+                /* Record virtual provider for the name in the DB */
+                if (pair.tag == RecordTag.Name)
+                {
+                    auto prov = Provider(sz, ProviderType.PackageName);
+                    addGlobalProvider(pkgID, prov);
+                    addPackageProvider(provBucket, prov);
+                }
+                dbSetter!string(pair.type, pair.tag, sz);
                 break;
             case RecordType.Provider:
                 enforce(pair.tag == RecordTag.Provides);
