@@ -20,7 +20,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module moss.storage.db.cobbledb;
+module moss.controller.plugins.cobble;
 
 public import moss.deps.registry;
 
@@ -31,11 +31,11 @@ import moss.format.binary.payload.meta;
 import std.stdio : File;
 
 /**
- * The CobbleDB provides a temporary source to emulate a repository of local
+ * The CobblePlugin provides a temporary source to emulate a repository of local
  * .stone archives as passed from "moss install" CLI to allow full integration
  * of side-loaded stone archives.
  */
-public final class CobbleDB : RegistryPlugin
+public final class CobblePlugin : RegistryPlugin
 {
     /**
      * Provide matching facilities for the local set of stones
@@ -130,7 +130,7 @@ public final class CobbleDB : RegistryPlugin
     }
 
     /**
-     * Return the package IDs loaded (successfully) into this CobbleDB to allow
+     * Return the package IDs loaded (successfully) into this CobblePlugin to allow
      * use with states.
      */
     auto pkgIDs()
