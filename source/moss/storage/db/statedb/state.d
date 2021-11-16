@@ -72,6 +72,32 @@ public final class State
         return _description;
     }
 
+package:
+
+    /**
+     * Update the stateID
+     */
+    pure @property void id(in StateID id) @safe @nogc nothrow
+    {
+        _id = id;
+    }
+
+    /**
+     * Update the name
+     */
+    pure @property void name(in string nom) @safe @nogc nothrow
+    {
+        _name = nom;
+    }
+
+    /**
+     * Update the description
+     */
+    pure @property void description(in string desc) @safe @nogc nothrow
+    {
+        _description = desc;
+    }
+
 private:
 
     StateID _id = futureState;
