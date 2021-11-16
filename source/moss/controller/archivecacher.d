@@ -87,8 +87,9 @@ package struct ArchiveCacher
         enforce(indexPayload !is null, "Should have an IndexPayload..");
         enforce(contentPayload !is null, "Should have a ContentPayload..");
 
-        auto pkgID = packagesDB.installPayload(metaPayload);
+        auto pkgID = metaPayload.getPkgID();
         enforce(pkgID !is null, "ArchiveCacher.cache()(): Could not inspect MetaPayload");
+        packagesDB.install(metaPayload);
 
         /* Get ourselves a tmpfile */
         auto tmpname = "/tmp/moss-content-%s-XXXXXX".format(pkgID);
