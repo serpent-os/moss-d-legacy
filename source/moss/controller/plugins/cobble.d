@@ -74,11 +74,16 @@ public final class CobblePlugin : RegistryPlugin
     }
 
     /**
-     * TODO: Implement dependencies
+     * Return the dependencies for the given pkgID
      */
     override const(Dependency)[] dependencies(in string pkgID) const
     {
-        return null;
+        auto match = pkgID in candidates;
+        if (match is null)
+        {
+            return null;
+        }
+        return match.dependencies;
     }
 
     /**
@@ -120,6 +125,9 @@ public final class CobblePlugin : RegistryPlugin
                 break;
             case RecordTag.Version:
                 candidate.versionID = record.get!string;
+                break;
+            case RecordTag.Depends:
+                candidate.dependencies ~= record.get!Dependency;
                 break;
             default:
                 break;
