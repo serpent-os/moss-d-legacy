@@ -22,16 +22,10 @@
 
 module moss.storage.db.packagesdb;
 
-import moss.context;
-import moss.db;
-import moss.db.rocksdb;
-import moss.format.binary.payload.meta;
-import std.stdint : uint64_t;
-import std.string : format;
-import std.exception : enforce;
-import std.typecons : Nullable;
-
+public import moss.storage.db.metadb;
 public import moss.deps.registry.plugin;
+
+import moss.context;
 
 /**
  * SystemPackagesDB tracks packages installed across various states and doesn't specifically
@@ -39,7 +33,7 @@ public import moss.deps.registry.plugin;
  * candidates to provide a system level of resolution for packages no longer referenced
  * from a repository.
  */
-public final class SystemPackagesDB
+public final class SystemPackagesDB : MetaDB
 {
     /**
      * Construct a new SystemPackagesDB which will immediately force a reload of the
@@ -47,60 +41,6 @@ public final class SystemPackagesDB
      */
     this()
     {
-        reloadDB();
+        super(context().paths.db.buildPath("packagesDB"));
     }
-
-    ~this()
-    {
-        close();
-    }
-
-    /**
-     * Ensure we close underlying handle
-     */
-    void close()
-    {
-        if (db is null)
-        {
-            return;
-        }
-        db.close();
-        db.destroy();
-        db = null;
-    }
-
-    /**
-     * Forcibly reload the database
-     */
-    void reloadDB()
-    {
-        if (db !is null)
-        {
-            db.close();
-            db.destroy();
-            db = null;
-        }
-
-        /* Recreate DB now */
-        const auto path = context().paths.db.buildPath("packagesDB");
-        db = new RDBDatabase(path, DatabaseMutability.ReadWrite);
-    }
-
-    /**
-     * Install the given payload into our system. It is keyed by the
-     * unique pkgID, so we can only retain a single payload per pkgID
-     * and increase/decrease refcount as appropriate.
-     */
-    string installPayload(MetaPayload payload)
-    {
-        return null;
-    }
-
-    /**
-     * Set an explicit refCount for the pkgID
-     */
-
-private:
-
-    Database db = null;
 }
