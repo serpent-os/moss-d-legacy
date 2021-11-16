@@ -91,7 +91,12 @@ public final class CobblePlugin : RegistryPlugin
      */
     override const(Provider)[] providers(in string pkgID) const
     {
-        return null;
+        auto match = pkgID in candidates;
+        if (match is null)
+        {
+            return null;
+        }
+        return match.providers;
     }
 
     /**
@@ -128,6 +133,9 @@ public final class CobblePlugin : RegistryPlugin
                 break;
             case RecordTag.Depends:
                 candidate.dependencies ~= record.get!Dependency;
+                break;
+            case RecordTag.Provides:
+                candidate.providers ~= record.get!Provider;
                 break;
             default:
                 break;
