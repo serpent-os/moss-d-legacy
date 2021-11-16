@@ -28,22 +28,7 @@ import moss.db.rocksdb;
 import std.stdint : uint64_t;
 
 public import moss.storage.db.statedb.selection;
-
-/**
- * State simply wraps some metadata around the identifier number, descriptions,
- * etc.
- */
-struct State
-{
-    /** Unique State identifier */
-    uint64_t id = 0;
-
-    /** Display name for state */
-    string name = null;
-
-    /** Some description for archival purposes */
-    string description = null;
-}
+public import moss.storage.db.statedb.state;
 
 /**
  * The StateDB allows us to record system states within the database for
