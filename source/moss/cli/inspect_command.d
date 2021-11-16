@@ -20,7 +20,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module moss.cli.info_command;
+module moss.cli.inspect_command;
 
 public import moss.core.cli;
 import moss.core;
@@ -30,25 +30,23 @@ import moss.format.binary.payload;
 import std.stdio;
 
 /**
- * InfoCommand provides a CLI system to view information
- * pertaining to a package or local package file, as a
- * means of introspection
+ * InspectCommand is used to inspect the payload of an archive
  */
-@CommandName("info")
-@CommandHelp("Display information on a package",
+@CommandName("inspect")
+@CommandHelp("Inspect contents of a .stone file",
         "With a locally available .stone file, this command will attempt to
 read, validate and extract information on the given package.
 If the file is not a valid .stone file for moss, an error will be
 reported.")
 @CommandUsage("[.stone file]")
-public struct InfoCommand
+public struct InspectCommand
 {
-    /** Extend BaseCommand with Info utility */
+    /** Extend BaseCommand with Inspect utility */
     BaseCommand pt;
     alias pt this;
 
     /**
-     * Main entry point into the InfoCommand utility
+     * Main entry point into the InspectCommand utility
     */
     @CommandEntry() int run(ref string[] argv)
     {

@@ -29,7 +29,7 @@ int main(string[] args)
 {
     auto clip = cliProcessor!MossCLI(args);
     clip.addCommand!ExtractCommand;
-    clip.addCommand!InfoCommand;
+    clip.addCommand!InspectCommand;
     clip.addCommand!IndexCommand;
     clip.addCommand!InstallCommand;
     auto ls = clip.addCommand!ListCommand;
