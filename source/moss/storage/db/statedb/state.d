@@ -25,13 +25,18 @@ module moss.storage.db.statedb.state;
 public import std.stdint : uint64_t;
 
 /**
+ * Associate each state with a unique incrementing ID
+ */
+public alias StateID = uint64_t;
+
+/**
  * State simply wraps some metadata around the identifier number, descriptions,
  * etc.
  */
 public struct State
 {
     /** Unique State identifier */
-    uint64_t id = 0;
+    StateID id = 0;
 
     /** Display name for state */
     string name = null;
