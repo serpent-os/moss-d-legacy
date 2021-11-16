@@ -61,7 +61,8 @@ package struct RootConstructor
     void construct(ref State newState)
     {
         /* Copy all installed candidates */
-        auto installedCandidates = stateDB.entries(newState.id).array();
+        //auto installedCandidates = stateDB.entries(newState.id).array();
+        Selection[] installedCandidates = null;
         auto finalLayouts = installedCandidates.map!((s) => layoutDB.entries(s.target)).join;
         finalLayouts.sort!((esA, esB) => esA.target < esB.target);
 
