@@ -23,6 +23,7 @@
 module moss.storage.db.statedb.state;
 
 public import std.stdint : uint64_t;
+public import moss.storage.db.statedb.selection;
 
 /**
  * Associate each state with a unique incrementing ID
@@ -72,6 +73,25 @@ public final class State
         return _description;
     }
 
+    /**
+     * Mark a selection with the given reason
+     */
+    void markSelection(in string pkgID, in SelectionReason reason) @safe
+    {
+        _selections[pkgID] = reason;
+    }
+
+    /**
+     * Unmark (remove) a selection from this State
+     */
+    void unmarkSelection(in string pkgID) @safe
+    {
+        if (pkgID in _selections)
+        {
+            _selections.remove(pkgID);
+        }
+    }
+
 package:
 
     /**
@@ -103,4 +123,9 @@ private:
     StateID _id = futureState;
     string _name = null;
     string _description = null;
+
+    /**
+     * Store our selections in an associative array
+     */
+    SelectionReason[string] _selections;
 }
