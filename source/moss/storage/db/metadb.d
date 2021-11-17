@@ -33,24 +33,15 @@ import std.conv : to;
 import std.algorithm : map;
 
 /**
- * Per package metadata lives in ".meta.pkgID" namespace
+ * Ensure sane (centralised) bucket naming
  */
-private static immutable auto perPackageMeta = ".meta";
-
-/**
- * Per package dependencies live in ".deps.pkgID" namespace
- */
-private static immutable auto perPackageDeps = ".deps";
-
-/**
- * Per package providers live in ".provs.pkgID" namespace
- */
-private static immutable auto perPackageProvs = ".provs";
-
-/**
- * Global package providers
- */
-private static immutable auto globalProvs = "provs";
+private static enum BucketName : string
+{
+    PackageMeta = ".meta",
+    PackageDependencies = ".deps",
+    PackageProviders = ".provs",
+    GlobalProviders = "provs",
+}
 
 /**
  * MetaDB is used as a storage mechanism for the MetaPayload within the
@@ -104,9 +95,9 @@ public class MetaDB
         immutable auto pkgID = payload.getPkgID();
         enforce(pkgID !is null, "MetaDB.install(): Unable to obtain pkgID");
 
-        auto pkgBucket = db.bucket("%s.%s".format(perPackageMeta, pkgID));
-        auto depBucket = db.bucket("%s.%s".format(perPackageDeps, pkgID));
-        auto provBucket = db.bucket("%s.%s".format(perPackageProvs, pkgID));
+        auto pkgBucket = db.bucket("%s.%s".format(BucketName.PackageMeta, pkgID));
+        auto depBucket = db.bucket("%s.%s".format(BucketName.PackageDependencies, pkgID));
+        auto provBucket = db.bucket("%s.%s".format(BucketName.PackageProviders, pkgID));
 
         void dbSetter(T)(in RecordType type, in RecordTag tag, in T data)
         {
@@ -193,7 +184,7 @@ public class MetaDB
      */
     final auto dependencies(in string pkgID)
     {
-        auto depBucket = db.bucket("%s.%s".format(perPackageDeps, pkgID));
+        auto depBucket = db.bucket("%s.%s".format(BucketName.PackageDependencies, pkgID));
         return depBucket.iterator().map!((i) => {
             Dependency d = Dependency.init;
             d.mossDecode(cast(ImmutableDatum) i.value);
@@ -206,7 +197,7 @@ public class MetaDB
      */
     final auto providers(in string pkgID)
     {
-        auto provBucket = db.bucket("%s.%s".format(perPackageProvs, pkgID));
+        auto provBucket = db.bucket("%s.%s".format(BucketName.PackageProviders, pkgID));
         return provBucket.iterator().map!((i) => {
             Provider p = Provider.init;
             p.mossDecode(cast(ImmutableDatum) i.value);
@@ -220,7 +211,8 @@ public class MetaDB
      */
     final auto byProvider(in ProviderType type, in string specification)
     {
-        auto bucket = db.bucket("%s.%s.%s".format(globalProvs, type.to!string, specification));
+        auto bucket = db.bucket("%s.%s.%s".format(BucketName.GlobalProviders,
+                type.to!string, specification));
 
         return bucket.iterator().map!((p) => {
             string s = null;
@@ -245,7 +237,7 @@ private:
      */
     pragma(inline, true) void addGlobalProvider(in string pkgID, in Provider provider)
     {
-        auto bucket = db.bucket("%s.%s.%s".format(globalProvs,
+        auto bucket = db.bucket("%s.%s.%s".format(BucketName.GlobalProviders,
                 provider.type.to!string, provider.target));
         bucket.setDatum(cast(Datum) pkgID.mossEncode, cast(Datum) provider.mossEncode);
     }
