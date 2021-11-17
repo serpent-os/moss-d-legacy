@@ -29,6 +29,13 @@ import std.algorithm : filter, map;
 import moss.format.binary.reader;
 import moss.format.binary.payload.meta;
 import std.stdio : File;
+import std.string : format;
+
+private struct ProviderSet
+{
+    /* Map pkgID to Provider */
+    Provider[string] providers;
+}
 
 /**
  * The CobblePlugin provides a temporary source to emulate a repository of local
@@ -45,16 +52,15 @@ public final class CobblePlugin : RegistryPlugin
      */
     override RegistryItem[] queryProviders(in ProviderType type, in string matcher)
     {
-        switch (type)
+        immutable auto providerKey = format!"prov.%s.%s"(type, matcher);
+        auto bucket = providerKey in globalProviders;
+        if (bucket is null)
         {
-        case ProviderType.PackageName:
-            return candidates.values
-                .filter!((p) => p.name == matcher)
-                .map!((r) => RegistryItem(r.id, this))
-                .array();
-        default:
-            return [];
+            return null;
         }
+
+        return bucket.providers.keys.map!((k) => RegistryItem(k, this,
+                ItemFlags.Available)).array();
     }
 
     /**
@@ -135,7 +141,9 @@ public final class CobblePlugin : RegistryPlugin
                 candidate.dependencies ~= record.get!Dependency;
                 break;
             case RecordTag.Provides:
-                candidate.providers ~= record.get!Provider;
+                auto prov = record.get!Provider;
+                candidate.providers ~= prov;
+                addGlobalProvider(id, prov);
                 break;
             default:
                 break;
@@ -156,5 +164,21 @@ public final class CobblePlugin : RegistryPlugin
 
 private:
 
+    /**
+     * Stash provider in global lookup table to make it faster.
+     */
+    void addGlobalProvider(in string pkgID, in Provider provider)
+    {
+        immutable auto providerKey = format!"prov.%s.%s"(provider.type, provider.target);
+        ProviderSet* bucket = providerKey in globalProviders;
+        if (bucket is null)
+        {
+            globalProviders[providerKey] = ProviderSet();
+            bucket = &globalProviders[providerKey];
+        }
+        bucket.providers[pkgID] = provider;
+    }
+
     PackageCandidate[string] candidates;
+    ProviderSet[string] globalProviders;
 }
