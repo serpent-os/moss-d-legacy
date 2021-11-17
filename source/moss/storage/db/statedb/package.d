@@ -193,7 +193,7 @@ final class StateDB
     void setActiveState(in StateID id)
     {
         auto bookBucket = db.bucket(cast(string) BucketName.BookKeeping);
-        bookBucket.set!(string, StateID)(cast(string)KeyName.CurrentState, id);
+        bookBucket.set!(string, StateID)(cast(string) KeyName.CurrentState, id);
         updateBookKeeping();
     }
 
