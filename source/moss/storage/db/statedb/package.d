@@ -27,6 +27,8 @@ import moss.core.encoding;
 import moss.db;
 import moss.db.rocksdb;
 import std.stdint : uint64_t;
+import std.string : format;
+import std.algorithm : each;
 
 public import moss.storage.db.statedb.selection;
 public import moss.storage.db.statedb.state;
@@ -107,9 +109,6 @@ final class StateDB
      */
     immutable(State) state(in StateID id) @trusted
     {
-        import std.string : format;
-        import std.algorithm : each;
-
         immutable auto queryExists = indexBucket.get!int(id);
         if (!queryExists.found)
         {
