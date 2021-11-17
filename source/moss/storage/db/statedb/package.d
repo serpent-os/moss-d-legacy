@@ -122,9 +122,13 @@ private:
         {
             activeID = queryActive.value;
         }
+
+        /* Future ID is always newer than last, regardless of active */
+        futureID = lastAllocatedID + 1;
     }
 
     Database db = null;
     StateID lastAllocatedID = 0;
     StateID activeID = 0;
+    StateID futureID = 0;
 }
