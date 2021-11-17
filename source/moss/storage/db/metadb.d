@@ -229,7 +229,7 @@ private:
     pragma(inline, true) void addPackageProvider(scope IReadWritable bucket, in Provider provider)
     {
         /* Value required, we only care for key, set value as 1 */
-        bucket.setDatum(cast(Datum) provider.mossEncode, cast(Datum) 1.mossEncode);
+        bucket.set(provider, 1);
     }
 
     /**
@@ -239,7 +239,7 @@ private:
     {
         auto bucket = db.bucket("%s.%s.%s".format(BucketName.GlobalProviders,
                 provider.type.to!string, provider.target));
-        bucket.setDatum(cast(Datum) pkgID.mossEncode, cast(Datum) provider.mossEncode);
+        bucket.set(pkgID, provider);
     }
 
     /**
@@ -249,7 +249,7 @@ private:
             in Dependency dependency)
     {
         /* Value required, we only care for key, set value as 1 */
-        bucket.setDatum(cast(Datum) dependency.mossEncode, cast(Datum) 1.mossEncode);
+        bucket.set(dependency, 1);
     }
 
     Database db = null;
