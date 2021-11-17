@@ -22,6 +22,7 @@
 
 module moss.storage.db.statedb.selection;
 
+import moss.core.encoding;
 import moss.db.encoding;
 
 /**
@@ -53,16 +54,16 @@ public struct Selection
     /**
      * For now just encode the reason as target is in the key
      */
-    ImmutableDatum mossdbEncode()
+    ImmutableDatum mossEncode()
     {
-        return reason.mossdbEncode();
+        return reason.mossEncode();
     }
 
     /**
      * Just decode reason
      */
-    void mossdbDecode(in ImmutableDatum rawBytes)
+    void mossDecode(in ImmutableDatum rawBytes)
     {
-        reason.mossdbDecode(rawBytes);
+        reason.mossDecode(rawBytes);
     }
 }

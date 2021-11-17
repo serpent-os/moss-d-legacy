@@ -26,6 +26,7 @@ import moss.context;
 import moss.db;
 import moss.db.rocksdb;
 import moss.format.binary.payload.layout;
+import moss.core.encoding;
 
 /**
  * The LayoutDB is responsible for storing a package's Layout via a pkgID,
@@ -103,7 +104,7 @@ public final class LayoutDB
 
         return db.bucket(pkgID).iterator().map!((t) => {
             EntrySet es = void;
-            es.mossdbDecode(cast(ImmutableDatum) t.value);
+            es.mossDecode(cast(ImmutableDatum) t.value);
             return es;
         }());
     }
