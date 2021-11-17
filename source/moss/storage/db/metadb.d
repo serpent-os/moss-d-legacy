@@ -67,7 +67,7 @@ public class MetaDB
     final void reloadDB()
     {
         close();
-        db = new RDBDatabase(dbPath, DatabaseMutability.ReadWrite);
+        _db = new RDBDatabase(dbPath, DatabaseMutability.ReadWrite);
         indexBucket = db.bucket("index");
     }
 
@@ -82,7 +82,7 @@ public class MetaDB
             return;
         }
         db.close();
-        db = null;
+        _db = null;
         indexBucket = null;
     }
 
@@ -221,6 +221,16 @@ public class MetaDB
         }());
     }
 
+protected:
+
+    /**
+     * Allow subclasses to directly access the underlying database
+     */
+    pragma(inline, true) pure final @property Database db() @safe @nogc nothrow
+    {
+        return _db;
+    }
+
 private:
 
     /**
@@ -252,7 +262,7 @@ private:
         bucket.set(dependency, 1);
     }
 
-    Database db = null;
+    Database _db = null;
     IReadWritable indexBucket = null;
     string dbPath = null;
 }
