@@ -108,6 +108,7 @@ final class StateDB
     immutable(State) state(in StateID id) @trusted
     {
         import std.string : format;
+        import std.algorithm : each;
 
         immutable auto queryExists = indexBucket.get!int(id);
         if (!queryExists.found)
@@ -132,6 +133,16 @@ final class StateDB
         {
             newState.description = queryName.value;
         }
+
+        /* Grab all entries */
+        auto entryBucket = db.bucket("%s.%s".format(BucketName.SelectionEntries, id));
+        entryBucket.iterator().each!((k, v) => {
+            string target = null;
+            SelectionReason reason = SelectionReason.ManuallyInstalled;
+            target.mossDecode(cast(ImmutableDatum) k.key);
+            reason.mossDecode(cast(ImmutableDatum) v);
+            newState.markSelection(target, reason);
+        }());
 
         return cast(immutable(State)) newState;
     }
