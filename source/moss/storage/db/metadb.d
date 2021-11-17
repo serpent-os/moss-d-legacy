@@ -153,6 +153,7 @@ public class MetaDB
                     addGlobalProvider(pkgID, prov);
                     addPackageProvider(provBucket, prov);
                 }
+
                 dbSetter!string(pair.type, pair.tag, sz);
                 break;
             case RecordType.Provider:
