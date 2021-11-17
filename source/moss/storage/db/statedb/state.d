@@ -94,11 +94,11 @@ public final class State
     }
 
     /**
-     * Return the selections as Selection range
+     * Return the selections as immutable(Selection) range
      */
-    auto selections() @trusted
+    auto selections() @trusted const
     {
-        return _selections.keys.map!((k) => Selection(k, _selections[k]));
+        return _selections.keys.map!((k) => cast(immutable(Selection)) Selection(k, _selections[k]));
     }
 
 package:
