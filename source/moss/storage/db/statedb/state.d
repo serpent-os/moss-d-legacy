@@ -25,6 +25,7 @@ module moss.storage.db.statedb.state;
 public import std.stdint : uint64_t;
 public import moss.storage.db.statedb.selection;
 import std.algorithm : map;
+public import std.typecons : Nullable;
 
 /**
  * Associate each state with a unique incrementing ID
@@ -99,6 +100,23 @@ public final class State
     pure @property auto selections() @trusted const
     {
         return _selections.keys.map!((k) => cast(immutable(Selection)) Selection(k, _selections[k]));
+    }
+
+    /**
+     * Access a Selection type for the given pkgID. The return will be isNull()
+     * if it doesn't exist.
+     */
+    pure @property Nullable!Selection selection(in string pkgid) @safe
+    {
+        Nullable!Selection ret = Nullable!Selection(Selection.init);
+
+        auto query = pkgid in _selections;
+        if (query !is null)
+        {
+            ret = Selection(pkgid, *query);
+        }
+
+        return ret;
     }
 
 package:
