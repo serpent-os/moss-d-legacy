@@ -23,6 +23,7 @@
 module moss.storage.db.statedb;
 
 import moss.context;
+import moss.core.encoding;
 import moss.db;
 import moss.db.rocksdb;
 import std.stdint : uint64_t;
@@ -35,6 +36,7 @@ public import moss.storage.db.statedb.state;
  */
 private static enum BucketName : string
 {
+    BookKeeping = "bookKeeping",
     Index = "index",
     SelectionEntries = ".entries",
     SelectionMeta = ".meta",
@@ -93,9 +95,28 @@ final class StateDB
         /* Recreate DB now */
         const auto path = context().paths.db.buildPath("stateDB");
         db = new RDBDatabase(path, DatabaseMutability.ReadWrite);
+
+        updateLastAllocated();
     }
 
 private:
 
+    /**
+     * Update last allocated ID
+     */
+    void updateLastAllocated()
+    {
+        auto result = db.bucket(cast(string) BucketName.BookKeeping)
+            .get!StateID(cast(string) KeyName.LastAllocatedState);
+
+        if (!result.found)
+        {
+            lastAllocatedID = 0;
+            return;
+        }
+        lastAllocatedID = result.value;
+    }
+
     Database db = null;
+    StateID lastAllocatedID = 0;
 }
