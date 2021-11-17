@@ -96,7 +96,7 @@ final class StateDB
         const auto path = context().paths.db.buildPath("stateDB");
         db = new RDBDatabase(path, DatabaseMutability.ReadWrite);
 
-        updateLastAllocated();
+        updateBookKeeping();
     }
 
 private:
@@ -104,19 +104,27 @@ private:
     /**
      * Update last allocated ID
      */
-    void updateLastAllocated()
+    void updateBookKeeping()
     {
-        auto result = db.bucket(cast(string) BucketName.BookKeeping)
-            .get!StateID(cast(string) KeyName.LastAllocatedState);
+        lastAllocatedID = 0;
+        activeID = 0;
 
-        if (!result.found)
+        auto bucket = db.bucket(cast(string) BucketName.BookKeeping);
+        auto queryLast = bucket.get!StateID(cast(string) KeyName.LastAllocatedState);
+        auto queryActive = bucket.get!StateID(cast(string) KeyName.CurrentState);
+
+        if (queryLast.found)
         {
-            lastAllocatedID = 0;
-            return;
+            lastAllocatedID = queryLast.value;
         }
-        lastAllocatedID = result.value;
+
+        if (queryActive.found)
+        {
+            activeID = queryActive.value;
+        }
     }
 
     Database db = null;
     StateID lastAllocatedID = 0;
+    StateID activeID = 0;
 }
