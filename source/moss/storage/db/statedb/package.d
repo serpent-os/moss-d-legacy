@@ -49,6 +49,8 @@ private static enum KeyName : string
 {
     LastAllocatedState = "lastAllocatedID",
     CurrentState = "currentState",
+    MetaName = "name",
+    MetaDescription = "description",
 }
 
 /**
@@ -97,6 +99,41 @@ final class StateDB
         db = new RDBDatabase(path, DatabaseMutability.ReadWrite);
 
         updateBookKeeping();
+        indexBucket = db.bucket(cast(string) BucketName.Index);
+    }
+
+    /**
+     * Return a state for a previously allocated ID
+     */
+    immutable(State) state(in StateID id) @trusted
+    {
+        import std.string : format;
+
+        immutable auto queryExists = indexBucket.get!int(id);
+        if (!queryExists.found)
+        {
+            return null;
+        }
+
+        auto newState = new State();
+        newState.id = id;
+        auto metaBucket = db.bucket("%s.%s".format(BucketName.SelectionMeta, id));
+
+        /* Grab basic props */
+        auto queryName = metaBucket.get!string(cast(string) KeyName.MetaName);
+        auto queryDescription = metaBucket.get!string(cast(string) KeyName.MetaDescription);
+
+        if (queryName.found)
+        {
+            newState.name = queryName.value;
+        }
+
+        if (queryDescription.found)
+        {
+            newState.description = queryName.value;
+        }
+
+        return cast(immutable(State)) newState;
     }
 
 private:
@@ -131,4 +168,5 @@ private:
     StateID lastAllocatedID = 0;
     StateID activeID = 0;
     StateID futureID = 0;
+    IReadWritable indexBucket = null;
 }
