@@ -57,9 +57,11 @@ public final class MossController
         _packagesDB = new SystemPackagesDB();
         _registryManager = new RegistryManager();
         cobble = new CobblePlugin();
+        activePkgs = new ActivePackagesPlugin(_packagesDB, _stateDB);
 
         /* Seed the query manager */
         _registryManager.addPlugin(cobble);
+        _registryManager.addPlugin(activePkgs);
     }
 
     /**
@@ -191,11 +193,15 @@ package:
 
 private:
 
+    /* Storage */
     DiskPool diskPool = null;
     CacheDB cacheDB = null;
     LayoutDB layoutDB = null;
     StateDB _stateDB = null;
     SystemPackagesDB _packagesDB = null;
+
+    /* Plugins */
     RegistryManager _registryManager = null;
     CobblePlugin cobble = null;
+    ActivePackagesPlugin activePkgs = null;
 }

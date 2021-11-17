@@ -22,4 +22,5 @@
 
 module moss.controller.plugins;
 
+public import moss.controller.plugins.activepackages;
 public import moss.controller.plugins.cobble;
