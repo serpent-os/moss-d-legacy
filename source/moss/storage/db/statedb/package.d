@@ -190,11 +190,19 @@ final class StateDB
     /**
      * Set the active ID for going forwards
      */
-    void setActiveState(in StateID id)
+    @property void activeState(in StateID id)
     {
         auto bookBucket = db.bucket(cast(string) BucketName.BookKeeping);
         bookBucket.set!(string, StateID)(cast(string) KeyName.CurrentState, id);
         updateBookKeeping();
+    }
+
+    /**
+     * Return the active state ID
+     */
+    pure @property StateID activeState() @safe @nogc nothrow
+    {
+        return activeID;
     }
 
 private:
