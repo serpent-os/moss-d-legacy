@@ -31,34 +31,23 @@ public import moss.storage.db.statedb.selection;
 public import moss.storage.db.statedb.state;
 
 /**
- * Global states bucket for iteration purposes
+ * Ensure sane namespacing of buckets
  */
-private static immutable auto indexBucket = "index";
+private static enum BucketName : string
+{
+    Index = "index",
+    SelectionEntries = ".entries",
+    SelectionMeta = ".meta",
+}
 
 /**
- * Ensure unique IDs for every State
+ * Ensure sane keys
  */
-private static immutable auto idBucket = "id";
-
-/**
- * Keep track of the last allocated StateID
- */
-private static immutable auto lastAllocatedKey = "lastAllocatedID";
-
-/**
- * Systemwide applied state ID
- */
-private static immutable auto currentStateKey = "currentStateKey";
-
-/**
- * Prefix for each unique state entries
- */
-private static immutable auto perSelectionEntries = ".entries";
-
-/**
- * Prefix for each unique state metadata
- */
-private static immutable auto perSelectionMeta = ".meta";
+private static enum KeyName : string
+{
+    LastAllocatedState = "lastAllocatedID",
+    CurrentState = "currentState",
+}
 
 /**
  * The StateDB allows us to record system states within the database for
