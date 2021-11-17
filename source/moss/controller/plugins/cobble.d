@@ -129,7 +129,11 @@ public final class CobblePlugin : RegistryPlugin
             switch (record.tag)
             {
             case RecordTag.Name:
-                candidate.name = record.get!string;
+                auto name = record.get!string;
+                candidate.name = name;
+
+                /* Store virtual provider name */
+                addGlobalProvider(id, Provider(name, ProviderType.PackageName));
                 break;
             case RecordTag.Release:
                 candidate.release = record.get!uint64_t;
