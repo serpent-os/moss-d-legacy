@@ -58,12 +58,10 @@ package struct RootConstructor
     /**
     * Construct root snapshot for the given identifier
     */
-    void construct(ref State newState)
+    void construct(scope State newState)
     {
         /* Copy all installed candidates */
-        //auto installedCandidates = stateDB.entries(newState.id).array();
-        Selection[] installedCandidates = null;
-        auto finalLayouts = installedCandidates.map!((s) => layoutDB.entries(s.target)).join;
+        auto finalLayouts = newState.selections.map!((s) => layoutDB.entries(s.target)).join;
         finalLayouts.sort!((esA, esB) => esA.target < esB.target);
 
         /* Build set of layouts for all candidates */
@@ -97,7 +95,7 @@ package struct RootConstructor
 
 private:
 
-    void updateAttrs(ref State newState, ref EntrySet es)
+    void updateAttrs(scope State newState, ref EntrySet es)
     {
         import std.file : setAttributes, setTimes;
         import std.datetime : SysTime;
@@ -114,7 +112,7 @@ private:
                 SysTime.fromUnixTime(es.entry.time));
     }
 
-    void applyLayout(ref State newState, ref EntrySet es)
+    void applyLayout(scope State newState, ref EntrySet es)
     {
         import std.path : buildPath;
         import std.conv : to;
