@@ -146,6 +146,47 @@ final class StateDB
         return cast(immutable(State)) newState;
     }
 
+    /**
+     * Add a new State to the DB. This will not actually make it active!
+     * It will however assign an ID to the State.
+     */
+    void addState(ref State newState)
+    {
+        auto bookBucket = db.bucket(cast(string) BucketName.BookKeeping);
+        bookBucket.set(cast(string) KeyName.LastAllocatedState, futureID);
+
+        /* Ensure we know our status.. */
+        scope (exit)
+        {
+            updateBookKeeping();
+        }
+
+        newState.id = futureID;
+        auto metaBucket = db.bucket("%s.%s".format(BucketName.SelectionMeta, newState.id));
+        auto entryBucket = db.bucket("%s.%s".format(BucketName.SelectionEntries, newState.id));
+
+        /* Establish this state in the index */
+        indexBucket.set!(StateID, int)(newState.id, 1);
+
+        /* Encode metadata */
+        immutable auto name = newState.name;
+        if (name !is null && name != "")
+        {
+            metaBucket.set(cast(string) KeyName.MetaName, name);
+        }
+        immutable auto desc = newState.description;
+        if (desc !is null && desc != "")
+        {
+            metaBucket.set(cast(string) KeyName.MetaDescription, desc);
+        }
+
+        /* Encode all entries */
+        foreach (selection; newState.selections)
+        {
+            entryBucket.set!(SelectionReason, string)(selection.reason, selection.target);
+        }
+    }
+
 private:
 
     /**
