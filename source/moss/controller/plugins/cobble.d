@@ -133,7 +133,9 @@ public final class CobblePlugin : RegistryPlugin
                 candidate.name = name;
 
                 /* Store virtual provider name */
-                addGlobalProvider(id, Provider(name, ProviderType.PackageName));
+                auto provName = Provider(name, ProviderType.PackageName);
+                addGlobalProvider(id, provName);
+                candidate.providers ~= provName;
                 break;
             case RecordTag.Release:
                 candidate.release = record.get!uint64_t;
