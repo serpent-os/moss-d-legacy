@@ -73,7 +73,7 @@ public final class CobblePlugin : RegistryPlugin
         auto match = pkgID in candidates;
         if (match !is null)
         {
-            item = RegistryItem(match.id, this);
+            item = RegistryItem(match.id, this, ItemFlags.Available);
         }
 
         return item;
@@ -165,7 +165,7 @@ public final class CobblePlugin : RegistryPlugin
      */
     auto items()
     {
-        return candidates.keys.map!((c) => RegistryItem(c, this));
+        return candidates.keys.map!((c) => RegistryItem(c, this, ItemFlags.Available));
     }
 
 private:
