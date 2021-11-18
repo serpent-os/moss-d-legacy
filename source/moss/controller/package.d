@@ -124,6 +124,7 @@ public final class MossController
 
         writeln("Not yet implemented");
         writeln(cobble.items);
+        writeln(registryManager.computeItemInstallation(cobble.items.array));
     }
 
 package:
