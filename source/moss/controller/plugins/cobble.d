@@ -28,6 +28,7 @@ import std.array : array;
 import std.algorithm : filter, map;
 import moss.format.binary.reader;
 import moss.format.binary.payload.meta;
+import std.path : absolutePath;
 import std.stdio : File;
 import std.string : format;
 
@@ -123,6 +124,7 @@ public final class CobblePlugin : RegistryPlugin
 
         auto candidate = PackageCandidate();
         immutable auto id = metaPayload.getPkgID();
+        filePaths[id] = path.absolutePath;
 
         foreach (record; metaPayload)
         {
@@ -187,4 +189,5 @@ private:
 
     PackageCandidate[string] candidates;
     ProviderSet[string] globalProviders;
+    string[string] filePaths;
 }
