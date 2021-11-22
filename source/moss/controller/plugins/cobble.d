@@ -51,8 +51,14 @@ public final class CobblePlugin : RegistryPlugin
      * have to tie in providers too like LibraryName, etc, for dependency
      * solving to function.
      */
-    override RegistryItem[] queryProviders(in ProviderType type, in string matcher)
+    override RegistryItem[] queryProviders(in ProviderType type, in string matcher,
+            ItemFlags flags = ItemFlags.None)
     {
+        /* We only support available */
+        if (flags != ItemFlags.None && (flags & ItemFlags.Available) != ItemFlags.Available)
+        {
+            return null;
+        }
         immutable auto providerKey = format!"prov.%s.%s"(type, matcher);
         auto bucket = providerKey in globalProviders;
         if (bucket is null)
@@ -168,6 +174,43 @@ public final class CobblePlugin : RegistryPlugin
     auto items()
     {
         return candidates.keys.map!((c) => RegistryItem(c, this, ItemFlags.Available));
+    }
+
+    /**
+     * TODO: Support fetching the asset
+     */
+    override void fetch(in string pkgID)
+    {
+        throw new Error("CobblePlugin.fetch(): Not yet implemented");
+    }
+
+    /**
+     * TODO: Support installing the asset
+     */
+    override void install(in string pkgID)
+    {
+        throw new Error("CobblePlugin.install(): Not yet implemented");
+    }
+
+    /**
+     * TODO: Support getting info for the package
+     */
+    override Nullable!ItemInfo info(in string pkgID) const
+    {
+        throw new Error("CobblePlugin.info(): Not yet implemented");
+    }
+
+    /**
+     * TODO: Support listing items in this plugin
+     */
+    override const(RegistryItem)[] list(in ItemFlags flags) const
+    {
+        /* Only allow listing by Available. Not yet used */
+        if (flags != ItemFlags.None && (flags & ItemFlags.Available) != ItemFlags.Available)
+        {
+            return null;
+        }
+        throw new Error("CobblePlugin.list(): Not yet implemented");
     }
 
 private:

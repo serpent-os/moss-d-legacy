@@ -50,8 +50,14 @@ public final class ActivePackagesPlugin : RegistryPlugin
     /**
      * Return any matching providers, filtering for installed only
      */
-    override RegistryItem[] queryProviders(in ProviderType type, in string matcher)
+    override RegistryItem[] queryProviders(in ProviderType type, in string matcher,
+            ItemFlags flags = ItemFlags.None)
     {
+        /* We only support installed */
+        if (flags != ItemFlags.None && (flags & ItemFlags.Installed) != ItemFlags.Installed)
+        {
+            return null;
+        }
         return null;
     }
 
@@ -79,6 +85,43 @@ public final class ActivePackagesPlugin : RegistryPlugin
     override const(Provider)[] providers(in string pkgID) const
     {
         return null;
+    }
+
+    /**
+     * TODO: Support fetching the asset
+     */
+    override void fetch(in string pkgID)
+    {
+        throw new Error("ActivePackagesPlugin.fetch(): Not yet implemented");
+    }
+
+    /**
+     * TODO: Support installing the asset
+     */
+    override void install(in string pkgID)
+    {
+        throw new Error("ActivePackagesPlugin.install(): Not yet implemented");
+    }
+
+    /**
+     * TODO: Support getting info for the package
+     */
+    override Nullable!ItemInfo info(in string pkgID) const
+    {
+        throw new Error("ActivePackagesPlugin.info(): Not yet implemented");
+    }
+
+    /**
+     * TODO: Support listing items in this plugin
+     */
+    override const(RegistryItem)[] list(in ItemFlags flags) const
+    {
+        /* Only allow listing by Installed. */
+        if (flags != ItemFlags.None && (flags & ItemFlags.Installed) != ItemFlags.Installed)
+        {
+            return null;
+        }
+        throw new Error("ActivePackagesPlugin.list(): Not yet implemented");
     }
 
 private:
