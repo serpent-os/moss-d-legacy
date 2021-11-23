@@ -23,8 +23,12 @@
 module moss.cli.list_installed;
 
 public import moss.core.cli;
-
 import moss.core;
+import moss.cli : MossCLI;
+import moss.context;
+import moss.controller;
+
+import std.stdio : writeln, writefln;
 
 /**
  * List all installed packages
@@ -43,9 +47,20 @@ public struct ListInstalledCommand
      */
     @CommandEntry() int run(ref string[] argv)
     {
-        import std.stdio : writeln;
+        context.setRootDirectory((pt.findAncestor!MossCLI).rootDirectory);
 
-        writeln("TODO: List packages");
-        return ExitStatus.Failure;
+        auto con = new MossController();
+        scope (exit)
+        {
+            con.close();
+        }
+
+        auto installed = con.registryManager.listInstalled();
+        foreach (i; installed)
+        {
+            auto info = i.info();
+            writefln("%s - %s", info.get.name, info.get.summary);
+        }
+        return ExitStatus.Success;
     }
 }
