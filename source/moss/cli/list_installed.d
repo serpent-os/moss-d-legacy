@@ -27,8 +27,18 @@ import moss.core;
 import moss.cli : MossCLI;
 import moss.context;
 import moss.controller;
+import moss.deps.registry.item;
 
 import std.stdio : writeln, writefln;
+import std.algorithm : map, sort, maxElement;
+import std.array : array;
+import std.string : format;
+
+struct DisplayPackage
+{
+    string lineLead;
+    string lineTail;
+}
 
 /**
  * List all installed packages
@@ -55,11 +65,21 @@ public struct ListInstalledCommand
             con.close();
         }
 
-        auto installed = con.registryManager.listInstalled();
+        /* Convert for display */
+        auto installed = con.registryManager.listInstalled().map!((i) {
+            auto info = i.info();
+            return DisplayPackage("%s (%s)".format(info.name, info.versionID), info.summary);
+        }).array();
+
+        /* Sort for printing */
+        installed.sort!((a, b) => a.lineLead < b.lineLead);
+
+        /* Find largest lead line */
+        int longestLen = cast(int) installed.maxElement!("a.lineLead.length").lineLead.length;
+        longestLen += 2;
         foreach (i; installed)
         {
-            auto info = i.info();
-            writefln("%s - %s", info.name, info.summary);
+            writefln("  %*s - %s", longestLen, i.lineLead, i.lineTail);
         }
         return ExitStatus.Success;
     }
