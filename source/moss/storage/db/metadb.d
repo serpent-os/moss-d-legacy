@@ -219,7 +219,7 @@ public class MetaDB
 
         return bucket.iterator().map!((p) => {
             string s = null;
-            s.mossDecode(cast(ImmutableDatum) p.value);
+            s.mossDecode(cast(ImmutableDatum) p.entry.key);
             return s;
         }());
     }
