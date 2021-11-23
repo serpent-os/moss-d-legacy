@@ -127,6 +127,18 @@ public final class MossController
         auto tx = registryManager.transaction();
         tx.installPackages(cobble.items.array);
         auto finalSet = tx.apply();
+
+        /* TODO: Respect some real "manual" vs "automatic" logic in future. */
+        auto state = new State();
+        foreach (item; finalSet)
+        {
+            state.markSelection(item.pkgID, SelectionReason.ManuallyInstalled);
+            archiveCacher.cache(cobble.itemPath(item.pkgID));
+        }
+        stateDB.addState(state);
+        stateDB.activeState = state.id;
+        rootContructor.construct(state);
+        updateSystemPointer(state);
     }
 
 package:
