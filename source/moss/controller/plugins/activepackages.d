@@ -109,9 +109,9 @@ public final class ActivePackagesPlugin : RegistryPlugin
     /**
      * TODO: Support getting info for the package
      */
-    override Nullable!ItemInfo info(in string pkgID) const
+    override ItemInfo info(in string pkgID) const
     {
-        throw new Error("ActivePackagesPlugin.info(): Not yet implemented");
+        return packageDB.info(pkgID);
     }
 
     /**

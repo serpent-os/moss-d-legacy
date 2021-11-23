@@ -184,7 +184,7 @@ public final class CobblePlugin : RegistryPlugin
     /**
      * TODO: Support getting info for the package
      */
-    override Nullable!ItemInfo info(in string pkgID) const
+    override ItemInfo info(in string pkgID) const
     {
         throw new Error("CobblePlugin.info(): Not yet implemented");
     }
