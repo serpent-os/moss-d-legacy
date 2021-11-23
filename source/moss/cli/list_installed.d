@@ -59,7 +59,7 @@ public struct ListInstalledCommand
         foreach (i; installed)
         {
             auto info = i.info();
-            writefln("%s - %s", info.get.name, info.get.summary);
+            writefln("%s - %s", info.name, info.summary);
         }
         return ExitStatus.Success;
     }
