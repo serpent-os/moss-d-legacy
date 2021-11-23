@@ -82,7 +82,7 @@ public final class MossController
     {
         import std.stdio : writeln;
 
-        writeln("Not yet implemented");
+        RegistryItem[] removals;
 
         foreach (pkg; packages)
         {
@@ -90,10 +90,16 @@ public final class MossController
             if (localCandidate.empty)
             {
                 writeln("Cannot find package: ", pkg);
-                continue;
+                return;
             }
-            writeln(localCandidate);
+            removals ~= localCandidate.front;
         }
+
+        auto tx = registryManager.transaction();
+        tx.removePackages(removals);
+        auto finalSet = tx.apply();
+
+        writeln(finalSet);
     }
 
     /**
