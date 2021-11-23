@@ -182,22 +182,6 @@ public final class CobblePlugin : RegistryPlugin
     }
 
     /**
-     * 
-     */
-    override void fetch(in string pkgID)
-    {
-        throw new Error("CobblePlugin.fetch(): Not yet implemented");
-    }
-
-    /**
-     * TODO: Support installing the asset
-     */
-    override void install(in string pkgID)
-    {
-        throw new Error("CobblePlugin.install(): Not yet implemented");
-    }
-
-    /**
      * TODO: Support getting info for the package
      */
     override Nullable!ItemInfo info(in string pkgID) const

@@ -127,15 +127,6 @@ public final class MossController
         auto tx = registryManager.transaction();
         tx.installPackages(cobble.items.array);
         auto finalSet = tx.apply();
-
-        /* Compute the missing ones. */
-        auto fetchables = finalSet.filter!((f) {
-            return !packagesDB.hasID(f.pkgID);
-        });
-
-        fetchables.each!((f) => f.fetch());
-        /* TODO: Run some fetch context thingy */
-        fetchables.each!((f) => f.install());
     }
 
 package:
