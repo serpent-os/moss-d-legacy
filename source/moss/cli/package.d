@@ -26,6 +26,7 @@ public import moss.core.cli;
 public import moss.cli.extract_command;
 public import moss.cli.inspect_command;
 public import moss.cli.index_command;
+public import moss.cli.info_command;
 public import moss.cli.install_command;
 public import moss.cli.list;
 public import moss.cli.list_installed;

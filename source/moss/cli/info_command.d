@@ -20,23 +20,38 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module main;
+module moss.cli.info_command;
 
-import std.stdio;
-import moss.cli;
+public import moss.core.cli;
+import moss.core;
 
-int main(string[] args)
+import std.stdio : stderr;
+
+/**
+ * InfoCommand is used to display info on local + remote pkgs
+ */
+@CommandName("info")
+@CommandHelp("Display details on a package",
+        "Used with either local .stone files or packages known to moss,
+this command displays information about the metadata and dependencies.")
+@CommandUsage("[.stone file] [package name]")
+public struct InfoCommand
 {
-    auto clip = cliProcessor!MossCLI(args);
-    clip.addCommand!ExtractCommand;
-    clip.addCommand!InfoCommand;
-    clip.addCommand!InspectCommand;
-    clip.addCommand!IndexCommand;
-    clip.addCommand!InstallCommand;
-    auto ls = clip.addCommand!ListCommand;
-    ls.addCommand!ListInstalledCommand;
-    clip.addCommand!RemoveCommand;
-    clip.addCommand!VersionCommand;
-    clip.addCommand!HelpCommand;
-    return clip.process(args);
+    /** Extend BaseCommand with Info utility */
+    BaseCommand pt;
+    alias pt this;
+
+    /**
+     * Main entry point into the InfoCommand
+    */
+    @CommandEntry() int run(ref string[] argv)
+    {
+        if (argv.length < 1)
+        {
+            stderr.writeln("Requires an argument");
+            return ExitStatus.Failure;
+        }
+
+        return ExitStatus.Success;
+    }
 }
