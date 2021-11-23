@@ -137,7 +137,9 @@ public final class MossController
         }
         stateDB.addState(state);
         stateDB.activeState = state.id;
+        writeln("Blitting filesystem");
         rootContructor.construct(state);
+        writeln("Updating system pointer to: ", state.id);
         updateSystemPointer(state);
     }
 
