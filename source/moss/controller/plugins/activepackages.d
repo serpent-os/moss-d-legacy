@@ -27,7 +27,7 @@ public import moss.deps.registry;
 import moss.storage.db.packagesdb;
 import moss.storage.db.statedb;
 
-import std.algorithm : map;
+import std.algorithm : map, filter;
 import std.array : array;
 
 /**
@@ -48,6 +48,7 @@ public final class ActivePackagesPlugin : RegistryPlugin
     {
         this.packageDB = packageDB;
         this.stateDB = stateDB;
+        installedState = cast(State) stateDB.state(stateDB.activeState);
     }
 
     /**
@@ -62,14 +63,27 @@ public final class ActivePackagesPlugin : RegistryPlugin
             return null;
         }
 
-        return packageDB.byProvider(type, matcher)
-            .map!((id) => RegistryItem(id, this, ItemFlags.Installed)).array();
+        /**
+         * Ensure we only look at our own providers and not the system wide set
+         */
+        bool installationFilter(in string p)
+        {
+            if (installedState !is null)
+            {
+                return !installedState.selection(p).isNull();
+            }
+            return false;
+        }
+
+        return packageDB.byProvider(type, matcher).filter!(installationFilter)
+            .map!((id) => RegistryItem(id, this, ItemFlags.Installed))
+            .array();
     }
 
     /**
      * Provide details on a singular package
      */
-    override Nullable!RegistryItem queryID(in string pkgID)
+    override Nullable!RegistryItem queryID(in string pkgID) const
     {
         Nullable!RegistryItem item = Nullable!RegistryItem(RegistryItem.init);
 
@@ -105,12 +119,22 @@ public final class ActivePackagesPlugin : RegistryPlugin
      */
     override const(RegistryItem)[] list(in ItemFlags flags) const
     {
+        /* Got no state :( */
+        if (installedState is null)
+        {
+            return null;
+        }
+
         /* Only allow listing by Installed. */
         if (flags != ItemFlags.None && (flags & ItemFlags.Installed) != ItemFlags.Installed)
         {
             return null;
         }
-        return null;
+
+        return installedState.selections
+            .filter!((s) => packageDB.hasID(s.target))
+            .map!((s) => RegistryItem(s.target, cast(RegistryPlugin) this, ItemFlags.Installed))
+            .array();
     }
 
 private:
