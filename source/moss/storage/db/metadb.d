@@ -182,9 +182,11 @@ public class MetaDB
     /**
      * Return all dependencies for a given pkgID
      */
-    final auto dependencies(in string pkgID)
+    final auto dependencies(in string pkgID) const
     {
-        auto depBucket = db.bucket("%s.%s".format(BucketName.PackageDependencies, pkgID));
+        auto idb = cast(Database) _db;
+
+        IReadWritable depBucket = idb.bucket("%s.%s".format(BucketName.PackageDependencies, pkgID));
         return depBucket.iterator().map!((i) => {
             Dependency d = Dependency.init;
             d.mossDecode(cast(ImmutableDatum) i.value);
@@ -195,9 +197,10 @@ public class MetaDB
     /**
      * Return all providers for a given pkgID
      */
-    final auto providers(in string pkgID)
+    final auto providers(in string pkgID) const
     {
-        auto provBucket = db.bucket("%s.%s".format(BucketName.PackageProviders, pkgID));
+        auto idb = cast(Database) _db;
+        IReadWritable provBucket = idb.bucket("%s.%s".format(BucketName.PackageProviders, pkgID));
         return provBucket.iterator().map!((i) => {
             Provider p = Provider.init;
             p.mossDecode(cast(ImmutableDatum) i.value);
