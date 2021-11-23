@@ -83,6 +83,17 @@ public final class MossController
         import std.stdio : writeln;
 
         writeln("Not yet implemented");
+
+        foreach (pkg; packages)
+        {
+            auto localCandidate = registryManager.byName(pkg, ItemFlags.Installed);
+            if (localCandidate.empty)
+            {
+                writeln("Cannot find package: ", pkg);
+                continue;
+            }
+            writeln(localCandidate);
+        }
     }
 
     /**
