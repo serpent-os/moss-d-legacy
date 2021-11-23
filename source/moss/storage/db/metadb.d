@@ -225,6 +225,36 @@ public class MetaDB
         }());
     }
 
+    /**
+     * Return the information on the package
+     */
+    final ItemInfo info(in string pkgID) const
+    {
+        auto cdb = cast(Database) _db;
+
+        string name = null;
+        string summary = null;
+        string description = null;
+        uint64_t release = 0;
+        string versionID = null;
+
+        auto bucket = cdb.bucket("%s.%s".format(BucketName.PackageMeta, pkgID));
+        void getValue(T)(T* storage, RecordTag tag)
+        {
+            auto result = bucket.get!T(tag.to!string);
+            enforce(result.found);
+            *storage = result.value;
+        }
+
+        getValue(&name, RecordTag.Name);
+        getValue(&summary, RecordTag.Summary);
+        getValue(&description, RecordTag.Description);
+        getValue(&release, RecordTag.Release);
+        getValue(&versionID, RecordTag.Version);
+
+        return ItemInfo(name, summary, description, release, versionID);
+    }
+
 protected:
 
     /**
