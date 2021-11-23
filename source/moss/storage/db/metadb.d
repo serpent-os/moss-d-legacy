@@ -173,9 +173,10 @@ public class MetaDB
      * Intended for integration with moss-deps RegistryPlugin, simply return
      * true if this pkgID exists
      */
-    final bool hasID(in string pkgID)
+    final bool hasID(in string pkgID) const
     {
-        auto result = indexBucket.get!int(pkgID);
+        auto ibucket = cast(IReadWritable) indexBucket;
+        auto result = ibucket.get!int(pkgID);
         return result.found;
     }
 
@@ -189,7 +190,7 @@ public class MetaDB
         IReadWritable depBucket = idb.bucket("%s.%s".format(BucketName.PackageDependencies, pkgID));
         return depBucket.iterator().map!((i) => {
             Dependency d = Dependency.init;
-            d.mossDecode(cast(ImmutableDatum) i.value);
+            d.mossDecode(cast(ImmutableDatum) i.entry.key);
             return cast(const(Dependency)) d;
         }());
     }
@@ -203,7 +204,7 @@ public class MetaDB
         IReadWritable provBucket = idb.bucket("%s.%s".format(BucketName.PackageProviders, pkgID));
         return provBucket.iterator().map!((i) => {
             Provider p = Provider.init;
-            p.mossDecode(cast(ImmutableDatum) i.value);
+            p.mossDecode(cast(ImmutableDatum) i.entry.key);
             return cast(const(Provider)) p;
         }());
     }
