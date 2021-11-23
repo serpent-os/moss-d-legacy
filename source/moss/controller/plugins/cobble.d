@@ -176,8 +176,13 @@ public final class CobblePlugin : RegistryPlugin
         return candidates.keys.map!((c) => RegistryItem(c, this, ItemFlags.Available));
     }
 
+    auto itemPath(in string pkgID) const
+    {
+        return filePaths[pkgID];
+    }
+
     /**
-     * TODO: Support fetching the asset
+     * 
      */
     override void fetch(in string pkgID)
     {
