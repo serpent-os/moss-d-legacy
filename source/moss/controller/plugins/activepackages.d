@@ -27,6 +27,9 @@ public import moss.deps.registry;
 import moss.storage.db.packagesdb;
 import moss.storage.db.statedb;
 
+import std.algorithm : map;
+import std.array : array;
+
 /**
  * The active packages plugin uses a State to know what is currently installed
  * by simply filtering the SystemPackagesDB using the current state object
@@ -58,7 +61,9 @@ public final class ActivePackagesPlugin : RegistryPlugin
         {
             return null;
         }
-        return null;
+
+        return packageDB.byProvider(type, matcher)
+            .map!((id) => RegistryItem(id, this, ItemFlags.Installed)).array();
     }
 
     /**
@@ -76,7 +81,7 @@ public final class ActivePackagesPlugin : RegistryPlugin
      */
     override const(Dependency)[] dependencies(in string pkgID) const
     {
-        return null;
+        return packageDB.dependencies(pkgID).array();
     }
 
     /**
@@ -84,7 +89,7 @@ public final class ActivePackagesPlugin : RegistryPlugin
      */
     override const(Provider)[] providers(in string pkgID) const
     {
-        return null;
+        return packageDB.providers(pkgID).array();
     }
 
     /**
