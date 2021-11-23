@@ -76,6 +76,14 @@ public final class MossController
     }
 
     /**
+     * Return the underlying registryManager
+     */
+    pragma(inline, true) pure @property RegistryManager registryManager() @safe @nogc nothrow
+    {
+        return _registryManager;
+    }
+
+    /**
      * Request removal of the given packages
      */
     void removePackages(in string[] packages)
@@ -192,14 +200,6 @@ package:
     pragma(inline, true) pure @property StateDB stateDB() @safe @nogc nothrow
     {
         return _stateDB;
-    }
-
-    /**
-     * Return the underlying registryManager
-     */
-    pragma(inline, true) pure @property RegistryManager registryManager() @safe @nogc nothrow
-    {
-        return _registryManager;
     }
 
     /**
