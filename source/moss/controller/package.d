@@ -123,11 +123,19 @@ public final class MossController
         localPaths.each!((p) => cobble.load(p));
 
         writeln("Not yet implemented");
-        writeln(cobble.items);
 
         auto tx = registryManager.transaction();
         tx.installPackages(cobble.items.array);
-        writeln(tx.apply());
+        auto finalSet = tx.apply();
+
+        /* Compute the missing ones. */
+        auto fetchables = finalSet.filter!((f) {
+            return !packagesDB.hasID(f.pkgID);
+        });
+
+        fetchables.each!((f) => f.fetch());
+        /* TODO: Run some fetch context thingy */
+        fetchables.each!((f) => f.install());
     }
 
 package:
