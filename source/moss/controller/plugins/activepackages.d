@@ -121,7 +121,7 @@ public final class ActivePackagesPlugin : RegistryPlugin
         {
             return null;
         }
-        throw new Error("ActivePackagesPlugin.list(): Not yet implemented");
+        return null;
     }
 
 private:

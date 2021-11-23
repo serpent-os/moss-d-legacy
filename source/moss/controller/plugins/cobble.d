@@ -210,7 +210,7 @@ public final class CobblePlugin : RegistryPlugin
         {
             return null;
         }
-        throw new Error("CobblePlugin.list(): Not yet implemented");
+        return null;
     }
 
 private:
