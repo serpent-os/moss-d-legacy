@@ -24,8 +24,15 @@ module moss.cli.info_command;
 
 public import moss.core.cli;
 import moss.core;
-
+import moss.cli : MossCLI;
+import moss.context;
+import moss.controller;
 import std.stdio : stderr;
+import moss.deps.dependency;
+import moss.deps.registry.item;
+import std.string : join;
+import std.algorithm : map;
+import std.conv : to;
 
 /**
  * InfoCommand is used to display info on local + remote pkgs
@@ -46,12 +53,83 @@ public struct InfoCommand
     */
     @CommandEntry() int run(ref string[] argv)
     {
+        context.setRootDirectory((pt.findAncestor!MossCLI).rootDirectory);
+
+        auto con = new MossController();
+        scope (exit)
+        {
+            con.close();
+        }
+
         if (argv.length < 1)
         {
             stderr.writeln("Requires an argument");
             return ExitStatus.Failure;
         }
 
+        foreach (pkg; argv)
+        {
+            auto candidates = con.registryManager.byProvider(ProviderType.PackageName, pkg);
+            if (candidates.empty)
+            {
+                stderr.writeln("Unknown package: ", pkg);
+                continue;
+            }
+            foreach (candidate; candidates)
+            {
+                printInfo(candidate);
+            }
+        }
+
         return ExitStatus.Success;
+    }
+
+    public void printInfo(ref RegistryItem item)
+    {
+        import std.stdio : writefln, writeln;
+        import std.range : padLeft;
+
+        static void printAligned(in string key, in string value)
+        {
+            writefln("%-*s: %s", 14, key, value);
+        }
+
+        auto info = item.info;
+        printAligned("Name", info.name);
+        printAligned("Version", info.versionID);
+        printAligned("Summary", info.summary);
+        printAligned("Description", info.description);
+
+        /* Dump dependencies */
+        auto deps = item.dependencies();
+        foreach (i; 0 .. deps.length)
+        {
+            if (i == 0)
+            {
+                printAligned("Dependencies", deps[i].to!string);
+            }
+            else
+            {
+                auto depNom = deps[i].to!string();
+                auto padsize = depNom.length + 16;
+                writeln(depNom.padLeft(' ', padsize));
+            }
+        }
+
+        /* Dump providers */
+        auto provs = item.providers();
+        foreach (i; 0 .. provs.length)
+        {
+            if (i == 0)
+            {
+                printAligned("Providers", provs[i].to!string);
+            }
+            else
+            {
+                auto provNom = provs[i].to!string;
+                auto padsize = provNom.length + 16;
+                writeln(provNom.padLeft(' ', padsize));
+            }
+        }
     }
 }
