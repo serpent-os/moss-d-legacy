@@ -183,7 +183,7 @@ final class StateDB
         /* Encode all entries */
         foreach (selection; newState.selections)
         {
-            entryBucket.set!(SelectionReason, string)(selection.reason, selection.target);
+            entryBucket.set!(string, SelectionReason)(selection.target, selection.reason);
         }
     }
 
