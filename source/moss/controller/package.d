@@ -105,9 +105,7 @@ public final class MossController
 
         auto tx = registryManager.transaction();
         tx.removePackages(removals);
-        auto finalSet = tx.apply();
-
-        writeln(finalSet);
+        commitTransaction(tx);
     }
 
     /**
@@ -147,25 +145,9 @@ public final class MossController
         /* Load each path into the cobble db */
         localPaths.each!((p) => cobble.load(p));
 
-        writeln("Not yet implemented");
-
         auto tx = registryManager.transaction();
         tx.installPackages(cobble.items.array);
-        auto finalSet = tx.apply();
-
-        /* TODO: Respect some real "manual" vs "automatic" logic in future. */
-        auto state = new State();
-        foreach (item; finalSet)
-        {
-            state.markSelection(item.pkgID, SelectionReason.ManuallyInstalled);
-            archiveCacher.cache(cobble.itemPath(item.pkgID));
-        }
-        stateDB.addState(state);
-        stateDB.activeState = state.id;
-        writeln("Blitting filesystem");
-        rootContructor.construct(state);
-        writeln("Updating system pointer to: ", state.id);
-        updateSystemPointer(state);
+        commitTransaction(tx);
     }
 
 package:
@@ -226,6 +208,41 @@ package:
     }
 
 private:
+
+    void commitTransaction(Transaction tx)
+    {
+        import std.stdio : writeln;
+
+        auto finalSet = tx.apply();
+
+        if (tx.removedItems.length > 0)
+        {
+            writeln("The following packages will be removed:");
+            foreach (it; tx.removedItems)
+            {
+                writeln(" - ", it.info.name);
+            }
+        }
+
+        /* TODO: Respect some real "manual" vs "automatic" logic in future. */
+        auto state = new State();
+        foreach (item; finalSet)
+        {
+            state.markSelection(item.pkgID, SelectionReason.ManuallyInstalled);
+
+            /* Get it cached for cobble */
+            if (item.plugin == cobble)
+            {
+                archiveCacher.cache(cobble.itemPath(item.pkgID));
+            }
+        }
+        stateDB.addState(state);
+        stateDB.activeState = state.id;
+        writeln("Blitting filesystem");
+        rootContructor.construct(state);
+        writeln("Updating system pointer to: ", state.id);
+        updateSystemPointer(state);
+    }
 
     /* Storage */
     DiskPool diskPool = null;
