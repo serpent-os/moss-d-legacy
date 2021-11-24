@@ -74,14 +74,14 @@ package struct RootConstructor
         /* Create all directories first and work from that */
         auto uniqSet = finalLayouts.uniq!((esA, esB) => esA.target == esB.target);
         uniqSet.filter!((es) => es.entry.type == FileType.Directory)
-            .each!((es) => applyLayout(newState, es));
+            .each!((es) => applyLayout(newState, es, rootfsDir));
         /* Layer with broken symlinks */
         uniqSet.filter!((es) => es.entry.type == FileType.Symlink)
-            .each!((es) => applyLayout(newState, es));
+            .each!((es) => applyLayout(newState, es, rootfsDir));
         /* Fill in the blanks */
         uniqSet.filter!((es) => es.entry.type != FileType.Symlink
                 && es.entry.type != FileType.Directory)
-            .each!((es) => applyLayout(newState, es));
+            .each!((es) => applyLayout(newState, es, rootfsDir));
 
         /* Reverse sort */
         finalLayouts.sort!((esA, esB) => esA.target > esB.target);
@@ -90,12 +90,12 @@ package struct RootConstructor
         finalLayouts.uniq
             .filter!((es) => es.entry.type == FileType.Directory || es.entry.type
                     == FileType.Regular)
-            .each!((es) => updateAttrs(newState, es));
+            .each!((es) => updateAttrs(newState, es, rootfsDir));
     }
 
 private:
 
-    void updateAttrs(scope State newState, ref EntrySet es)
+    void updateAttrs(scope State newState, ref EntrySet es, in string rootfsDir)
     {
         import std.file : setAttributes, setTimes;
         import std.datetime : SysTime;
@@ -104,22 +104,20 @@ private:
         import std.conv : to;
 
         /* /.moss/store/root/1 .. */
-        auto targetNode = context.paths.store.buildPath("root",
-                to!string(newState.id), es.target[1 .. $]);
+        auto targetNode = rootfsDir.buildPath(es.target[1 .. $]);
 
         targetNode.setAttributes(es.entry.mode);
         targetNode.setTimes(SysTime.fromUnixTime(es.entry.time),
                 SysTime.fromUnixTime(es.entry.time));
     }
 
-    void applyLayout(scope State newState, ref EntrySet es)
+    void applyLayout(scope State newState, ref EntrySet es, in string rootfsDir)
     {
         import std.path : buildPath;
         import std.conv : to;
 
         /* /.moss/store/root/1 .. */
-        auto targetNode = context.paths.store.buildPath("root",
-                to!string(newState.id), es.target[1 .. $]);
+        auto targetNode = rootfsDir.buildPath(es.target[1 .. $]);
 
         import std.file : mkdirRecurse, symlink;
 
