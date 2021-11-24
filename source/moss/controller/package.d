@@ -211,9 +211,30 @@ private:
 
     void commitTransaction(Transaction tx)
     {
-        import std.stdio : writeln;
+        import std.stdio : writeln, writefln;
+        import std.conv : to;
 
         auto finalSet = tx.apply();
+        auto problems = tx.problems();
+        if (problems.length > 0)
+        {
+            writeln("The following problems were discovered: \n");
+            foreach (problem; problems)
+            {
+                switch (problem.type)
+                {
+                case TransactionProblemType.MissingDependency:
+                    writefln(" - %s depends on missing provider %s",
+                            problem.item.pkgID, problem.dependency.to!string);
+                    break;
+                default:
+                    writeln(problem);
+                    break;
+                }
+            }
+            writeln("\nNo changes have been made to your installation");
+            return;
+        }
 
         if (tx.removedItems.length > 0)
         {
