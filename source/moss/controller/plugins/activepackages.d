@@ -85,6 +85,12 @@ public final class ActivePackagesPlugin : RegistryPlugin
      */
     override NullableRegistryItem queryID(in string pkgID) const
     {
+        if (installedState !is null && !installedState.selection(pkgID)
+                .isNull() && packageDB.hasID(pkgID))
+        {
+            return NullableRegistryItem(RegistryItem(pkgID,
+                    cast(RegistryPlugin) this, ItemFlags.Installed));
+        }
         return NullableRegistryItem();
     }
 
