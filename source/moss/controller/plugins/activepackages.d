@@ -83,11 +83,9 @@ public final class ActivePackagesPlugin : RegistryPlugin
     /**
      * Provide details on a singular package
      */
-    override Nullable!RegistryItem queryID(in string pkgID) const
+    override NullableRegistryItem queryID(in string pkgID) const
     {
-        Nullable!RegistryItem item = Nullable!RegistryItem(RegistryItem.init);
-
-        return item;
+        return NullableRegistryItem();
     }
 
     /**

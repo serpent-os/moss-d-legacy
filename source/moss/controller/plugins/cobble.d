@@ -73,17 +73,15 @@ public final class CobblePlugin : RegistryPlugin
     /**
      * Provide details on a singular package
      */
-    override Nullable!RegistryItem queryID(in string pkgID)
+    override NullableRegistryItem queryID(in string pkgID)
     {
-        Nullable!RegistryItem item = Nullable!RegistryItem(RegistryItem.init);
-
         auto match = pkgID in candidates;
         if (match !is null)
         {
-            item = RegistryItem(match.id, this, ItemFlags.Available);
+            return NullableRegistryItem(RegistryItem(match.id, this, ItemFlags.Available));
         }
 
-        return item;
+        return NullableRegistryItem();
     }
 
     /**
