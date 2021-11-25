@@ -24,6 +24,7 @@ module moss.storage.db.statedb.selection;
 
 import moss.core.encoding;
 import moss.db.encoding;
+import std.typecons : Nullable;
 
 /**
  * Reason for a target being specified
@@ -67,3 +68,5 @@ public struct Selection
         reason.mossDecode(rawBytes);
     }
 }
+
+public alias NullableSelection = Nullable!(Selection, Selection.init);

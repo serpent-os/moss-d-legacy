@@ -106,17 +106,15 @@ public final class State
      * Access a Selection type for the given pkgID. The return will be isNull()
      * if it doesn't exist.
      */
-    pure @property Nullable!Selection selection(in string pkgid) @safe
+    pure @property NullableSelection selection(in string pkgid) @safe const
     {
-        Nullable!Selection ret = Nullable!Selection(Selection.init);
-
         auto query = pkgid in _selections;
         if (query !is null)
         {
-            ret = Selection(pkgid, *query);
+            return NullableSelection(Selection(pkgid, *query));
         }
 
-        return ret;
+        return NullableSelection();
     }
 
 package:
