@@ -216,12 +216,6 @@ private:
         auto finalTarget = context.paths.root.buildPath(targetPath);
         auto stagingTarget = context.paths.root.buildPath(format!"%s.next"(targetPath));
 
-        /* If the symlink is already correct, leave it be */
-        if (finalTarget.exists && finalTarget.isSymlink && finalTarget.readLink() == sourcePath)
-        {
-            return;
-        }
-
         auto resolvedSource = context.paths.root.buildPath(sourcePath);
 
         if (stagingTarget.exists)
@@ -236,6 +230,12 @@ private:
             {
                 finalTarget.remove();
             }
+            return;
+        }
+
+        /* If the symlink is already correct, leave it be */
+        if (finalTarget.exists && finalTarget.isSymlink && finalTarget.readLink() == sourcePath)
+        {
             return;
         }
 
