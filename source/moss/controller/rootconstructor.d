@@ -72,15 +72,7 @@ package struct RootConstructor
         rootfsDir.mkdirRecurse();
 
         /* Create all directories first and work from that */
-        auto uniqSet = finalLayouts.uniq!((esA, esB) => esA.target == esB.target);
-        uniqSet.filter!((es) => es.entry.type == FileType.Directory)
-            .each!((es) => applyLayout(newState, es, rootfsDir));
-        /* Layer with broken symlinks */
-        uniqSet.filter!((es) => es.entry.type == FileType.Symlink)
-            .each!((es) => applyLayout(newState, es, rootfsDir));
-        /* Fill in the blanks */
-        uniqSet.filter!((es) => es.entry.type != FileType.Symlink
-                && es.entry.type != FileType.Directory)
+        finalLayouts.uniq!((esA, esB) => esA.target == esB.target)
             .each!((es) => applyLayout(newState, es, rootfsDir));
 
         /* Reverse sort */
@@ -128,9 +120,11 @@ private:
             targetNode.mkdirRecurse();
             break;
         case FileType.Symlink:
+            targetNode.dirName.mkdirRecurse();
             es.source.symlink(targetNode);
             break;
         case FileType.Regular:
+            targetNode.dirName.mkdirRecurse();
             auto sourcePath = diskPool.fullPath(es.source);
             hardLink(sourcePath, targetNode);
             break;
