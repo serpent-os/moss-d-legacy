@@ -191,23 +191,58 @@ package:
     void updateSystemPointer(ref State currentState)
     {
         import std.conv : to;
-        import std.file : remove, symlink, rename, exists;
 
-        /* Relative path only! */
-        auto targetPath = buildPath(".moss", "store", "root", to!string(currentState.id), "usr");
-        auto sourceLinkAtomic = context.paths.root.buildPath("usr.next");
-        auto finalUsr = context.paths.root.buildPath("usr");
-        if (sourceLinkAtomic.exists)
-        {
-            sourceLinkAtomic.remove();
-        }
+        auto rootfsDir = buildPath(".moss", "store", "root", to!string(currentState.id));
 
-        /* Update atomically with new link then rename */
-        targetPath.symlink(sourceLinkAtomic);
-        sourceLinkAtomic.rename(finalUsr);
+        /* Construct the primary usr link */
+        auto usrSource = rootfsDir.buildPath("usr");
+        atomicRootfsLink(usrSource, "usr");
+
+        /* Compat links to make usrmerge work */
+        atomicRootfsLink("usr/bin", "bin");
+        atomicRootfsLink("usr/lib", "lib");
+        atomicRootfsLink("usr/lib64", "lib64");
+        atomicRootfsLink("usr/lib32", "lib32");
     }
 
 private:
+
+    void atomicRootfsLink(in string sourcePath, in string targetPath)
+    {
+        import std.file : remove, symlink, rename, exists, isSymlink, readLink;
+        import std.string : format;
+        import std.stdio : writeln;
+
+        auto finalTarget = context.paths.root.buildPath(targetPath);
+        auto stagingTarget = context.paths.root.buildPath(format!"%s.next"(targetPath));
+
+        /* If the symlink is already correct, leave it be */
+        if (finalTarget.exists && finalTarget.isSymlink && finalTarget.readLink() == sourcePath)
+        {
+            return;
+        }
+
+        auto resolvedSource = context.paths.root.buildPath(sourcePath);
+
+        if (stagingTarget.exists)
+        {
+            stagingTarget.remove();
+        }
+
+        /* Stop promoting the link as the source is gone */
+        if (!resolvedSource.exists)
+        {
+            if (finalTarget.exists)
+            {
+                finalTarget.remove();
+            }
+            return;
+        }
+
+        /* Symlink staging link in now */
+        symlink(sourcePath, stagingTarget);
+        rename(stagingTarget, finalTarget);
+    }
 
     void commitTransaction(Transaction tx)
     {
