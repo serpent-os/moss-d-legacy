@@ -201,7 +201,7 @@ package:
         /* Compat links to make usrmerge work */
         atomicRootfsLink("usr/bin", "bin");
         atomicRootfsLink("usr/lib", "lib");
-        atomicRootfsLink("usr/lib64", "lib64");
+        atomicRootfsLink("usr/lib", "lib64");
         atomicRootfsLink("usr/lib32", "lib32");
     }
 
