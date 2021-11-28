@@ -118,8 +118,9 @@ public struct ExtractCommand
          *
          * Our current version read/writes in 4MB chunks.
          */
-        void extractIndex(ref IndexEntry entry, const(string) id)
+        void extractIndex(ref IndexEntry entry)
         {
+            auto id = cast(string) entry.digestString();
             import std.conv : to;
             import std.range : chunks;
             import std.algorithm : each;
@@ -184,7 +185,7 @@ public struct ExtractCommand
 
         installDir.mkdirRecurse();
 
-        indexPayload.each!((entry, id) => extractIndex(entry, id));
+        indexPayload.each!((entry) => extractIndex(entry));
         layoutPayload.each!((e) => applyLayout(e.entry, e.source, e.target));
     }
 }
