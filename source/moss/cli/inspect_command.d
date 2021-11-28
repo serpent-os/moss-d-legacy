@@ -181,9 +181,10 @@ public struct InspectCommand
         import moss.format.binary.payload.index : IndexPayload;
 
         auto index = cast(IndexPayload) p;
-        foreach (entry, id; index)
+        foreach (entry; index)
         {
-            writefln("  - %s [size: %9s]", id, formatBytes(entry.size));
+            writefln("  - %s [size: %9s]", cast(string) entry.digestString(),
+                    formatBytes(entry.contentSize));
         }
     }
 
