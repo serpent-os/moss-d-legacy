@@ -119,14 +119,15 @@ package struct ArchiveCacher
         }
 
         /* Extract all index files from content, install layout payload */
-        indexPayload.each!((entry, id) => extractIndex(mappedFile, entry, id));
+        indexPayload.each!((entry) => extractIndex(mappedFile, entry));
         layoutDB.installPayload(pkgID, payload);
     }
 
 private:
 
-    void extractIndex(MmFile mappedFile, ref IndexEntry entry, const(string) id)
+    void extractIndex(MmFile mappedFile, ref IndexEntry entry)
     {
+        auto id = cast(string) entry.digestString();
         if (diskPool.contains(id))
         {
             return;
