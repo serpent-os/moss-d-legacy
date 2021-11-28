@@ -139,38 +139,25 @@ public struct ExtractCommand
             import std.stdio : writefln;
             import std.string : startsWith;
             import moss.core : FileType;
+            import std.file : setAttributes;
 
             auto targetPath = installDir.buildPath(target.startsWith("/") ? target[1 .. $] : target);
             writefln("Constructing target: %s", targetPath);
-
-            void updateAttrs()
-            {
-                import std.file : setAttributes, setTimes;
-                import std.datetime : SysTime;
-
-                targetPath.setAttributes(entry.mode);
-                targetPath.setTimes(SysTime.fromUnixTime(entry.time),
-                        SysTime.fromUnixTime(entry.time));
-            }
 
             switch (entry.type)
             {
             case FileType.Directory:
                 /* Construct the directory */
                 targetPath.mkdirRecurse();
-
-                /* Directory access changes as it needs applying in reverse. Revisit */
-                updateAttrs();
+                targetPath.setAttributes(entry.mode);
                 break;
             case FileType.Regular:
                 /* Link to final destination */
                 const auto sourcePath = extractionDir.buildPath(source);
                 import moss.core.util : hardLink;
-                import std.file : setAttributes;
 
                 hardLink(sourcePath, targetPath);
-
-                updateAttrs();
+                targetPath.setAttributes(entry.mode);
                 break;
             case FileType.Symlink:
                 import std.file : symlink;
