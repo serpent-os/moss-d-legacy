@@ -71,42 +71,18 @@ package struct RootConstructor
         auto rootfsDir = context.paths.store.buildPath("root", to!string(newState.id));
         rootfsDir.mkdirRecurse();
 
-        /* Create all directories first and work from that */
+        /* Apply unique layouts */
         finalLayouts.uniq!((esA, esB) => esA.target == esB.target)
             .each!((es) => applyLayout(newState, es, rootfsDir));
-
-        /* Reverse sort */
-        finalLayouts.sort!((esA, esB) => esA.target > esB.target);
-
-        /* Only apply attributes to directories and regular files */
-        finalLayouts.uniq
-            .filter!((es) => es.entry.type == FileType.Directory || es.entry.type
-                    == FileType.Regular)
-            .each!((es) => updateAttrs(newState, es, rootfsDir));
     }
 
 private:
-
-    void updateAttrs(scope State newState, ref EntrySet es, in string rootfsDir)
-    {
-        import std.file : setAttributes, setTimes;
-        import std.datetime : SysTime;
-
-        import std.path : buildPath;
-        import std.conv : to;
-
-        /* /.moss/store/root/1 .. */
-        auto targetNode = rootfsDir.buildPath(es.target[1 .. $]);
-
-        targetNode.setAttributes(es.entry.mode);
-        targetNode.setTimes(SysTime.fromUnixTime(es.entry.time),
-                SysTime.fromUnixTime(es.entry.time));
-    }
 
     void applyLayout(scope State newState, ref EntrySet es, in string rootfsDir)
     {
         import std.path : buildPath;
         import std.conv : to;
+        import std.file : setAttributes, setTimes;
 
         /* /.moss/store/root/1 .. */
         auto targetNode = rootfsDir.buildPath(es.target[1 .. $]);
@@ -118,6 +94,7 @@ private:
         {
         case FileType.Directory:
             targetNode.mkdirRecurse();
+            targetNode.setAttributes(es.entry.mode);
             break;
         case FileType.Symlink:
             targetNode.dirName.mkdirRecurse();
@@ -127,6 +104,9 @@ private:
             targetNode.dirName.mkdirRecurse();
             auto sourcePath = diskPool.fullPath(es.source);
             hardLink(sourcePath, targetNode);
+
+            targetNode.setAttributes(es.entry.mode);
+
             break;
         default:
             break;
