@@ -68,7 +68,7 @@ package struct RootConstructor
         import std.stdio : writeln;
 
         /* Ensure we have a rootfs dir for root level nodes */
-        auto rootfsDir = context.paths.store.buildPath("root", to!string(newState.id));
+        auto rootfsDir = context.paths.store.buildPath("root", to!string(newState.id), "usr");
         rootfsDir.mkdirRecurse();
 
         /* Apply unique layouts */
@@ -85,7 +85,7 @@ private:
         import std.file : setAttributes, setTimes;
 
         /* /.moss/store/root/1 .. */
-        auto targetNode = rootfsDir.buildPath(es.target[1 .. $]);
+        auto targetNode = rootfsDir.buildPath(es.target);
 
         import std.file : mkdirRecurse, symlink;
 

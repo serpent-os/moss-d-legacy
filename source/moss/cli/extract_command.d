@@ -141,7 +141,8 @@ public struct ExtractCommand
             import moss.core : FileType;
             import std.file : setAttributes;
 
-            auto targetPath = installDir.buildPath(target.startsWith("/") ? target[1 .. $] : target);
+            auto targetPath = installDir.buildPath("usr",
+                    target.startsWith("/") ? target[1 .. $] : target);
             writefln("Constructing target: %s", targetPath);
 
             switch (entry.type)
