@@ -167,7 +167,6 @@ public struct InspectCommand
             case FileType.Regular:
                 writefln("  - %s -> %s [%s]", entry.target,
                         entry.digestString(), to!string(entry.entry.type));
-                writeln(entry);
                 break;
             case FileType.Symlink:
                 writefln("  - %s -> %s [%s]", entry.target,
