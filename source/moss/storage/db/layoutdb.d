@@ -84,10 +84,9 @@ public final class LayoutDB
      */
     void installPayload(const(string) pkgID, LayoutPayload payload)
     {
-        foreach (ref entry, const source, const target; payload)
+        foreach (es; payload)
         {
-            auto s = EntrySet(entry, source, target);
-            db.bucket(pkgID).set(target, s);
+            db.bucket(pkgID).set(es.target, es);
         }
     }
 
