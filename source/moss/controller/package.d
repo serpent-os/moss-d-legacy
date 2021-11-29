@@ -268,6 +268,7 @@ private:
                 }
             }
             writeln("\nNo changes have been made to your installation");
+            return;
         }
 
         if (tx.removedItems.length > 0)
