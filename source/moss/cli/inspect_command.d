@@ -115,7 +115,7 @@ public struct InspectCommand
      */
     void printMeta(scope Payload p)
     {
-        import moss.format.binary.payload.meta : MetaPayload, RecordType;
+        import moss.format.binary.payload.meta : MetaPayload, RecordTag, RecordType;
         import std.conv : to;
 
         auto metadata = cast(MetaPayload) p;
@@ -130,7 +130,14 @@ public struct InspectCommand
                 writeln(pair.get!int8_t);
                 break;
             case RecordType.Uint64:
-                writeln(pair.get!uint64_t);
+                if (pair.tag == RecordTag.PackageSize)
+                {
+                    writeln(formatBytes(pair.get!uint64_t));
+                }
+                else
+                {
+                    writeln(pair.get!uint64_t);
+                }
                 break;
             case RecordType.String:
                 writeln(pair.get!string);
@@ -165,12 +172,12 @@ public struct InspectCommand
             switch (entry.entry.type)
             {
             case FileType.Regular:
-                writefln("  - /usr/%s -> %s [%s]", entry.target,
-                        entry.digestString(), to!string(entry.entry.type));
+                writefln("  - /usr/%s -> %s [%s]",
+                        entry.target, entry.digestString(), to!string(entry.entry.type));
                 break;
             case FileType.Symlink:
-                writefln("  - /usr/%s -> %s [%s]", entry.target,
-                        entry.symlinkSource(), to!string(entry.entry.type));
+                writefln("  - /usr/%s -> %s [%s]",
+                        entry.target, entry.symlinkSource(), to!string(entry.entry.type));
                 break;
             default:
                 writefln("  - /usr/%s [%s]", entry.target, to!string(entry.entry.type));
