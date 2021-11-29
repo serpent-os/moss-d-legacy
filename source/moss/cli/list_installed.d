@@ -26,19 +26,8 @@ public import moss.core.cli;
 import moss.core;
 import moss.cli : MossCLI;
 import moss.context;
-import moss.controller;
-import moss.deps.registry.item;
 
-import std.stdio : writeln, writefln;
-import std.algorithm : map, sort, maxElement;
-import std.array : array;
-import std.string : format;
-
-struct DisplayPackage
-{
-    string lineLead;
-    string lineTail;
-}
+import moss.cli.list_packages;
 
 /**
  * List all installed packages
@@ -59,28 +48,7 @@ public struct ListInstalledCommand
     {
         context.setRootDirectory((pt.findAncestor!MossCLI).rootDirectory);
 
-        auto con = new MossController();
-        scope (exit)
-        {
-            con.close();
-        }
-
-        /* Convert for display */
-        auto installed = con.registryManager.listInstalled().map!((i) {
-            auto info = i.info();
-            return DisplayPackage("%s (%s)".format(info.name, info.versionID), info.summary);
-        }).array();
-
-        /* Sort for printing */
-        installed.sort!((a, b) => a.lineLead < b.lineLead);
-
-        /* Find largest lead line */
-        int longestLen = cast(int) installed.maxElement!("a.lineLead.length").lineLead.length;
-        longestLen += 2;
-        foreach (i; installed)
-        {
-            writefln("  %*s - %s", longestLen, i.lineLead, i.lineTail);
-        }
+        listPackages(ListMode.Installed);
         return ExitStatus.Success;
     }
 }
