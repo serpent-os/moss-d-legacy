@@ -165,15 +165,15 @@ public struct InspectCommand
             switch (entry.entry.type)
             {
             case FileType.Regular:
-                writefln("  - %s -> %s [%s]", entry.target,
+                writefln("  - /usr/%s -> %s [%s]", entry.target,
                         entry.digestString(), to!string(entry.entry.type));
                 break;
             case FileType.Symlink:
-                writefln("  - %s -> %s [%s]", entry.target,
+                writefln("  - /usr/%s -> %s [%s]", entry.target,
                         entry.symlinkSource(), to!string(entry.entry.type));
                 break;
             default:
-                writefln("  - %s [%s]", entry.target, to!string(entry.entry.type));
+                writefln("  - /usr/%s [%s]", entry.target, to!string(entry.entry.type));
                 break;
 
             }
