@@ -34,6 +34,7 @@ int main(string[] args)
     clip.addCommand!IndexCommand;
     clip.addCommand!InstallCommand;
     auto ls = clip.addCommand!ListCommand;
+    ls.addCommand!ListAvailableCommand;
     ls.addCommand!ListInstalledCommand;
     clip.addCommand!RemoveCommand;
     clip.addCommand!VersionCommand;

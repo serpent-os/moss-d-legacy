@@ -20,34 +20,35 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module moss.cli;
+module moss.cli.list_available;
 
 public import moss.core.cli;
-public import moss.cli.extract_command;
-public import moss.cli.inspect_command;
-public import moss.cli.index_command;
-public import moss.cli.info_command;
-public import moss.cli.install_command;
-public import moss.cli.list;
-public import moss.cli.list_available;
-public import moss.cli.list_installed;
-public import moss.cli.version_command;
-public import moss.cli.remove_command;
+import moss.core;
+import moss.cli : MossCLI;
+import moss.context;
+
+import moss.cli.list_packages;
 
 /**
- * The MossCLI type holds some global configuration bits
+ * List all installed packages
  */
-@RootCommand @CommandName("moss")
-@CommandHelp("moss - the Serpent OS package management tool",
-        "\nA system package manager tying together traditional requirements "
-        ~ "with advanced features for improved control and reliablity.")
-@CommandUsage("[--args] [command]")
-public struct MossCLI
+@CommandName("available")
+@CommandHelp("List all available packages")
+@CommandAlias("la")
+public struct ListAvailableCommand
 {
     /** Extend BaseCommand to provide a root group of commands */
     BaseCommand pt;
     alias pt this;
 
-    /** Option to set the root directory for filesystem operations */
-    @Option("D", "destdir", "Root directory for all operations") string rootDirectory = "/";
+    /**
+     * Main entry point into the ListAvailableCommand
+     */
+    @CommandEntry() int run(ref string[] argv)
+    {
+        context.setRootDirectory((pt.findAncestor!MossCLI).rootDirectory);
+
+        listPackages(ListMode.Available);
+        return ExitStatus.Success;
+    }
 }
