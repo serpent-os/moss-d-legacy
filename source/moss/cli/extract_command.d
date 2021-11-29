@@ -83,7 +83,7 @@ public struct ExtractCommand
         writeln("Extracting package: ", packageName);
 
         auto extractionDir = ".".buildPath("mossExtraction");
-        auto installDir = ".".buildPath("mossInstall");
+        auto installDir = ".".buildPath("mossInstall/usr");
         if (!extractionDir.exists)
         {
             extractionDir.mkdir();
@@ -140,9 +140,9 @@ public struct ExtractCommand
             import std.string : startsWith;
             import moss.core : FileType;
             import std.file : setAttributes;
+            import std.path : dirName;
 
-            auto targetPath = installDir.buildPath("usr",
-                    target.startsWith("/") ? target[1 .. $] : target);
+            auto targetPath = installDir.buildPath(target);
             writefln("Constructing target: %s", targetPath);
 
             switch (entry.entry.type)
@@ -153,6 +153,7 @@ public struct ExtractCommand
                 targetPath.setAttributes(entry.entry.mode);
                 break;
             case FileType.Regular:
+                targetPath.dirName.mkdirRecurse();
                 /* Link to final destination */
                 const auto sourcePath = extractionDir.buildPath(entry.digestString);
                 import moss.core.util : hardLink;
@@ -161,6 +162,7 @@ public struct ExtractCommand
                 targetPath.setAttributes(entry.entry.mode);
                 break;
             case FileType.Symlink:
+                targetPath.dirName.mkdirRecurse();
                 import std.file : symlink;
 
                 symlink(entry.symlinkSource, targetPath);
