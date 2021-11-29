@@ -98,11 +98,11 @@ private:
             break;
         case FileType.Symlink:
             targetNode.dirName.mkdirRecurse();
-            es.source.symlink(targetNode);
+            es.symlinkSource.symlink(targetNode);
             break;
         case FileType.Regular:
             targetNode.dirName.mkdirRecurse();
-            auto sourcePath = diskPool.fullPath(es.source);
+            auto sourcePath = diskPool.fullPath(cast(string) es.digestString());
             hardLink(sourcePath, targetNode);
 
             targetNode.setAttributes(es.entry.mode);
