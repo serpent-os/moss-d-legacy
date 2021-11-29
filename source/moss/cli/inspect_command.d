@@ -160,15 +160,23 @@ public struct InspectCommand
         auto layout = cast(LayoutPayload) p;
         import std.conv : to;
 
-        foreach (entry, source, target; layout)
+        foreach (entry; layout)
         {
-            if (source !is null)
+            switch (entry.entry.type)
             {
-                writefln("  - %s -> %s [%s]", target, source, to!string(entry.type));
-            }
-            else
-            {
-                writefln("  - %s [%s]", target, to!string(entry.type));
+            case FileType.Regular:
+                writefln("  - %s -> %s [%s]", entry.target,
+                        entry.digestString(), to!string(entry.entry.type));
+                writeln(entry);
+                break;
+            case FileType.Symlink:
+                writefln("  - %s -> %s [%s]", entry.target,
+                        entry.symlinkSource(), to!string(entry.entry.type));
+                break;
+            default:
+                writefln("  - %s [%s]", entry.target, to!string(entry.entry.type));
+                break;
+
             }
         }
     }

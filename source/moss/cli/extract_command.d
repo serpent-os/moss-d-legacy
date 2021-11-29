@@ -67,7 +67,7 @@ public struct ExtractCommand
         import std.file : exists;
         import moss.format.binary.payload.content : ContentPayload;
         import moss.format.binary.payload.index : IndexPayload, IndexEntry;
-        import moss.format.binary.payload.layout : LayoutPayload, LayoutEntry;
+        import moss.format.binary.payload.layout : LayoutPayload, EntrySet;
         import std.exception : enforce;
         import std.path : buildPath;
         import std.file : mkdir, remove, mkdirRecurse;
@@ -134,7 +134,7 @@ public struct ExtractCommand
             targetFile.close();
         }
 
-        void applyLayout(ref LayoutEntry entry, const(string) source, const(string) target)
+        void applyLayout(ref EntrySet entry, const(string) target)
         {
             import std.stdio : writefln;
             import std.string : startsWith;
@@ -145,25 +145,25 @@ public struct ExtractCommand
                     target.startsWith("/") ? target[1 .. $] : target);
             writefln("Constructing target: %s", targetPath);
 
-            switch (entry.type)
+            switch (entry.entry.type)
             {
             case FileType.Directory:
                 /* Construct the directory */
                 targetPath.mkdirRecurse();
-                targetPath.setAttributes(entry.mode);
+                targetPath.setAttributes(entry.entry.mode);
                 break;
             case FileType.Regular:
                 /* Link to final destination */
-                const auto sourcePath = extractionDir.buildPath(source);
+                const auto sourcePath = extractionDir.buildPath(entry.digestString);
                 import moss.core.util : hardLink;
 
                 hardLink(sourcePath, targetPath);
-                targetPath.setAttributes(entry.mode);
+                targetPath.setAttributes(entry.entry.mode);
                 break;
             case FileType.Symlink:
                 import std.file : symlink;
 
-                symlink(source, targetPath);
+                symlink(entry.symlinkSource, targetPath);
                 break;
             default:
                 stderr.writeln("Extraction support not yet complete");
@@ -174,6 +174,6 @@ public struct ExtractCommand
         installDir.mkdirRecurse();
 
         indexPayload.each!((entry) => extractIndex(entry));
-        layoutPayload.each!((e) => applyLayout(e.entry, e.source, e.target));
+        layoutPayload.each!((e) => applyLayout(e, e.target));
     }
 }
