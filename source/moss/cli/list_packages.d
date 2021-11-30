@@ -50,7 +50,7 @@ package enum ListMode
 /**
  * Helper for listing packages for the CLI subcommands
  */
-package void listPackages(ListMode mode)
+public void listPackages(ListMode mode)
 {
     auto con = new MossController();
     scope (exit)
@@ -75,7 +75,12 @@ package void listPackages(ListMode mode)
         break;
     }
 
-    auto pkgs = con.registryManager.list(flags).map!((i) {
+    auto results = con.registryManager.list(flags);
+    if (results.empty)
+    {
+        return;
+    }
+    auto pkgs = results.map!((i) {
         auto info = i.info();
         return DisplayPackage("%s (%s)".format(info.name, info.versionID), info.summary);
     }).array();
