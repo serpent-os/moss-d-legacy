@@ -31,6 +31,7 @@ import moss.format.binary.payload.meta;
 import std.path : absolutePath;
 import std.stdio : File;
 import std.string : format;
+import std.exception : enforce;
 
 private struct ProviderSet
 {
@@ -117,6 +118,10 @@ public final class CobblePlugin : RegistryPlugin
     {
         auto fp = File(path, "rb");
         auto reader = new Reader(fp);
+        string summary;
+        string description;
+        string homepage;
+        string[] licenses;
 
         /* Extract the metapayload */
         auto metaPayload = reader.payload!MetaPayload();
@@ -143,6 +148,18 @@ public final class CobblePlugin : RegistryPlugin
                 addGlobalProvider(id, provName);
                 candidate.providers ~= provName;
                 break;
+            case RecordTag.Homepage:
+                homepage = record.get!string;
+                break;
+            case RecordTag.Summary:
+                summary = record.get!string;
+                break;
+            case RecordTag.Description:
+                description = record.get!string;
+                break;
+            case RecordTag.License:
+                licenses ~= record.get!string;
+                break;
             case RecordTag.Release:
                 candidate.release = record.get!uint64_t;
                 break;
@@ -163,6 +180,8 @@ public final class CobblePlugin : RegistryPlugin
         }
         candidate.id = id;
         candidates[id] = candidate;
+        infos[id] = new ItemInfo(candidate.name, summary, description, candidate.release,
+                candidate.versionID, homepage, cast(immutable(string)[]) licenses);
 
         return queryID(id);
     }
@@ -182,11 +201,11 @@ public final class CobblePlugin : RegistryPlugin
     }
 
     /**
-     * TODO: Support getting info for the package
+     * Return usable information for the package
      */
     override ItemInfo info(in string pkgID) const
     {
-        throw new Error("CobblePlugin.info(): Not yet implemented");
+        return *infos[pkgID];
     }
 
     /**
@@ -229,4 +248,5 @@ private:
     PackageCandidate[string] candidates;
     ProviderSet[string] globalProviders;
     string[string] filePaths;
+    ItemInfo*[string] infos;
 }
