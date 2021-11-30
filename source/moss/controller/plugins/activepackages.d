@@ -141,6 +141,13 @@ public final class ActivePackagesPlugin : RegistryPlugin
             .array();
     }
 
+    /**
+     * Do nothing, no resources here.
+     */
+    override void close()
+    {
+    }
+
 private:
 
     SystemPackagesDB packageDB = null;

@@ -200,6 +200,13 @@ public final class CobblePlugin : RegistryPlugin
         return null;
     }
 
+    /**
+     * Do nothing, no resources here
+     */
+    override void close()
+    {
+    }
+
 private:
 
     /**

@@ -73,6 +73,7 @@ public final class MossController
         layoutDB.close();
         stateDB.close();
         packagesDB.close();
+        _registryManager.close();
     }
 
     /**

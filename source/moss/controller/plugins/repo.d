@@ -109,6 +109,20 @@ public final class RepoPlugin : RegistryPlugin
         return null;
     }
 
+    /**
+     * Free up assets we have, i.e. the DB
+     */
+    override void close()
+    {
+        if (metaDB is null)
+        {
+            return;
+        }
+        metaDB.close();
+        metaDB.destroy();
+        metaDB = null;
+    }
+
 private:
 
     /**
