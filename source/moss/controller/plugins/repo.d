@@ -50,6 +50,10 @@ public final class RepoPlugin : RegistryPlugin
      */
     override NullableRegistryItem queryID(in string pkgID) const
     {
+        if (metaDB.hasID(pkgID))
+        {
+            return NullableRegistryItem(RegistryItem(pkgID, cast(RegistryPlugin) this));
+        }
         return NullableRegistryItem();
     }
 
@@ -70,10 +74,14 @@ public final class RepoPlugin : RegistryPlugin
     }
 
     /**
-     * TODO: Support getting info for the package
+     * Return  info for the package
      */
     override ItemInfo info(in string pkgID) const
     {
+        if (metaDB.hasID(pkgID))
+        {
+            return metaDB.info(pkgID);
+        }
         return ItemInfo();
     }
 
