@@ -109,6 +109,11 @@ public final class MossController
         commitTransaction(tx);
     }
 
+    RegistryItem sideload(in string path)
+    {
+        return cobble.load(path);
+    }
+
     /**
      * Request installation of the given packages
      */
@@ -144,7 +149,7 @@ public final class MossController
         }
 
         /* Load each path into the cobble db */
-        localPaths.each!((p) => cobble.load(p));
+        localPaths.each!((p) => sideload(p));
 
         auto tx = registryManager.transaction();
         tx.installPackages(cobble.items.array);

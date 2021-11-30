@@ -113,7 +113,7 @@ public final class CobblePlugin : RegistryPlugin
     /**
      * Load a package into our store
      */
-    void load(in string path)
+    RegistryItem load(in string path)
     {
         auto fp = File(path, "rb");
         auto reader = new Reader(fp);
@@ -163,6 +163,8 @@ public final class CobblePlugin : RegistryPlugin
         }
         candidate.id = id;
         candidates[id] = candidate;
+
+        return queryID(id);
     }
 
     /**
