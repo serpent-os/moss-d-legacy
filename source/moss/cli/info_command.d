@@ -30,9 +30,11 @@ import moss.controller;
 import std.stdio : stderr;
 import moss.deps.dependency;
 import moss.deps.registry.item;
-import std.string : join;
+import std.string : join, endsWith;
+import std.file : exists;
 import std.algorithm : map;
 import std.conv : to;
+import std.array : array;
 
 /**
  * InfoCommand is used to display info on local + remote pkgs
@@ -67,18 +69,29 @@ public struct InfoCommand
             return ExitStatus.Failure;
         }
 
+        RegistryItem[] lookups;
+
         foreach (pkg; argv)
         {
+            /* Sideloadable */
+            if (pkg.endsWith(".stone") && pkg.exists)
+            {
+                lookups ~= con.sideload(pkg);
+                continue;
+            }
+
             auto candidates = con.registryManager.byProvider(ProviderType.PackageName, pkg);
             if (candidates.empty)
             {
                 stderr.writeln("Unknown package: ", pkg);
                 continue;
             }
-            foreach (candidate; candidates)
-            {
-                printInfo(candidate);
-            }
+            lookups ~= candidates.array;
+        }
+
+        foreach (l; lookups)
+        {
+            printInfo(l);
         }
 
         return ExitStatus.Success;
