@@ -265,8 +265,8 @@ private:
                 switch (problem.type)
                 {
                 case TransactionProblemType.MissingDependency:
-                    writefln(" - %s depends on missing provider %s",
-                            problem.item.pkgID, problem.dependency.to!string);
+                    writefln(" - %s depends on missing %s",
+                            problem.item.info.name, problem.dependency.to!string);
                     break;
                 default:
                     writeln(problem);
