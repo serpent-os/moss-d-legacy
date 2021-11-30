@@ -96,7 +96,7 @@ public final class RepoPlugin : RegistryPlugin
     }
 
     /**
-     * TODO: Support listing items in this plugin
+     * List all known pkgIDs within the MetaDB
      */
     override const(RegistryItem)[] list(in ItemFlags flags) const
     {
@@ -106,7 +106,8 @@ public final class RepoPlugin : RegistryPlugin
             return null;
         }
 
-        return null;
+        return metaDB.list().map!((p) => RegistryItem(p, cast(RepoPlugin) this,
+                ItemFlags.Available)).array();
     }
 
     /**
