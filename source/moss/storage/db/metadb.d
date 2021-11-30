@@ -255,6 +255,19 @@ public class MetaDB
         return ItemInfo(name, summary, description, release, versionID);
     }
 
+    /**
+     * Return a string range of pkgid within this DB
+     */
+    final auto list() const
+    {
+        auto ibucket = cast(IReadWritable) indexBucket;
+        return ibucket.iterator().map!((i) {
+            string pkgID;
+            pkgID.mossDecode(cast(ImmutableDatum) i.entry.key);
+            return pkgID;
+        });
+    }
+
 protected:
 
     /**
