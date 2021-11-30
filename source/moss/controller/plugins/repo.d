@@ -27,6 +27,7 @@ public import moss.deps.registry;
 import moss.storage.db.metadb;
 import moss.format.binary.reader;
 import moss.format.binary.payload.meta;
+import std.algorithm : map;
 import std.exception : enforce;
 import std.array;
 
@@ -43,7 +44,14 @@ public final class RepoPlugin : RegistryPlugin
     override RegistryItem[] queryProviders(in ProviderType type, in string matcher,
             ItemFlags flags = ItemFlags.None)
     {
-        return null;
+        /* Only return available items */
+        if (flags != ItemFlags.None && (flags & ItemFlags.Available) != ItemFlags.Available)
+        {
+            return null;
+        }
+
+        return metaDB.byProvider(type, matcher).map!((i) => RegistryItem(i,
+                this, ItemFlags.Available)).array();
     }
 
     /**
