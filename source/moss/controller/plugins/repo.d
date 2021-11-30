@@ -24,19 +24,16 @@ module moss.controller.plugins.repo;
 
 public import moss.deps.registry;
 
+import moss.storage.db.metadb;
+import moss.format.binary.reader;
+import moss.format.binary.payload.meta;
+
 /**
  * The repo plugin encapsulates access to online software repositories providing
  * the means to search for software , and install a full chain of met dependencies.
  */
 public final class RepoPlugin : RegistryPlugin
 {
-
-    /**
-     * Construct a new RepoPlugin
-     */
-    this()
-    {
-    }
 
     /**
      * Return any matching providers
@@ -86,4 +83,33 @@ public final class RepoPlugin : RegistryPlugin
     {
         return null;
     }
+
+private:
+
+    /**
+     * Reload the index into the DB
+     */
+    void reloadIndex()
+    {
+        auto fi = File(indexLocal, "rb");
+        auto rdr = new Reader(fi);
+        scope (exit)
+        {
+            rdr.close();
+        }
+
+        /* Insert every payload in */
+        foreach (hdr; rdr.headers)
+        {
+            if (hdr.type != PayloadType.Meta)
+            {
+                continue;
+            }
+            auto meta = cast(MetaPayload) hdr.payload;
+            metaDB.install(meta);
+        }
+    }
+
+    MetaDB metaDB = null;
+    string indexLocal = null;
 }
