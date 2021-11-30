@@ -53,7 +53,8 @@ public final class RepoPlugin : RegistryPlugin
     {
         if (metaDB.hasID(pkgID))
         {
-            return NullableRegistryItem(RegistryItem(pkgID, cast(RegistryPlugin) this));
+            return NullableRegistryItem(RegistryItem(pkgID,
+                    cast(RegistryPlugin) this, ItemFlags.Available));
         }
         return NullableRegistryItem();
     }
