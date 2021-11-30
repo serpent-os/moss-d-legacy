@@ -142,7 +142,7 @@ public struct ExtractCommand
             import std.file : setAttributes;
             import std.path : dirName;
 
-            auto targetPath = installDir.buildPath(target);
+            auto targetPath = installDir.buildPath(target.startsWith("/") ? target[1 .. $] : target);
             writefln("Constructing target: %s", targetPath);
 
             switch (entry.entry.type)
