@@ -82,6 +82,12 @@ public final class RepoPlugin : RegistryPlugin
      */
     override const(RegistryItem)[] list(in ItemFlags flags) const
     {
+        /* Only list available items */
+        if (flags != ItemFlags.None && (flags & ItemFlags.Available) != ItemFlags.Available)
+        {
+            return null;
+        }
+
         return null;
     }
 
