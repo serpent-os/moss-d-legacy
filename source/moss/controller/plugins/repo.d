@@ -27,6 +27,7 @@ public import moss.deps.registry;
 import moss.storage.db.metadb;
 import moss.format.binary.reader;
 import moss.format.binary.payload.meta;
+import std.exception : enforce;
 
 /**
  * The repo plugin encapsulates access to online software repositories providing
@@ -97,6 +98,9 @@ private:
         {
             rdr.close();
         }
+
+        /* Make sure this is actually a repo */
+        enforce(rdr.archiveHeader.type == MossFileType.Repository, "Unsupported repository index");
 
         /* Insert every payload in */
         foreach (hdr; rdr.headers)
