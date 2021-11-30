@@ -254,12 +254,17 @@ private:
         rename(stagingTarget, finalTarget);
     }
 
+    /**
+     * Fully bake and commit to the transaction
+     */
     void commitTransaction(Transaction tx)
     {
         import std.stdio : writeln, writefln;
         import std.conv : to;
 
         auto finalSet = tx.apply();
+
+        /* Let's see if we have any problems. Bail out clause */
         auto problems = tx.problems();
         if (problems.length > 0)
         {
@@ -281,6 +286,7 @@ private:
             return;
         }
 
+        /* Iterate items to be removed */
         if (tx.removedItems.length > 0)
         {
             writeln("The following packages will be removed:");
@@ -290,14 +296,19 @@ private:
             }
         }
 
+        if (!acquireMissingAssets(finalSet))
+        {
+            return;
+        }
+
         /* TODO: Respect some real "manual" vs "automatic" logic in future. */
         auto state = new State();
         foreach (item; finalSet)
         {
             state.markSelection(item.pkgID, SelectionReason.ManuallyInstalled);
 
-            /* Get it cached for cobble */
-            if (item.plugin == cobble)
+            /* HACK: Get it cached for cobble */
+            if (item.plugin == cobble && !packagesDB.hasID(item.pkgID))
             {
                 archiveCacher.cache(cobble.itemPath(item.pkgID));
             }
@@ -308,6 +319,27 @@ private:
         rootContructor.construct(state);
         writeln("Updating system pointer to: ", state.id);
         updateSystemPointer(state);
+    }
+
+    /**
+     * Acquire any missing system assets
+     */
+    bool acquireMissingAssets(in RegistryItem[] items)
+    {
+        import std.stdio : writeln;
+        import std.array : join;
+        import std.algorithm : map;
+
+        auto missingItems = items.filter!((i) => !_packagesDB.hasID(i.pkgID)
+                && cobble.queryID(i.pkgID).isNull);
+        if (missingItems.empty)
+        {
+            return true;
+        }
+
+        writeln("Cannot fetch the following missing packages: ",
+                join(missingItems.map!((i) => i.info.name), " "));
+        return false;
     }
 
     /* Storage */
