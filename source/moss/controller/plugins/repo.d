@@ -28,6 +28,7 @@ import moss.storage.db.metadb;
 import moss.format.binary.reader;
 import moss.format.binary.payload.meta;
 import std.exception : enforce;
+import std.array;
 
 /**
  * The repo plugin encapsulates access to online software repositories providing
@@ -62,7 +63,7 @@ public final class RepoPlugin : RegistryPlugin
      */
     override const(Dependency)[] dependencies(in string pkgID) const
     {
-        return null;
+        return metaDB.dependencies(pkgID).array();
     }
 
     /**
@@ -70,7 +71,7 @@ public final class RepoPlugin : RegistryPlugin
      */
     override const(Provider)[] providers(in string pkgID) const
     {
-        return null;
+        return metaDB.providers(pkgID).array();
     }
 
     /**
