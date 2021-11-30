@@ -30,7 +30,7 @@ import moss.controller;
 import std.stdio : stderr;
 import moss.deps.dependency;
 import moss.deps.registry.item;
-import std.string : join, endsWith;
+import std.string : join, endsWith, format;
 import std.file : exists;
 import std.algorithm : map;
 import std.conv : to;
@@ -109,9 +109,24 @@ public struct InfoCommand
 
         auto info = item.info;
         printAligned("Name", info.name);
-        printAligned("Version", info.versionID);
+        printAligned("Version", format!"%s, Release %d"(info.versionID, info.releaseNumber));
         printAligned("Summary", info.summary);
         printAligned("Description", info.description);
+        printAligned("Homepage", info.homepage);
+
+        foreach (i; 0 .. info.licenses.length)
+        {
+            if (i == 0)
+            {
+                printAligned("License", info.licenses[i]);
+            }
+            else
+            {
+                auto license = info.licenses[i];
+                auto padsize = license.length + 16;
+                writeln(license.padLeft(' ', padsize));
+            }
+        }
 
         /* Dump dependencies */
         auto deps = item.dependencies();
