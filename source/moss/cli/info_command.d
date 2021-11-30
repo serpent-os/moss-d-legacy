@@ -76,7 +76,7 @@ public struct InfoCommand
             /* Sideloadable */
             if (pkg.endsWith(".stone") && pkg.exists)
             {
-                lookups ~= con.sideload(pkg);
+                lookups ~= con.loadLocalPackage(pkg);
                 continue;
             }
 

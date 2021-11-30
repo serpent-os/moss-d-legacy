@@ -109,7 +109,11 @@ public final class MossController
         commitTransaction(tx);
     }
 
-    RegistryItem sideload(in string path)
+    /**
+     * Load a local stone file via the Cobble plugin to make it accessible to the
+     * Registry system
+     */
+    RegistryItem loadLocalPackage(in string path)
     {
         return cobble.load(path);
     }
@@ -149,7 +153,7 @@ public final class MossController
         }
 
         /* Load each path into the cobble db */
-        localPaths.each!((p) => sideload(p));
+        localPaths.each!((p) => loadLocalPackage(p));
 
         auto tx = registryManager.transaction();
         tx.installPackages(cobble.items.array);
