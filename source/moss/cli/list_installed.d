@@ -48,7 +48,6 @@ public struct ListInstalledCommand
     {
         context.setRootDirectory((pt.findAncestor!MossCLI).rootDirectory);
 
-        listPackages(ListMode.Installed);
-        return ExitStatus.Success;
+        return listPackages(ListMode.Installed);
     }
 }

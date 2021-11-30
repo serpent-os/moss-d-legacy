@@ -48,7 +48,6 @@ public struct ListAvailableCommand
     {
         context.setRootDirectory((pt.findAncestor!MossCLI).rootDirectory);
 
-        listPackages(ListMode.Available);
-        return ExitStatus.Success;
+        return listPackages(ListMode.Available);
     }
 }

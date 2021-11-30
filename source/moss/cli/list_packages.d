@@ -22,6 +22,7 @@
 
 module moss.cli.list_packages;
 
+import moss.core : ExitStatus;
 import moss.context;
 import moss.controller;
 import moss.deps.registry.item;
@@ -50,7 +51,7 @@ package enum ListMode
 /**
  * Helper for listing packages for the CLI subcommands
  */
-public void listPackages(ListMode mode)
+public ExitStatus listPackages(ListMode mode)
 {
     auto con = new MossController();
     scope (exit)
@@ -78,7 +79,8 @@ public void listPackages(ListMode mode)
     auto results = con.registryManager.list(flags);
     if (results.empty)
     {
-        return;
+        writeln("Could not find any packages");
+        return ExitStatus.Failure;
     }
     auto pkgs = results.map!((i) {
         auto info = i.info();
@@ -98,4 +100,5 @@ public void listPackages(ListMode mode)
     {
         writefln("  %*s - %s", longestLen, i.lineLead, i.lineTail);
     }
+    return ExitStatus.Success;
 }
