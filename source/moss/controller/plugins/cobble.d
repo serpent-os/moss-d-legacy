@@ -228,6 +228,13 @@ public final class CobblePlugin : RegistryPlugin
     {
     }
 
+    /**
+     * No-op
+     */
+    override void fetchItem(FetchContext context, in string pkgID)
+    {
+    }
+
 private:
 
     /**

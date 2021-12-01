@@ -124,6 +124,13 @@ public final class RepoPlugin : RegistryPlugin
         metaDB = null;
     }
 
+    /**
+     * No-op
+     */
+    override void fetchItem(FetchContext context, in string pkgID)
+    {
+    }
+
 private:
 
     /**

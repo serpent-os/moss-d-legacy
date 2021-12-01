@@ -148,6 +148,13 @@ public final class ActivePackagesPlugin : RegistryPlugin
     {
     }
 
+    /**
+     * No-op
+     */
+    override void fetchItem(FetchContext context, in string pkgID)
+    {
+    }
+
 private:
 
     SystemPackagesDB packageDB = null;
