@@ -32,6 +32,8 @@ import moss.storage.db.statedb;
 
 import moss.deps.registry;
 import moss.controller.plugins;
+import moss.fetcher;
+import std.parallelism : totalCPUs;
 
 import moss.controller.archivecacher;
 import moss.controller.rootconstructor;
@@ -49,6 +51,11 @@ public final class MossController
      */
     this()
     {
+
+        /* bound to max 4 fetches, or 2 for everyone else. */
+        fetchController = new FetchController(totalCPUs >= 4 ? 3 : 1);
+
+        /* TODO: Only do with R/w privs */
         context.paths.mkdirs();
         diskPool = new DiskPool();
         cacheDB = new CacheDB();
@@ -353,4 +360,7 @@ private:
     RegistryManager _registryManager = null;
     CobblePlugin cobble = null;
     ActivePackagesPlugin activePkgs = null;
+
+    /* Downloadability (TM) */
+    FetchController fetchController = null;
 }
