@@ -20,6 +20,9 @@
 		},
 		"moss-deps": {
 			"path": "external/moss-deps"
+		},
+		"moss-fetcher": {
+			"path": "external/moss-fetcher"
 		}
 	},
 	"buildTypes": {
