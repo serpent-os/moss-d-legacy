@@ -268,6 +268,21 @@ public class MetaDB
         });
     }
 
+    /**
+     * Safely return a value from the metadata payload if it exists, otherwise
+     * the return value will return true with isNull()
+     */
+    Nullable!(T, T.init) getValue(T)(in string pkgID, RecordTag tag)
+    {
+        auto bucket = db.bucket(format!"%s.%s"(BucketName.PackageMeta, pkgID));
+        auto result = bucket.get!T(tag.to!string);
+        if (result.found)
+        {
+            return Nullable!(T, T.init)(result.value);
+        }
+        return Nullable!(T, T.init)(T.init);
+    }
+
 protected:
 
     /**
