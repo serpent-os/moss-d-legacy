@@ -24,16 +24,5 @@
 		"moss-fetcher": {
 			"path": "external/moss-fetcher"
 		}
-	},
-	"buildTypes": {
-		"debug": {
-			"buildOptions": ["debugMode", "optimize"],
-			"dflags-dmd": ["-g", "-fPIC"],
-			"dflags-ldc": ["-gc", "-O2", "--relocation-model=pic"]
-		},
-		"release": {
-			"buildOptions": ["releaseMode", "optimize", "inline"],
-			"dflags-ldc": ["-flto=thin", "--relocation-model=pic", "-link-defaultlib-shared=false"]
-		}
 	}
 }
