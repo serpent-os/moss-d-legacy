@@ -24,7 +24,7 @@ module moss.storage.cachepool;
 import moss.context;
 import std.path : buildPath, dirName;
 import std.string : format;
-import std.file : mkdirRecurse, rename;
+import std.file : mkdirRecurse, rename, remove;
 import moss.core.ioutil;
 import std.sumtype : match;
 
@@ -74,6 +74,15 @@ public final class CachePool
         res.match!((bool b) {}, (err) { throw new Exception(res.toString); });
 
         rename(stagingOrigin, finalDestination);
+    }
+
+    /**
+     * Remove a staging file
+     */
+    void removeStaging(in string inp)
+    {
+        const auto stagingOrigin = stagingPath(inp);
+        stagingOrigin.remove();
     }
 
     /** 
