@@ -133,6 +133,7 @@ public final class MossController
         import std.stdio : writeln;
         import std.file : exists;
         import std.string : endsWith;
+        import std.exception : enforce;
 
         auto localPaths = paths.filter!((p) => p.endsWith(".stone") && p.exists).array();
         auto repoPaths = paths.filter!((p) => !p.endsWith(".stone")).array();
@@ -145,25 +146,18 @@ public final class MossController
             return;
         }
 
-        /* Not yet doing repos,sorry */
-        if (repoPaths.length > 0)
-        {
-            writeln("Repository installation not yet supported");
-            return;
-        }
-
-        /* Seriously, gimme some local archives */
-        if (localPaths.length < 1)
-        {
-            writeln("Must provide local paths to install");
-            return;
-        }
-
         /* Load each path into the cobble db */
         localPaths.each!((p) => loadLocalPackage(p));
+        RegistryItem[] installables = cobble.items.array();
+        foreach (name; repoPaths)
+        {
+            auto candidates = registryManager.byName(name);
+            enforce(!candidates.empty, "Package not found: " ~ name);
+            installables ~= candidates.front;
+        }
 
         auto tx = registryManager.transaction();
-        tx.installPackages(cobble.items.array);
+        tx.installPackages(installables);
         commitTransaction(tx);
     }
 
