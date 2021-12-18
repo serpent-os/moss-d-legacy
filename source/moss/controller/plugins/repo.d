@@ -30,6 +30,7 @@ import moss.format.binary.payload.meta;
 import std.algorithm : map;
 import std.exception : enforce;
 import std.array;
+import moss.context;
 
 /**
  * The repo plugin encapsulates access to online software repositories providing
@@ -46,6 +47,8 @@ public final class RepoPlugin : RegistryPlugin
     this(in string id)
     {
         this._id = id;
+        auto dbPath = context.paths.db.buildPath("repo", _id);
+        metaDB = new MetaDB(dbPath);
     }
 
     /**
