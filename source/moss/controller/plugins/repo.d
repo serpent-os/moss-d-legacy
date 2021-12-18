@@ -38,6 +38,24 @@ import std.array;
 public final class RepoPlugin : RegistryPlugin
 {
 
+    @disable this();
+
+    /**
+     * Construct a new RepoPlugin with the given ID
+     */
+    this(in string id)
+    {
+        this._id = id;
+    }
+
+    /**
+     * Return the ID for this RepoPlugin
+     */
+    pragma(inline, true) pure @property string id() @safe @nogc nothrow const
+    {
+        return _id;
+    }
+
     /**
      * Return any matching providers
      */
@@ -162,4 +180,5 @@ private:
 
     MetaDB metaDB = null;
     string indexLocal = null;
+    string _id = null;
 }
