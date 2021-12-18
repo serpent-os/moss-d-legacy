@@ -32,6 +32,7 @@ import std.exception : enforce;
 import std.array;
 import moss.context;
 import moss.storage.cachepool;
+import std.path : dirName;
 
 /**
  * The repo plugin encapsulates access to online software repositories providing
@@ -45,10 +46,12 @@ public final class RepoPlugin : RegistryPlugin
     /**
      * Construct a new RepoPlugin with the given ID
      */
-    this(CachePool pool, in string id)
+    this(CachePool pool, in string id, in string indexURI)
     {
         this._id = id;
         this._pool = pool;
+        this._indexURI = indexURI;
+        this._indexBase = indexURI.dirName;
         auto dbPath = context.paths.db.buildPath("repo", _id);
         metaDB = new MetaDB(dbPath);
     }
@@ -186,5 +189,7 @@ private:
     MetaDB metaDB = null;
     string indexLocal = null;
     string _id = null;
+    string _indexURI = null;
+    string _indexBase = null;
     CachePool _pool = null;
 }
