@@ -24,6 +24,7 @@ module moss.controller;
 
 import moss.context;
 
+import moss.storage.cachepool;
 import moss.storage.pool;
 import moss.storage.db.cachedb;
 import moss.storage.db.packagesdb;
@@ -69,6 +70,9 @@ public final class MossController
         /* Seed the query manager */
         _registryManager.addPlugin(cobble);
         _registryManager.addPlugin(activePkgs);
+
+        /* DEMO CODE */
+        caching = new CachePool();
     }
 
     /**
@@ -357,4 +361,7 @@ private:
 
     /* Downloadability (TM) */
     FetchController fetchController = null;
+
+    /* Caching of downloads/archives */
+    CachePool caching;
 }
