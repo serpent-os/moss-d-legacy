@@ -13,3 +13,6 @@
 [submodule "external/moss-fetcher"]
 	path = external/moss-fetcher
 	url = https://gitlab.com/serpent-os/core/moss-fetcher.git
+[submodule "external/moss-config"]
+	path = external/moss-config
+	url = https://gitlab.com/serpent-os/core/moss-config.git

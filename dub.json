@@ -12,6 +12,9 @@
 		"moss-core": {
 			"path": "external/moss-core"
 		},
+		"moss-config": {
+			"path": "external/moss-config"
+		},
 		"moss-format:binary": {
 			"path": "external/moss-format"
 		},
