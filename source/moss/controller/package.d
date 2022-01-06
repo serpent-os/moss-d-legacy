@@ -37,6 +37,7 @@ import moss.fetcher;
 import std.parallelism : totalCPUs;
 
 import moss.controller.archivecacher;
+import moss.controller.remote;
 import moss.controller.rootconstructor;
 import std.algorithm : each, filter, canFind;
 import std.array : array;
@@ -70,6 +71,9 @@ public final class MossController
         /* Seed the query manager */
         _registryManager.addPlugin(cobble);
         _registryManager.addPlugin(activePkgs);
+
+        /* Init repos */
+        remotes = new RemoteManager();
 
         /* DEMO CODE */
         caching = new CachePool();
@@ -361,6 +365,9 @@ private:
 
     /* Downloadability (TM) */
     FetchController fetchController = null;
+
+    /* Repositories! */
+    RemoteManager remotes;
 
     /* Caching of downloads/archives */
     CachePool caching;
