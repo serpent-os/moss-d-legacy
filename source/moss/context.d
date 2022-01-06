@@ -88,6 +88,14 @@ public struct MossPaths
     }
 
     /**
+     * Return the remotes directory
+     */
+    pragma(inline, true) pure @property const(string) remotes() @safe @nogc nothrow const
+    {
+        return _remotes;
+    }
+
+    /**
      * Create necessary context directories
      */
     void mkdirs() @trusted const
@@ -95,7 +103,7 @@ public struct MossPaths
         import std.algorithm : each;
         import std.file : mkdirRecurse;
 
-        [_root, _db, _cache, _store].each!(mkdirRecurse);
+        [_root, _db, _cache, _store, _remotes].each!(mkdirRecurse);
     }
 
 package:
@@ -109,6 +117,7 @@ package:
         _db = _root.buildPath(".moss", "db");
         _cache = _root.buildPath(".moss", "cache");
         _store = _root.buildPath(".moss", "store");
+        _remotes = _root.buildPath(".moss", "remotes");
     }
 
 private:
@@ -117,6 +126,7 @@ private:
     string _db = null;
     string _cache = null;
     string _store = null;
+    string _remotes = null;
 }
 
 /**
