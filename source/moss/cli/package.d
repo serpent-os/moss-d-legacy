@@ -40,7 +40,7 @@ public import moss.cli.remove_command;
 @RootCommand @CommandName("moss")
 @CommandHelp("moss - the Serpent OS package management tool",
         "\nA system package manager tying together traditional requirements "
-        ~ "with advanced features for improved control and reliablity.")
+        ~ "with advanced features for improved control and reliability.")
 @CommandUsage("[--args] [command]")
 public struct MossCLI
 {
