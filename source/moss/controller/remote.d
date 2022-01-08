@@ -25,6 +25,13 @@ module moss.controller.remote;
 import moss.context;
 import moss.config.io;
 import moss.config.repo;
+import moss.controller.plugins.repo;
+
+import std.exception : enforce;
+import std.range : empty;
+import std.string : format;
+
+public import moss.storage.cachepool;
 
 /**
  * In moss terms (internally) a remote is essentially a repository but we're only
@@ -35,13 +42,41 @@ import moss.config.repo;
  */
 public final class RemoteManager
 {
+
+    @disable this();
+
     /**
      * Construct a new RemoteManager which will reload the configuration on
      * initialisation
      */
-    this()
+    this(CachePool pool)
     {
-        reload();
+        assert(pool !is null);
+        _pool = pool;
+
+        repoConfig = new Configuration!(Repository[]);
+        repoConfig.load(context.paths.root);
+
+        foreach (section; repoConfig.sections)
+        {
+            const auto uri = section.uri;
+            const auto description = section.description;
+            const auto id = section.id;
+
+            enforce(uri !is null && !uri.empty, format!"%s: URI cannot be empty"(id));
+            enforce(description !is null && !description.empty,
+                    format!"%s: Description cannot be empty"(id));
+            auto plugin = new RepoPlugin(pool, id, uri);
+            _plugins ~= plugin;
+        }
+    }
+
+    /**
+     * Return our managed plugins
+     */
+    pure auto @property plugins() @safe @nogc nothrow
+    {
+        return _plugins;
     }
 
 private:
@@ -55,7 +90,10 @@ private:
     {
         repoConfig = new Configuration!(Repository[]);
         repoConfig.load(context.paths.root);
+
     }
 
     Configuration!(Repository[]) repoConfig;
+    RepoPlugin[] _plugins;
+    CachePool _pool = null;
 }
