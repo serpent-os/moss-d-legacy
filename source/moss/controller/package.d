@@ -41,6 +41,8 @@ import moss.controller.remote;
 import moss.controller.rootconstructor;
 import std.algorithm : each, filter, canFind;
 import std.array : array;
+import std.path : baseName;
+import std.string : endsWith;
 
 /**
  * MossController is required to access the underlying Moss resources and to
@@ -56,6 +58,8 @@ public final class MossController
 
         /* bound to max 4 fetches, or 2 for everyone else. */
         fetchController = new FetchController(totalCPUs >= 4 ? 3 : 1);
+        fetchController.onComplete.connect(&onComplete);
+        fetchController.onFail.connect(&onFailed);
 
         /* TODO: Only do with R/w privs */
         context.paths.mkdirs();
@@ -229,6 +233,31 @@ package:
 
 private:
 
+    void onComplete(in Fetchable f, long code)
+    {
+        import std.stdio : writefln;
+        writefln!"Downloaded: %s"(f.sourceURI.baseName);
+
+        /* TODO: Only take action if default action not present */
+        if (!f.sourceURI.endsWith(".stone"))
+        {
+            return;
+        }
+
+        /* Lets cache it now */
+        synchronized (this)
+        {
+            archiveCacher.cache(f.destinationPath);
+            writefln!"Cached: %s"(f.sourceURI.baseName);
+        }
+    }
+
+    void onFailed(in Fetchable f, in string reason)
+    {
+        import std.stdio : writefln;
+        writefln!"Failed to download '%s': %s"(f.sourceURI, reason);
+    }
+
     /**
      * Handle updating of remotes. Internal API currently
      */
@@ -361,9 +390,14 @@ private:
             return true;
         }
 
-        writeln("Cannot fetch the following missing packages: ",
-                join(missingItems.map!((i) => i.info.name), " "));
-        return false;
+        missingItems.each!((i) => (cast(RegistryItem)i).fetch(fetchController));
+
+        while (!fetchController.empty)
+        {
+            fetchController.fetch();
+        }
+
+        return true;
     }
 
     /* Storage */
