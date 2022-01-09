@@ -2,3 +2,4 @@
 /.dub
 /testpackage.stone
 /dub.selections.json
+/destdir
