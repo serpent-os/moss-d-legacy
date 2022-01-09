@@ -51,6 +51,7 @@ public final class RepoPlugin : RegistryPlugin
         this._id = id;
         this._pool = pool;
         this._uri = uri;
+        _workDir = context.paths.remotes.buildPath(id);
     }
 
     /**
@@ -67,6 +68,14 @@ public final class RepoPlugin : RegistryPlugin
     pragma(inline, true) pure @property const(string) uri() @safe @nogc nothrow const
     {
         return _uri;
+    }
+
+    /**
+     * Return the base working directory for a repository (cache/db)
+     */
+    pragma(inline, true) pure @property const(string) workDir() @safe @nogc nothrow const
+    {
+        return _workDir;
     }
 
     /**
@@ -194,5 +203,6 @@ private:
     MetaDB metaDB = null;
     string _id = null;
     string _uri = null;
+    string _workDir = null;
     CachePool _pool = null;
 }
