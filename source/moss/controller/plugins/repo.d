@@ -183,11 +183,12 @@ public final class RepoPlugin : RegistryPlugin
      */
     override void fetchItem(FetchContext context, in string pkgID)
     {
-        const auto pkgURI = uri.dirName.buildPath(metaDB.getValue!string(pkgID, RecordTag.PackageURI));
+        const auto pkgURI = uri.dirName.buildPath(metaDB.getValue!string(pkgID,
+                RecordTag.PackageURI));
         const auto hashsum = metaDB.getValue!string(pkgID, RecordTag.PackageHash);
         const auto expectedSize = metaDB.getValue!uint64_t(pkgID, RecordTag.PackageSize);
 
-        enforce (pkgURI.endsWith(".stone") && !hashsum.empty && expectedSize > 0);
+        enforce(pkgURI.endsWith(".stone") && !hashsum.empty && expectedSize > 0);
         auto dest = _pool.finalPath(hashsum);
         dest.dirName.mkdirRecurse();
         auto fetchable = Fetchable(pkgURI, dest, expectedSize, FetchType.RegularFile, null);
