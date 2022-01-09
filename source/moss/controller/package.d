@@ -39,7 +39,7 @@ import std.parallelism : totalCPUs;
 import moss.controller.archivecacher;
 import moss.controller.remote;
 import moss.controller.rootconstructor;
-import std.algorithm : each, filter, canFind;
+import std.algorithm : each, filter, canFind, sort, uniq;
 import std.array : array;
 import std.path : baseName;
 import std.string : endsWith;
@@ -139,12 +139,17 @@ public final class MossController
     /**
      * Request installation of the given packages
      */
-    void installPackages(in string[] paths)
+    void installPackages(in string[] sourcePaths)
     {
         import std.stdio : writeln;
         import std.file : exists;
         import std.string : endsWith;
         import std.exception : enforce;
+
+        /* Remove all duplicates! */
+        string[] paths = cast(string[]) sourcePaths;
+        paths.sort();
+        paths = paths.uniq.array();
 
         auto localPaths = paths.filter!((p) => p.endsWith(".stone") && p.exists).array();
         auto repoPaths = paths.filter!((p) => !p.endsWith(".stone")).array();
@@ -236,6 +241,7 @@ private:
     void onComplete(in Fetchable f, long code)
     {
         import std.stdio : writefln;
+
         writefln!"Downloaded: %s"(f.sourceURI.baseName);
 
         /* TODO: Only take action if default action not present */
@@ -255,6 +261,7 @@ private:
     void onFailed(in Fetchable f, in string reason)
     {
         import std.stdio : writefln;
+
         writefln!"Failed to download '%s': %s"(f.sourceURI, reason);
     }
 
@@ -390,7 +397,7 @@ private:
             return true;
         }
 
-        missingItems.each!((i) => (cast(RegistryItem)i).fetch(fetchController));
+        missingItems.each!((i) => (cast(RegistryItem) i).fetch(fetchController));
 
         while (!fetchController.empty)
         {
