@@ -30,7 +30,7 @@ import moss.format.binary.payload.meta;
 import std.algorithm : each, map;
 import std.exception : enforce;
 import std.array;
-import std.file : mkdir;
+import std.file : mkdirRecurse;
 import moss.context;
 import moss.storage.cachepool;
 import std.path : dirName;
@@ -56,9 +56,8 @@ public final class RepoPlugin : RegistryPlugin
         auto rootOrigin = context.paths.remotes.buildPath(id);
         dbPath = rootOrigin.buildPath("db");
         cachePath = rootOrigin.buildPath("cache");
-        
-        [rootOrigin, dbPath, cachePath].each!((p) => p.mkdir());
 
+        [rootOrigin, cachePath].each!((p) => p.mkdirRecurse());
         metaDB = new MetaDB(dbPath);
     }
 

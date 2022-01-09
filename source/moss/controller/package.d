@@ -75,6 +75,7 @@ public final class MossController
         /* Initialise remote management */
         caching = new CachePool();
         remotes = new RemoteManager(caching);
+        remotes.plugins.each!((p) => _registryManager.addPlugin(p));
     }
 
     /**
