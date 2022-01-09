@@ -111,7 +111,7 @@ public final class ActivePackagesPlugin : RegistryPlugin
     }
 
     /**
-     * TODO: Support getting info for the package
+     * Retrieve info for the package
      */
     override ItemInfo info(in string pkgID) const
     {
@@ -119,7 +119,7 @@ public final class ActivePackagesPlugin : RegistryPlugin
     }
 
     /**
-     * TODO: Support listing items in this plugin
+     * Retrieve listing of items in this plugin
      */
     override const(RegistryItem)[] list(in ItemFlags flags) const
     {
