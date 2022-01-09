@@ -64,10 +64,6 @@ package struct ArchiveCacher
      */
     void cache(const(string) path)
     {
-        import std.stdio : writefln;
-
-        writefln("Caching: %s", path);
-
         auto pkgFile = File(path, "rb");
         auto reader = new Reader(pkgFile);
 
