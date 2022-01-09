@@ -72,11 +72,9 @@ public final class MossController
         _registryManager.addPlugin(cobble);
         _registryManager.addPlugin(activePkgs);
 
-        /* Init repos */
-        remotes = new RemoteManager();
-
-        /* DEMO CODE */
+        /* Initialise remote management */
         caching = new CachePool();
+        remotes = new RemoteManager(caching);
     }
 
     /**
