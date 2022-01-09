@@ -46,14 +46,11 @@ public final class RepoPlugin : RegistryPlugin
     /**
      * Construct a new RepoPlugin with the given ID
      */
-    this(CachePool pool, in string id, in string indexURI)
+    this(CachePool pool, in string id, in string uri)
     {
         this._id = id;
         this._pool = pool;
-        this._indexURI = indexURI;
-        this._indexBase = indexURI.dirName;
-        auto dbPath = context.paths.db.buildPath("repo", _id);
-        metaDB = new MetaDB(dbPath);
+        this._uri = uri;
     }
 
     /**
@@ -62,6 +59,14 @@ public final class RepoPlugin : RegistryPlugin
     pragma(inline, true) pure @property string id() @safe @nogc nothrow const
     {
         return _id;
+    }
+
+    /**
+     * Return the URI property of this RepoPlugin
+     */
+    pragma(inline, true) pure @property const(string) uri() @safe @nogc nothrow const
+    {
+        return _uri;
     }
 
     /**
@@ -162,7 +167,7 @@ private:
     /**
      * Reload the index into the DB
      */
-    void reloadIndex()
+    void reloadIndex(in string indexLocal)
     {
         auto fi = File(indexLocal, "rb");
         auto rdr = new Reader(fi);
@@ -187,9 +192,7 @@ private:
     }
 
     MetaDB metaDB = null;
-    string indexLocal = null;
     string _id = null;
-    string _indexURI = null;
-    string _indexBase = null;
+    string _uri = null;
     CachePool _pool = null;
 }
