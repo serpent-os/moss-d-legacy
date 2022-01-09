@@ -34,6 +34,7 @@ import std.file : mkdirRecurse;
 import moss.context;
 import moss.storage.cachepool;
 import std.path : dirName;
+import moss.core.fetchcontext;
 
 /**
  * The repo plugin encapsulates access to online software repositories providing
@@ -75,6 +76,18 @@ public final class RepoPlugin : RegistryPlugin
     pragma(inline, true) pure @property const(string) uri() @safe @nogc nothrow const
     {
         return _uri;
+    }
+
+    /**
+     * Attempt to update this repo plugin
+     */
+    void update(FetchContext context)
+    {
+        auto localIndexPath = cachePath.buildPath("stone.index");
+        auto fetchable = Fetchable(uri, localIndexPath, 0, FetchType.RegularFile, (f, l) {
+            reloadIndex(localIndexPath);
+        });
+        context.enqueue(fetchable);
     }
 
     /**

@@ -22,6 +22,7 @@
 
 module moss.controller.remote;
 
+import moss.core.fetchcontext;
 import moss.context;
 import moss.config.io;
 import moss.config.repo;
@@ -77,6 +78,17 @@ public final class RemoteManager
     pure auto @property plugins() @safe @nogc nothrow
     {
         return _plugins;
+    }
+
+    /**
+     * For all owned remotes, request they forcibly update.
+     */
+    void updateRemotes(FetchContext context)
+    {
+        foreach (remote; plugins)
+        {
+            remote.update(context);
+        }
     }
 
 private:

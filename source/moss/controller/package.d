@@ -156,6 +156,10 @@ public final class MossController
         /* Load each path into the cobble db */
         localPaths.each!((p) => loadLocalPackage(p));
         RegistryItem[] installables = cobble.items.array();
+
+        /* HAX: DO somewhere else */
+        updateRemotes();
+
         foreach (name; repoPaths)
         {
             auto candidates = registryManager.byName(name);
@@ -224,6 +228,18 @@ package:
     }
 
 private:
+
+    /**
+     * Handle updating of remotes. Internal API currently
+     */
+    void updateRemotes()
+    {
+        remotes.updateRemotes(fetchController);
+        while (!fetchController.empty)
+        {
+            fetchController.fetch();
+        }
+    }
 
     void atomicRootfsLink(in string sourcePath, in string targetPath)
     {
