@@ -27,9 +27,10 @@ public import moss.deps.registry;
 import moss.storage.db.metadb;
 import moss.format.binary.reader;
 import moss.format.binary.payload.meta;
-import std.algorithm : map;
+import std.algorithm : each, map;
 import std.exception : enforce;
 import std.array;
+import std.file : mkdir;
 import moss.context;
 import moss.storage.cachepool;
 import std.path : dirName;
@@ -51,7 +52,14 @@ public final class RepoPlugin : RegistryPlugin
         this._id = id;
         this._pool = pool;
         this._uri = uri;
-        _workDir = context.paths.remotes.buildPath(id);
+
+        auto rootOrigin = context.paths.remotes.buildPath(id);
+        dbPath = rootOrigin.buildPath("db");
+        cachePath = rootOrigin.buildPath("cache");
+        
+        [rootOrigin, dbPath, cachePath].each!((p) => p.mkdir());
+
+        metaDB = new MetaDB(dbPath);
     }
 
     /**
@@ -68,14 +76,6 @@ public final class RepoPlugin : RegistryPlugin
     pragma(inline, true) pure @property const(string) uri() @safe @nogc nothrow const
     {
         return _uri;
-    }
-
-    /**
-     * Return the base working directory for a repository (cache/db)
-     */
-    pragma(inline, true) pure @property const(string) workDir() @safe @nogc nothrow const
-    {
-        return _workDir;
     }
 
     /**
@@ -203,6 +203,7 @@ private:
     MetaDB metaDB = null;
     string _id = null;
     string _uri = null;
-    string _workDir = null;
+    string cachePath = null;
+    string dbPath = null;
     CachePool _pool = null;
 }
