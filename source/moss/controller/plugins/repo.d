@@ -30,7 +30,7 @@ import moss.format.binary.payload.meta;
 import std.algorithm : each, map;
 import std.exception : enforce;
 import std.array;
-import std.file : mkdirRecurse;
+import std.file : mkdirRecurse, rmdirRecurse, exists;
 import moss.context;
 import moss.storage.cachepool;
 import std.path : dirName;
@@ -202,6 +202,14 @@ private:
      */
     void reloadIndex(in string indexLocal)
     {
+        /* Wipe old DB */
+        close();
+        if (dbPath.exists)
+        {
+            dbPath.rmdirRecurse();
+        }
+        metaDB = new MetaDB(dbPath);
+
         auto fi = File(indexLocal, "rb");
         auto rdr = new Reader(fi);
         scope (exit)
