@@ -55,7 +55,7 @@ public final class RemoteManager
         assert(pool !is null);
         _pool = pool;
 
-        repoConfig = new Configuration!(Repository[]);
+        repoConfig = new RepositoryConfiguration();
         repoConfig.load(context.paths.root);
 
         foreach (section; repoConfig.sections)
@@ -93,19 +93,7 @@ public final class RemoteManager
 
 private:
 
-    /**
-     * Reload the on-disk configuration
-     *
-     * TODO: Some kind of useful error handling and logging
-     */
-    void reload()
-    {
-        repoConfig = new Configuration!(Repository[]);
-        repoConfig.load(context.paths.root);
-
-    }
-
-    Configuration!(Repository[]) repoConfig;
+    RepositoryConfiguration repoConfig;
     RepoPlugin[] _plugins;
     CachePool _pool = null;
 }
