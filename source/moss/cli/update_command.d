@@ -53,6 +53,8 @@ public struct UpdateCommand
             con.close();
         }
 
+        con.updateRemotes();
+
         return ExitStatus.Success;
     }
 }

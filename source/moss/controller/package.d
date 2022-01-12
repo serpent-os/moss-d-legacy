@@ -166,9 +166,6 @@ public final class MossController
         localPaths.each!((p) => loadLocalPackage(p));
         RegistryItem[] installables = cobble.items.array();
 
-        /* HAX: DO somewhere else */
-        updateRemotes();
-
         foreach (name; repoPaths)
         {
             auto candidates = registryManager.byName(name);
@@ -179,6 +176,18 @@ public final class MossController
         auto tx = registryManager.transaction();
         tx.installPackages(installables);
         commitTransaction(tx);
+    }
+
+    /**
+     * Handle updating of remotes. Internal API currently
+     */
+    void updateRemotes()
+    {
+        remotes.updateRemotes(fetchController);
+        while (!fetchController.empty)
+        {
+            fetchController.fetch();
+        }
     }
 
 package:
@@ -263,18 +272,6 @@ private:
         import std.stdio : writefln;
 
         writefln!"Failed to download '%s': %s"(f.sourceURI, reason);
-    }
-
-    /**
-     * Handle updating of remotes. Internal API currently
-     */
-    void updateRemotes()
-    {
-        remotes.updateRemotes(fetchController);
-        while (!fetchController.empty)
-        {
-            fetchController.fetch();
-        }
     }
 
     void atomicRootfsLink(in string sourcePath, in string targetPath)
