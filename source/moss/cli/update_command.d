@@ -20,35 +20,39 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module moss.cli;
+module moss.cli.update_command;
 
 public import moss.core.cli;
-public import moss.cli.extract_command;
-public import moss.cli.inspect_command;
-public import moss.cli.index_command;
-public import moss.cli.info_command;
-public import moss.cli.install_command;
-public import moss.cli.list;
-public import moss.cli.list_available;
-public import moss.cli.list_installed;
-public import moss.cli.version_command;
-public import moss.cli.remove_command;
-public import moss.cli.update_command;
+import moss.core;
+import moss.cli : MossCLI;
+import moss.context;
+import moss.controller;
 
 /**
- * The MossCLI type holds some global configuration bits
+ * The update command allows the user to request repository update to happen
  */
-@RootCommand @CommandName("moss")
-@CommandHelp("moss - the Serpent OS package management tool",
-        "\nA system package manager tying together traditional requirements "
-        ~ "with advanced features for improved control and reliability.")
-@CommandUsage("[--args] [command]")
-public struct MossCLI
+@CommandName("update")
+@CommandHelp("Update system repository")
+@CommandAlias("ur")
+public struct UpdateCommand
 {
-    /** Extend BaseCommand to provide a root group of commands */
+    /** Extend BaseCommand with update utility */
     BaseCommand pt;
     alias pt this;
 
-    /** Option to set the root directory for filesystem operations */
-    @Option("D", "destdir", "Root directory for all operations") string rootDirectory = "/";
+    /**
+     * Main entry point into the UpdateCommand
+     */
+    @CommandEntry() int run(ref string[] argv)
+    {
+        context.setRootDirectory((pt.findAncestor!MossCLI).rootDirectory);
+
+        auto con = new MossController();
+        scope (exit)
+        {
+            con.close();
+        }
+
+        return ExitStatus.Success;
+    }
 }

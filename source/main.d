@@ -37,6 +37,7 @@ int main(string[] args)
     ls.addCommand!ListAvailableCommand;
     ls.addCommand!ListInstalledCommand;
     clip.addCommand!RemoveCommand;
+    clip.addCommand!UpdateCommand;
     clip.addCommand!VersionCommand;
     clip.addCommand!HelpCommand;
     return clip.process(args);
