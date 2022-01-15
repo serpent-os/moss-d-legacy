@@ -320,6 +320,7 @@ private:
         import std.conv : to;
 
         auto finalSet = tx.apply();
+        auto newpkgs = finalSet.filter!((p) => !p.installed);
 
         /* Let's see if we have any problems. Bail out clause */
         auto problems = tx.problems();
@@ -341,6 +342,15 @@ private:
             }
             writeln("\nNo changes have been made to your installation");
             return;
+        }
+
+        if (!newpkgs.empty)
+        {
+            writeln("The following NEW packages will be installed: ");
+            foreach (n; newpkgs)
+            {
+                writeln(" - ", n.info.name);
+            }
         }
 
         /* Iterate items to be removed */
