@@ -42,7 +42,7 @@ import moss.controller.rootconstructor;
 import std.algorithm : each, filter, canFind, sort, uniq;
 import std.array : array;
 import std.path : baseName;
-import std.string : endsWith;
+import std.string : endsWith, startsWith;
 
 /**
  * MossController is required to access the underlying Moss resources and to
@@ -168,7 +168,7 @@ public final class MossController
 
         foreach (name; repoPaths)
         {
-            auto candidates = registryManager.byName(name);
+            auto candidates = byInputName(name);
             enforce(!candidates.empty, "Package not found: " ~ name);
             installables ~= candidates.front;
         }
@@ -191,6 +191,46 @@ public final class MossController
     }
 
 package:
+
+    /**
+     * Potentially mutate the input name to use a better provider based search
+     * pattern, i.e. pkgconfig($name), or interpreter($name), etc.
+     */
+    auto byInputName(in string inputName)
+    {
+        static struct Matcher
+        {
+            /* Prefix string, i.e. 'pkgconfig(' */
+            string prefix;
+
+            /* What provider does it search *for*? */
+            ProviderType type;
+        };
+
+        Matcher[] matchers = [
+            Matcher("pkgconfig(", ProviderType.PkgconfigName),
+            Matcher("interpreter(", ProviderType.Interpreter),
+        ];
+
+        /* Walk the matchers and find one that helps us */
+        foreach (ref matcher; matchers)
+        {
+            if (!inputName.endsWith(")"))
+            {
+                continue;
+            }
+            if (!inputName.startsWith(matcher.prefix))
+            {
+                continue;
+            }
+
+            /* Remove $prefix( and ) from the input string */
+            auto capabilityName = inputName[matcher.prefix.length .. $ - 1];
+            return registryManager.byProvider(matcher.type, capabilityName);
+        }
+
+        return registryManager.byName(inputName);
+    }
 
     /**
      * Return a utility ArchiveCacher
