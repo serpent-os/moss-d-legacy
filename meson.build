@@ -89,5 +89,12 @@ moss = executable(
 	install: true,
 	dependencies: moss_deps,
 	include_directories: moss_includes,
-	link_args: ['--link-defaultlib-shared=false', '-lrocksdb', 'subprojects/moss-core/libmoss-core.a'],
+	link_whole: [
+		moss_format.get_variable('libmoss_format_binary'),
+		moss_db.get_variable('libmoss_db'),
+		moss_fetcher.get_variable('libmoss_fetcher'),
+		moss_config.get_variable('libmoss_config'),
+		moss_core.get_variable('libmoss_core'),
+	],
+	link_args: ['--link-defaultlib-shared=false'],
 )
