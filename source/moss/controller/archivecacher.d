@@ -22,7 +22,7 @@
 
 module moss.controller.archivecacher;
 
-import moss.storage.pool;
+import moss.storage.diskpool;
 import moss.storage.db.packagesdb;
 import moss.storage.db.layoutdb;
 import std.exception : enforce;

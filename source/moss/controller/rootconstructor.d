@@ -22,7 +22,7 @@
 
 module moss.controller.rootconstructor;
 
-import moss.storage.pool;
+import moss.storage.diskpool;
 import moss.storage.db.statedb;
 import moss.storage.db.layoutdb;
 import moss.format.binary.payload.layout;

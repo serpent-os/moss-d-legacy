@@ -20,7 +20,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-module moss.storage.pool;
+module moss.storage.diskpool;
 
 import moss.context;
 import std.path : buildPath;

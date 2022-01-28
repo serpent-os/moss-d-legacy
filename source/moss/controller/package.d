@@ -25,7 +25,7 @@ module moss.controller;
 import moss.context;
 
 import moss.storage.cachepool;
-import moss.storage.pool;
+import moss.storage.diskpool;
 import moss.storage.db.cachedb;
 import moss.storage.db.packagesdb;
 import moss.storage.db.layoutdb;
