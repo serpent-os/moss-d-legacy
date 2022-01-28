@@ -2,30 +2,30 @@
 	"authors": [
 		"Serpent OS Developers"
 	],
-	"copyright": "Copyright © 2020-2021 Serpent OS Developers",
+	"copyright": "Copyright © 2020-2022 Serpent OS Developers",
 	"description": "Serpent OS Package Manager",
 	"license": "Zlib",
-	"version": "0.0.1",
+	"version": "0.0.0",
 	"name": "moss",
 	"targetPath": "bin",
 	"dependencies": {
 		"moss-core": {
-			"path": "external/moss-core"
+			"path": "../moss-core"
 		},
 		"moss-config": {
-			"path": "external/moss-config"
+			"path": "../moss-config"
 		},
 		"moss-format:binary": {
-			"path": "external/moss-format"
+			"path": "../moss-format"
 		},
 		"moss-db": {
-			"path": "external/moss-db"
+			"path": "../moss-db"
 		},
 		"moss-deps": {
-			"path": "external/moss-deps"
+			"path": "../moss-deps"
 		},
 		"moss-fetcher": {
-			"path": "external/moss-fetcher"
+			"path": "../moss-fetcher"
 		}
 	}
 }
