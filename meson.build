@@ -9,6 +9,17 @@ project(
 
 pkgconf = import('pkgconfig')
 
+# Configure moss-vendor
+subproject('moss-vendor',
+	default_options: [
+		'with_elf=true',
+		'with_rocksdb=true',
+		'with_xxhash=true',
+		'with_yaml=true',
+		'with_zstd=true',
+	]
+)
+
 # Grab moss-config
 moss_config = subproject('moss-config')
 link_libmoss_config = moss_config.get_variable('link_libmoss_config')
@@ -89,12 +100,5 @@ moss = executable(
 	install: true,
 	dependencies: moss_deps,
 	include_directories: moss_includes,
-	link_whole: [
-		moss_format.get_variable('libmoss_format_binary'),
-		moss_db.get_variable('libmoss_db'),
-		moss_fetcher.get_variable('libmoss_fetcher'),
-		moss_config.get_variable('libmoss_config'),
-		moss_core.get_variable('libmoss_core'),
-	],
 	link_args: ['--link-defaultlib-shared=false'],
 )
