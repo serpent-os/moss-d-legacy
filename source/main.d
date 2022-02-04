@@ -28,6 +28,8 @@ import moss.cli;
 int main(string[] args)
 {
     auto clip = cliProcessor!MossCLI(args);
+    auto add = clip.addCommand!AddCommand;
+    add.addCommand!AddRepoCommand;
     clip.addCommand!ExtractCommand;
     clip.addCommand!InfoCommand;
     clip.addCommand!InspectCommand;

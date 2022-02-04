@@ -45,6 +45,8 @@ moss_format = subproject('moss-format')
 link_libmoss_format = moss_format.get_variable('link_libmoss_format_binary')
 
 moss_sources = [
+	'source/moss/cli/add.d',
+	'source/moss/cli/add_repo.d',
 	'source/moss/cli/index_command.d',
 	'source/moss/cli/list.d',
 	'source/moss/cli/version_command.d',
