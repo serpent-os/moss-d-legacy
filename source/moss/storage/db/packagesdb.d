@@ -41,6 +41,6 @@ public final class SystemPackagesDB : MetaDB
      */
     this()
     {
-        super(context().paths.db.buildPath("packagesDB"));
+        super(join([context().paths.db, "packagesDB"], "/"));
     }
 }

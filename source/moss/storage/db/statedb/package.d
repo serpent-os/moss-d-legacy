@@ -97,7 +97,7 @@ final class StateDB
         }
 
         /* Recreate DB now */
-        const auto path = context().paths.db.buildPath("stateDB");
+        const auto path = join([context().paths.db, "stateDB"], "/");
         db = new RDBDatabase(path, DatabaseMutability.ReadWrite);
 
         updateBookKeeping();

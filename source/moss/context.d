@@ -23,7 +23,7 @@
 module moss.context;
 
 import std.path : absolutePath;
-public import std.path : buildPath;
+public import std.array : join;
 import std.concurrency : initOnce;
 
 /**
@@ -114,10 +114,10 @@ package:
     pure @property void root(const(string) s) @safe
     {
         _root = absolutePath(s);
-        _db = _root.buildPath(".moss", "db");
-        _cache = _root.buildPath(".moss", "cache");
-        _store = _root.buildPath(".moss", "store");
-        _remotes = _root.buildPath(".moss", "remotes");
+        _db = join([_root, ".moss/db"], "/");
+        _cache = join([_root, ".moss/cache"], "/");
+        _store = join([_root, ".moss/store"], "/");
+        _remotes = join([_root, ".moss/remotes"], "/");
     }
 
 private:

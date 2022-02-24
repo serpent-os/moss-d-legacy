@@ -69,7 +69,7 @@ public struct ExtractCommand
         import moss.format.binary.payload.index : IndexPayload, IndexEntry;
         import moss.format.binary.payload.layout : LayoutPayload, EntrySet;
         import std.exception : enforce;
-        import std.path : buildPath;
+        import std.array : join;
         import std.file : mkdir, remove, mkdirRecurse;
 
         if (!packageName.exists())
@@ -82,13 +82,13 @@ public struct ExtractCommand
 
         writeln("Extracting package: ", packageName);
 
-        auto extractionDir = ".".buildPath("mossExtraction");
-        auto installDir = ".".buildPath("mossInstall/usr");
+        auto extractionDir = join([".", "mossExtraction"], "/");
+        auto installDir = join ([".", "mossInstall/usr"], "/");
         if (!extractionDir.exists)
         {
             extractionDir.mkdir();
         }
-        auto contentFile = extractionDir.buildPath("MOSSCONTENT");
+        auto contentFile = join([extractionDir, "MOSSCONTENT"], "/");
         scope (exit)
         {
             contentFile.remove();
@@ -126,7 +126,7 @@ public struct ExtractCommand
             import std.algorithm : each;
 
             /* Copy file to targets. */
-            auto fileName = extractionDir.buildPath(id);
+            auto fileName = join([extractionDir, id], "/");
 
             auto targetFile = File(fileName, "wb");
             auto copyableRange = cast(ubyte[]) mappedFile[entry.start .. entry.end];
@@ -142,7 +142,7 @@ public struct ExtractCommand
             import std.file : setAttributes;
             import std.path : dirName;
 
-            auto targetPath = installDir.buildPath(target.startsWith("/") ? target[1 .. $] : target);
+            auto targetPath = join([installDir, target.startsWith("/") ? target[1 .. $] : target], "/");
             writefln("Constructing target: %s", targetPath);
 
             switch (entry.entry.type)
@@ -155,7 +155,7 @@ public struct ExtractCommand
             case FileType.Regular:
                 targetPath.dirName.mkdirRecurse();
                 /* Link to final destination */
-                const auto sourcePath = extractionDir.buildPath(entry.digestString);
+                const auto sourcePath = join([extractionDir, entry.digestString], "/");
                 import moss.core.util : hardLink;
 
                 hardLink(sourcePath, targetPath);

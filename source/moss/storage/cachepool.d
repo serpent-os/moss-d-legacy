@@ -22,11 +22,12 @@
 
 module moss.storage.cachepool;
 import moss.context;
-import std.path : buildPath, dirName;
+import std.path : dirName;
 import std.string : format;
 import std.file : mkdirRecurse, rename, remove;
 import moss.core.ioutil;
 import std.sumtype : match;
+import std.array : join;
 
 /**
  * The CachePool is responsible for caching system wide assets such as downloads.
@@ -39,9 +40,9 @@ public final class CachePool
      */
     this()
     {
-        _rootDir = context.paths.cache.buildPath("v1");
-        _stagingDir = _rootDir.buildPath("staging");
-        _publishedDir = _rootDir.buildPath("committed");
+        _rootDir = join([context.paths.cache, "v1"], "/");
+        _stagingDir = join([_rootDir, "staging"], "/");
+        _publishedDir = join([_rootDir, "committed"], "/");
 
         _stagingDir.mkdirRecurse();
         _publishedDir.mkdirRecurse();
@@ -52,7 +53,7 @@ public final class CachePool
      */
     pure auto stagingPath(in string inp)
     {
-        return _stagingDir.buildPath(format!"%s.partial"(inp));
+        return join([_stagingDir, format!"%s.partial"(inp)], "/");
     }
 
     /**
@@ -60,7 +61,7 @@ public final class CachePool
      */
     pure auto finalPath(in string inp)
     {
-        return _publishedDir.buildPath(inp[0 .. 5], inp[$ - 5 .. $], inp);
+        return join([_publishedDir, inp[0 .. 5], inp[$ - 5 .. $], inp], "/");
     }
 
     void promote(in string inp)

@@ -74,7 +74,7 @@ final class CacheDB
         }
 
         /* Recreate DB now */
-        const auto path = context().paths.db.buildPath("cacheDB");
+        const auto path = join([context().paths.db, "cacheDB"], "/");
         db = new RDBDatabase(path, DatabaseMutability.ReadWrite);
     }
 

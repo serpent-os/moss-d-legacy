@@ -75,7 +75,7 @@ public final class LayoutDB
         }
 
         /* Recreate DB now */
-        const auto path = context().paths.db.buildPath("layoutDB");
+        const auto path = join([context().paths.db, "layoutDB"], "/");
         db = new RDBDatabase(path, DatabaseMutability.ReadWrite);
     }
 

@@ -23,7 +23,7 @@
 module moss.storage.diskpool;
 
 import moss.context;
-import std.path : buildPath;
+import std.array : join;
 import std.file : mkdirRecurse;
 
 import moss.core : hardLink;
@@ -38,7 +38,7 @@ final class DiskPool
      */
     this()
     {
-        rootDirectory = context.paths.store.buildPath("assets", "v1");
+        rootDirectory = join([context.paths.store, "assets/v1"], "/");
         rootDirectory.mkdirRecurse();
     }
 
@@ -49,10 +49,10 @@ final class DiskPool
     {
         if (inp.length >= 10)
         {
-            return rootDirectory.buildPath(inp[0 .. 5], inp[$ - 5 .. $], inp);
+            return join([rootDirectory, inp[0 .. 5], inp[$ - 5 .. $], inp], "/");
         }
 
-        return rootDirectory.buildPath(inp);
+        return join([rootDirectory, inp], "/");
     }
 
     /**

@@ -56,9 +56,9 @@ public final class RepoPlugin : RegistryPlugin
         this._pool = pool;
         this._uri = uri;
 
-        auto rootOrigin = context.paths.remotes.buildPath(id);
-        dbPath = rootOrigin.buildPath("db");
-        cachePath = rootOrigin.buildPath("cache");
+        auto rootOrigin = join([context.paths.remotes, id], "/");
+        dbPath = join([rootOrigin, "db"], "/");
+        cachePath = join([rootOrigin, "cache"], "/");
 
         [rootOrigin, cachePath].each!((p) => p.mkdirRecurse());
         metaDB = new MetaDB(dbPath);
@@ -85,7 +85,7 @@ public final class RepoPlugin : RegistryPlugin
      */
     void update(FetchContext context)
     {
-        auto localIndexPath = cachePath.buildPath("stone.index");
+        auto localIndexPath = join([cachePath, "stone.index"], "/");
         auto fetchable = Fetchable(uri, localIndexPath, 0, FetchType.RegularFile, (f, l) {
             reloadIndex(localIndexPath);
         });
@@ -183,8 +183,8 @@ public final class RepoPlugin : RegistryPlugin
      */
     override void fetchItem(FetchContext context, in string pkgID)
     {
-        const auto pkgURI = uri.dirName.buildPath(metaDB.getValue!string(pkgID,
-                RecordTag.PackageURI));
+        const auto pkgURI = join([uri.dirName, metaDB.getValue!string(pkgID,
+                RecordTag.PackageURI)], "/");
         const auto hashsum = metaDB.getValue!string(pkgID, RecordTag.PackageHash);
         const auto expectedSize = metaDB.getValue!uint64_t(pkgID, RecordTag.PackageSize);
 

@@ -272,10 +272,10 @@ package:
     {
         import std.conv : to;
 
-        auto rootfsDir = buildPath(".moss", "store", "root", to!string(currentState.id));
+        auto rootfsDir = join([".moss/store/root", to!string(currentState.id)], "/");
 
         /* Construct the primary usr link */
-        auto usrSource = rootfsDir.buildPath("usr");
+        auto usrSource = join([rootfsDir, "usr"], "/");
         atomicRootfsLink(usrSource, "usr");
 
         /* Compat links to make usrmerge work */
@@ -320,10 +320,10 @@ private:
         import std.string : format;
         import std.stdio : writeln;
 
-        auto finalTarget = context.paths.root.buildPath(targetPath);
-        auto stagingTarget = context.paths.root.buildPath(format!"%s.next"(targetPath));
+        auto finalTarget = join([context.paths.root, targetPath], "/");
+        auto stagingTarget = join([context.paths.root, format!"%s.next"(targetPath)], "/");
 
-        auto resolvedSource = context.paths.root.buildPath(sourcePath);
+        auto resolvedSource = join([context.paths.root, sourcePath], "/");
 
         if (stagingTarget.exists)
         {
