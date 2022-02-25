@@ -40,7 +40,7 @@ public final class CachePool
      */
     this()
     {
-        _rootDir = join([context.paths.cache, "v1"], "/");
+        _rootDir = join([context.paths.cache, "downloads", "v1"], "/");
         _stagingDir = join([_rootDir, "staging"], "/");
         _publishedDir = join([_rootDir, "committed"], "/");
 
