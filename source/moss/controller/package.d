@@ -321,7 +321,9 @@ private:
         import std.stdio : writeln;
 
         auto finalTarget = join([context.paths.root, targetPath], "/");
-        auto stagingTarget = join([context.paths.root, format!"%s.next"(targetPath)], "/");
+        auto stagingTarget = join([
+                context.paths.root, format!"%s.next"(targetPath)
+                ], "/");
 
         auto resolvedSource = join([context.paths.root, sourcePath], "/");
 

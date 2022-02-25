@@ -83,7 +83,7 @@ public struct ExtractCommand
         writeln("Extracting package: ", packageName);
 
         auto extractionDir = join([".", "mossExtraction"], "/");
-        auto installDir = join ([".", "mossInstall/usr"], "/");
+        auto installDir = join([".", "mossInstall/usr"], "/");
         if (!extractionDir.exists)
         {
             extractionDir.mkdir();
@@ -142,7 +142,9 @@ public struct ExtractCommand
             import std.file : setAttributes;
             import std.path : dirName;
 
-            auto targetPath = join([installDir, target.startsWith("/") ? target[1 .. $] : target], "/");
+            auto targetPath = join([
+                    installDir, target.startsWith("/") ? target[1 .. $]: target
+                    ], "/");
             writefln("Constructing target: %s", targetPath);
 
             switch (entry.entry.type)
