@@ -432,10 +432,24 @@ private:
         {
             state.markSelection(item.pkgID, SelectionReason.ManuallyInstalled);
 
-            /* HACK: Get it cached for cobble */
-            if (item.plugin == cobble && !packagesDB.hasID(item.pkgID))
+            /* Check where to cache from, if needed */
+            switch (locality(item))
             {
+            case AssetLocality.Cobble:
+                /* Use cobble (local archives) */
                 archiveCacher.cache(cobble.itemPath(item.pkgID));
+                break;
+            case AssetLocality.RemoteCached:
+                /* Use cache if we didnt already precache it */
+                if (!_packagesDB.hasID(item.pkgID))
+                {
+                    auto rp = cast(RepoPlugin) item.plugin;
+                    auto finalPath = rp.finalCachePath(item.pkgID);
+                    archiveCacher.cache(finalPath);
+                }
+                break;
+            default:
+                break;
             }
         }
         stateDB.addState(state);
@@ -455,8 +469,7 @@ private:
         import std.array : join;
         import std.algorithm : map;
 
-        auto missingItems = items.filter!((i) => !_packagesDB.hasID(i.pkgID)
-                && cobble.queryID(i.pkgID).isNull);
+        auto missingItems = items.filter!((i) => locality(i) == AssetLocality.None);
         if (missingItems.empty)
         {
             return true;
@@ -470,6 +483,33 @@ private:
         }
 
         return true;
+    }
+
+    /**
+     * Determine locality of an asset
+     */
+    AssetLocality locality(in RegistryItem item)
+    {
+        import std.file : exists;
+
+        /* Pre cached */
+        if (_packagesDB.hasID(item.pkgID))
+        {
+            return AssetLocality.PackageDB;
+        }
+        if (item.plugin == cobble && !cobble.queryID(item.pkgID).isNull)
+        {
+            return AssetLocality.Cobble;
+        }
+        auto remotePlugin = cast(RepoPlugin) item.plugin;
+        if (remotePlugin !is null)
+        {
+            if (remotePlugin.finalCachePath(item.pkgID).exists)
+            {
+                return AssetLocality.RemoteCached;
+            }
+        }
+        return AssetLocality.None;
     }
 
     /* Storage */
@@ -492,4 +532,12 @@ private:
 
     /* Caching of downloads/archives */
     CachePool caching;
+}
+
+enum AssetLocality : uint8_t
+{
+    None = 0,
+    PackageDB,
+    Cobble,
+    RemoteCached,
 }

@@ -179,6 +179,15 @@ public final class RepoPlugin : RegistryPlugin
     }
 
     /**
+     * Return the final cache path
+     */
+    string finalCachePath(in string pkgID)
+    {
+        const auto hashsum = metaDB.getValue!string(pkgID, RecordTag.PackageHash);
+        return _pool.finalPath(hashsum);
+    }
+
+    /**
      * No-op
      */
     override void fetchItem(FetchContext context, in string pkgID)
