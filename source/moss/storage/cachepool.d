@@ -25,7 +25,6 @@ import moss.context;
 import std.path : dirName;
 import std.string : format;
 import std.file : mkdirRecurse, rename, remove, exists;
-import moss.core.ioutil;
 import std.sumtype : match;
 import std.array : join;
 
@@ -71,9 +70,7 @@ public final class CachePool
         const auto destdir = finalDestination.dirName;
 
         /* Ensure target directory exists */
-        auto res = IOUtil.mkdir(destdir, octal!755, true);
-        res.match!((bool b) {}, (err) { throw new Exception(res.toString); });
-
+        destdir.mkdirRecurse();
         rename(stagingOrigin, finalDestination);
     }
 
@@ -92,6 +89,14 @@ public final class CachePool
     bool contains(in string p)
     {
         return finalPath(p).exists;
+    }
+
+    /**
+     * Is this a valid staging path?
+     */
+    bool hasStaging(in string p)
+    {
+        return stagingPath(p).exists;
     }
 
 private:

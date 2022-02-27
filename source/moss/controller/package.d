@@ -299,10 +299,26 @@ private:
             return;
         }
 
+        string finalPath = f.destinationPath;
+
+        /* Is this a cachepool path? */
+        auto hashed = f.destinationPath.baseName;
+        if (hashed.endsWith(".partial"))
+        {
+            hashed = hashed[0 .. $ - ".partial".length];
+
+            /* Promote to final tree */
+            if (caching.hasStaging(hashed))
+            {
+                finalPath = caching.finalPath(hashed);
+                caching.promote(hashed);
+            }
+        }
+
         /* Lets cache it now */
         synchronized (this)
         {
-            archiveCacher.cache(f.destinationPath);
+            archiveCacher.cache(finalPath);
             writefln!"Cached: %s"(f.sourceURI.baseName);
         }
     }

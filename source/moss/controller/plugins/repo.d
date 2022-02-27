@@ -190,7 +190,7 @@ public final class RepoPlugin : RegistryPlugin
         const auto expectedSize = metaDB.getValue!uint64_t(pkgID, RecordTag.PackageSize);
 
         enforce(pkgURI.endsWith(".stone") && !hashsum.empty && expectedSize > 0);
-        auto dest = _pool.finalPath(hashsum);
+        auto dest = _pool.stagingPath(hashsum);
         dest.dirName.mkdirRecurse();
         auto fetchable = Fetchable(pkgURI, dest, expectedSize, FetchType.RegularFile, null);
         context.enqueue(fetchable);
