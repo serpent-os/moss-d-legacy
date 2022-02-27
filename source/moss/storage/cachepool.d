@@ -24,7 +24,7 @@ module moss.storage.cachepool;
 import moss.context;
 import std.path : dirName;
 import std.string : format;
-import std.file : mkdirRecurse, rename, remove;
+import std.file : mkdirRecurse, rename, remove, exists;
 import moss.core.ioutil;
 import std.sumtype : match;
 import std.array : join;
@@ -89,9 +89,9 @@ public final class CachePool
     /** 
      * Return true if the cache already contains this file
      */
-    pure bool contains(in string p)
+    bool contains(in string p)
     {
-        return false;
+        return finalPath(p).exists;
     }
 
 private:
