@@ -210,6 +210,7 @@ package:
         Matcher[] matchers = [
             Matcher("pkgconfig(", ProviderType.PkgconfigName),
             Matcher("interpreter(", ProviderType.Interpreter),
+            Matcher("cmake(", ProviderType.CmakeName),
         ];
 
         /* Walk the matchers and find one that helps us */
