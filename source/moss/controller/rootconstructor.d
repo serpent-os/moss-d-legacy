@@ -69,8 +69,8 @@ package struct RootConstructor
 
         /* Ensure we have a rootfs dir for root level nodes */
         auto rootfsDir = join([
-                context.paths.store, "root", to!string(newState.id), "usr"
-                ], "/");
+            context.paths.store, "root", to!string(newState.id), "usr"
+        ], "/");
         rootfsDir.mkdirRecurse();
 
         /* Apply unique layouts */

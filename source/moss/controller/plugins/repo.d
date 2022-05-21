@@ -193,8 +193,8 @@ public final class RepoPlugin : RegistryPlugin
     override void fetchItem(FetchContext context, in string pkgID)
     {
         const auto pkgURI = join([
-                uri.dirName, metaDB.getValue!string(pkgID, RecordTag.PackageURI)
-                ], "/");
+            uri.dirName, metaDB.getValue!string(pkgID, RecordTag.PackageURI)
+        ], "/");
         const auto hashsum = metaDB.getValue!string(pkgID, RecordTag.PackageHash);
         const auto expectedSize = metaDB.getValue!uint64_t(pkgID, RecordTag.PackageSize);
 

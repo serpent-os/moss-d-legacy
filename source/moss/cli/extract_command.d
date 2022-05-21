@@ -143,8 +143,8 @@ public struct ExtractCommand
             import std.path : dirName;
 
             auto targetPath = join([
-                    installDir, target.startsWith("/") ? target[1 .. $]: target
-                    ], "/");
+                installDir, target.startsWith("/") ? target[1 .. $]: target
+            ], "/");
             writefln("Constructing target: %s", targetPath);
 
             switch (entry.entry.type)

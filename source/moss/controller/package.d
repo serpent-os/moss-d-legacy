@@ -168,8 +168,9 @@ public final class MossController
 
         foreach (name; repoPaths)
         {
-            auto candidates = byInputName(name);
-            enforce(!candidates.empty, "Package not found: " ~ name);
+            auto provName = fromString!Provider(name);
+            auto candidates = registryManager.byProvider(provName.type, provName.target);
+            enforce(!candidates.empty, "Package not found: " ~ provName.toString);
             installables ~= candidates.front;
         }
 
@@ -191,47 +192,6 @@ public final class MossController
     }
 
 package:
-
-    /**
-     * Potentially mutate the input name to use a better provider based search
-     * pattern, i.e. pkgconfig($name), or interpreter($name), etc.
-     */
-    auto byInputName(in string inputName)
-    {
-        static struct Matcher
-        {
-            /* Prefix string, i.e. 'pkgconfig(' */
-            string prefix;
-
-            /* What provider does it search *for*? */
-            ProviderType type;
-        };
-
-        Matcher[] matchers = [
-            Matcher("pkgconfig(", ProviderType.PkgconfigName),
-            Matcher("interpreter(", ProviderType.Interpreter),
-            Matcher("cmake(", ProviderType.CmakeName),
-        ];
-
-        /* Walk the matchers and find one that helps us */
-        foreach (ref matcher; matchers)
-        {
-            if (!inputName.endsWith(")"))
-            {
-                continue;
-            }
-            if (!inputName.startsWith(matcher.prefix))
-            {
-                continue;
-            }
-
-            /* Remove $prefix( and ) from the input string */
-            auto capabilityName = inputName[matcher.prefix.length .. $ - 1];
-            return registryManager.byProvider(matcher.type, capabilityName);
-        }
-
-        return registryManager.byName(inputName);
-    }
 
     /**
      * Return a utility ArchiveCacher
@@ -339,8 +299,8 @@ private:
 
         auto finalTarget = join([context.paths.root, targetPath], "/");
         auto stagingTarget = join([
-                context.paths.root, format!"%s.next"(targetPath)
-                ], "/");
+            context.paths.root, format!"%s.next"(targetPath)
+        ], "/");
 
         auto resolvedSource = join([context.paths.root, sourcePath], "/");
 
