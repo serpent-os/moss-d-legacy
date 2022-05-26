@@ -1,16 +1,29 @@
 ### moss
 
-This repository supports the development of the new package manager for
+This repository supports the development of the new system software manager for
 Serpent OS. It is not intended as a replacement for other package managers,
-or indeed, even "next generation". Simply it aims to be a traditional
+or indeed, even "next generation". Simply it aims to be a
 package manager with a focus on reliability and trust.
+
+#### Build prerequisites
+
+`moss` (and its own dependencies) depends on a couple of system libraries
+and development headers, including (in fedora package names format):
+
+- `cmake`, `meson` and `ninja`
+- `libcurl` and `libcurl-devel`
+- `libzstd` and `libzstd-devel`
+- `rocksdb` and `rocksdb-devel`
+- `xxhash-libs` and `xxhash-devel`
 
 #### Building
 
-    git submodule update --init --recursive
-    ./scripts/build.sh release
+    meson build/
+    meson compile -C build/
 
-    ./bin/moss -h
+#### Running
+
+    build/moss -h
 
 #### Package Format
 
