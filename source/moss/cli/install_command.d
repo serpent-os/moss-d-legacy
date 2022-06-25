@@ -47,10 +47,14 @@ public struct InstallCommand
         {
             con.close();
         }
+        con.ignoreDependencies = ignoreDependencies;
 
         /* Install the packages */
         con.installPackages(argv);
 
         return ExitStatus.Success;
     }
+
+    /** For the insane and the bootstrap */
+    @Option("i", "ignore-dependency", "Ignore missing dependencies. Use at own peril") bool ignoreDependencies;
 }

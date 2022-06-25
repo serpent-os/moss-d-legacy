@@ -89,6 +89,27 @@ public final class MossController
     }
 
     /**
+     * Missing dependency policy
+     *
+     * Returns: True if the depenedencies should be ignored
+     */
+    pure @property bool ignoreDependencies() @safe @nogc nothrow const
+    {
+        return _ignoreDependencies;
+    }
+
+    /**
+     * Missing dependency policy
+     *
+     * Params:
+     *      b   = Set to true to ignore missing dependencies
+     */
+    pure @property void ignoreDependencies(bool b) @safe @nogc nothrow
+    {
+        _ignoreDependencies = b;
+    }
+
+    /**
      * Return the underlying registryManager
      */
     pragma(inline, true) pure @property RegistryManager registryManager() @safe @nogc nothrow
@@ -353,8 +374,12 @@ private:
                     break;
                 }
             }
-            writeln("\nNo changes have been made to your installation");
-            return;
+            if (!ignoreDependencies)
+            {
+                writeln("\nNo changes have been made to your installation");
+                return;
+            }
+            writeln(" - Continuing due to --ignore-dependency");
         }
 
         if (!newpkgs.empty)
@@ -487,6 +512,8 @@ private:
 
     /* Caching of downloads/archives */
     CachePool caching;
+
+    bool _ignoreDependencies;
 }
 
 enum AssetLocality : uint8_t
