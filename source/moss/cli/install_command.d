@@ -56,5 +56,5 @@ public struct InstallCommand
     }
 
     /** For the insane and the bootstrap */
-    @Option("i", "ignore-dependency", "Ignore missing dependencies. Use at own peril") bool ignoreDependencies;
+    @Option("ignore-dependency", null, "Ignore missing dependencies. Use at own peril") bool ignoreDependencies;
 }
