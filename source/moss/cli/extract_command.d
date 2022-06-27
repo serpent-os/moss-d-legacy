@@ -20,6 +20,8 @@ import moss.core;
 import moss.format.binary.reader;
 import moss.format.binary.payload;
 import std.stdio : writeln, stderr;
+import moss.core.ioutil;
+import std.sumtype : tryMatch;
 
 /**
  * The ExtractCommand provides a CLI system to extract moss
@@ -151,9 +153,8 @@ public struct ExtractCommand
                 targetPath.dirName.mkdirRecurse();
                 /* Link to final destination */
                 const auto sourcePath = join([extractionDir, entry.digestString], "/");
-                import moss.core.util : hardLink;
-
-                hardLink(sourcePath, targetPath);
+                auto res = IOUtil.hardlink(sourcePath, targetPath);
+                res.tryMatch!((bool b) => b);
                 targetPath.setAttributes(entry.entry.mode);
                 break;
             case FileType.Symlink:

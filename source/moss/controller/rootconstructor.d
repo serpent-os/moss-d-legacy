@@ -28,7 +28,8 @@ import std.conv : to;
 import std.file : mkdirRecurse;
 import std.path : dirName;
 
-import moss.core.util : hardLink;
+import moss.core.ioutil;
+import std.sumtype : tryMatch;
 import moss.core : FileType;
 
 /**
@@ -98,8 +99,8 @@ private:
         case FileType.Regular:
             targetNode.dirName.mkdirRecurse();
             auto sourcePath = diskPool.fullPath(cast(string) es.digestString());
-            hardLink(sourcePath, targetNode);
-
+            auto res = IOUtil.hardlink(sourcePath, targetNode);
+            res.tryMatch!((bool b) => b);
             targetNode.setAttributes(es.entry.mode);
 
             break;

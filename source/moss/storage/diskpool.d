@@ -19,7 +19,8 @@ import moss.context;
 import std.array : join;
 import std.file : mkdirRecurse;
 
-import moss.core : hardLink;
+import moss.core.ioutil;
+import std.sumtype : tryMatch;
 
 /**
  * Simple implementation for now, provide hardlinking of hashed assets
@@ -54,7 +55,8 @@ final class DiskPool
      */
     void refAsset(const(string) inp, const(string) destination)
     {
-        hardLink(fullPath(inp), destination);
+        auto ret = IOUtil.hardlink(inp, destination);
+        ret.tryMatch!((bool b) => b);
     }
 
     /**
