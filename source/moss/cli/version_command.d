@@ -39,7 +39,7 @@ public struct VersionCommand
 
         writefln("moss, version %s", moss.core.Version);
         writeln("\nCopyright © 2020-2021 Serpent OS Developers");
-        writeln("Available under the terms of the ZLib license");
+        writeln("Available under the terms of the Zlib license");
         return ExitStatus.Success;
     }
 }
