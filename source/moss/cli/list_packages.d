@@ -91,7 +91,7 @@ public ExitStatus listPackages(ListMode mode)
     longestLen += 2;
     foreach (i; pkgs)
     {
-        writefln("  %*s - %s", longestLen, i.lineLead, i.lineTail);
+        writefln!"  %*s - %s"(longestLen, i.lineLead, i.lineTail);
     }
     return ExitStatus.Success;
 }

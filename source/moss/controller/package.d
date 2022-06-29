@@ -35,8 +35,10 @@ import moss.controller.remote;
 import moss.controller.rootconstructor;
 import std.algorithm : each, filter, canFind, sort, uniq;
 import std.array : array;
+import std.experimental.logger;
 import std.path : baseName;
-import std.string : endsWith, startsWith;
+import std.stdio : writefln;
+import std.string : endsWith, format, startsWith;
 
 /**
  * MossController is required to access the underlying Moss resources and to
@@ -49,7 +51,6 @@ public final class MossController
      */
     this()
     {
-
         /* bound to max 4 fetches, or 2 for everyone else. */
         fetchController = new FetchController(totalCPUs >= 4 ? 3 : 1);
         fetchController.onComplete.connect(&onComplete);
@@ -122,8 +123,6 @@ public final class MossController
      */
     void removePackages(in string[] packages)
     {
-        import std.stdio : writeln;
-
         RegistryItem[] removals;
 
         foreach (pkg; packages)
@@ -131,7 +130,7 @@ public final class MossController
             auto localCandidate = registryManager.byName(pkg, ItemFlags.Installed);
             if (localCandidate.empty)
             {
-                writeln("Cannot find package: ", pkg);
+                warning(format!"Cannot find package: %s"(pkg));
                 return;
             }
             removals ~= localCandidate.front;
@@ -156,7 +155,6 @@ public final class MossController
      */
     void installPackages(in string[] sourcePaths)
     {
-        import std.stdio : writeln;
         import std.file : exists;
         import std.string : endsWith;
         import std.exception : enforce;
@@ -173,7 +171,7 @@ public final class MossController
         /* No wonky paths please */
         if (!wonkyPaths.empty)
         {
-            writeln("Cannot find the following packages: ", wonkyPaths);
+            warning(format!"Cannot find the following packages: %s"(wonkyPaths));
             return;
         }
 
@@ -265,8 +263,6 @@ private:
 
     void onComplete(in Fetchable f, long code)
     {
-        import std.stdio : writefln;
-
         writefln!"Downloaded: %s"(f.sourceURI.baseName);
 
         /* TODO: Only take action if default action not present */
@@ -301,8 +297,6 @@ private:
 
     void onFailed(in Fetchable f, in string reason)
     {
-        import std.stdio : writefln;
-
         writefln!"Failed to download '%s': %s"(f.sourceURI, reason);
     }
 
@@ -310,7 +304,6 @@ private:
     {
         import std.file : remove, symlink, rename, exists, isSymlink, readLink;
         import std.string : format;
-        import std.stdio : writeln;
 
         auto finalTarget = join([context.paths.root, targetPath], "/");
         auto stagingTarget = join([
@@ -350,7 +343,6 @@ private:
      */
     void commitTransaction(Transaction tx)
     {
-        import std.stdio : writeln, writefln;
         import std.conv : to;
 
         auto finalSet = tx.apply();
@@ -360,44 +352,44 @@ private:
         auto problems = tx.problems();
         if (problems.length > 0)
         {
-            writeln("The following problems were discovered: \n");
+            error("The following problems were discovered: \n");
             foreach (problem; problems)
             {
                 switch (problem.type)
                 {
                 case TransactionProblemType.MissingDependency:
-                    writefln(" - %s depends on missing %s",
-                            problem.item.info.name, problem.dependency.to!string);
+                    error(format!" - %s depends on missing %s"(problem.item.info.name,
+                            problem.dependency.to!string));
                     break;
                 default:
-                    writeln(problem);
+                    error(problem);
                     break;
                 }
             }
             if (!ignoreDependencies)
             {
-                writeln("\nNo changes have been made to your installation");
+                info("\nNo changes have been made to your installation");
                 return;
             }
-            writeln(" - Continuing due to --ignore-dependency");
+            warning(" - Continuing due to --ignore-dependency");
         }
 
         if (!newpkgs.empty)
         {
-            writeln("The following NEW packages will be installed: ");
+            info("The following NEW packages will be installed: ");
             foreach (n; newpkgs)
             {
-                writeln(" - ", n.info.name);
+                info(format!" - %s"(n.info.name));
             }
         }
 
         /* Iterate items to be removed */
         if (tx.removedItems.length > 0)
         {
-            writeln("The following packages will be removed:");
+            info("The following packages will be removed:");
             foreach (it; tx.removedItems)
             {
-                writeln(" - ", it.info.name);
+                info(format!" - %s"(it.info.name));
             }
         }
 
@@ -434,9 +426,9 @@ private:
         }
         stateDB.addState(state);
         stateDB.activeState = state.id;
-        writeln("Blitting filesystem");
+        info("Blitting filesystem");
         rootContructor.construct(state);
-        writeln("Updating system pointer to: ", state.id);
+        info(format!"Updating system pointer to: %s"(state.id));
         updateSystemPointer(state);
     }
 
@@ -445,7 +437,6 @@ private:
      */
     bool acquireMissingAssets(in RegistryItem[] items)
     {
-        import std.stdio : writeln;
         import std.array : join;
         import std.algorithm : map;
 

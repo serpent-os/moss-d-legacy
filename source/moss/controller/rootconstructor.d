@@ -23,7 +23,6 @@ import moss.context;
 
 import std.algorithm : sort, uniq, map, each, filter;
 import std.array : array, join;
-import std.stdio : writeln;
 import std.conv : to;
 import std.file : mkdirRecurse;
 import std.path : dirName;
@@ -59,7 +58,6 @@ package struct RootConstructor
         finalLayouts.sort!((esA, esB) => esA.target < esB.target);
 
         /* Build set of layouts for all candidates */
-        import std.stdio : writeln;
 
         /* Ensure we have a rootfs dir for root level nodes */
         auto rootfsDir = join([

@@ -65,13 +65,13 @@ public struct InspectCommand
 
         if (!packageName.exists())
         {
-            stderr.writeln("No such package: ", packageName);
+            stderr.writefln!"No such package: %s"(packageName);
             return;
         }
 
         auto reader = new Reader(File(packageName, "rb"));
 
-        writeln("Archive: ", packageName);
+        stdout.writefln!"Archive: %s"(packageName);
 
         /**
          * Emit all headers
@@ -83,9 +83,9 @@ public struct InspectCommand
             immutable float uncomp = hdr.plainSize;
             auto puncomp = formatBytes(uncomp);
             auto savings = (comp > 0 ? (100.0f - (comp / uncomp) * 100.0f) : 0);
-            writefln("Payload: %s [Records: %d Compression: %s, Savings: %.2f%%, Size: %s]",
-                    to!string(hdr.type), hdr.numRecords,
-                    to!string(hdr.compression), savings, puncomp);
+            stdout.writefln!"Payload: %s [Records: %d Compression: %s, Savings: %.2f%%, Size: %s]"(
+                    to!string(hdr.type),
+                    hdr.numRecords, to!string(hdr.compression), savings, puncomp);
             switch (hdr.type)
             {
             case PayloadType.Meta:
@@ -114,9 +114,9 @@ public struct InspectCommand
         auto metadata = cast(MetaPayload) p;
         foreach (pair; metadata)
         {
-            writef("%-15s : ", pair.tag.to!string);
+            writefln!"%-15s : "(pair.tag.to!string);
 
-            /* TODO: Care more about otheru values :)) */
+            /* TODO: Care more about other values :)) */
             switch (pair.type)
             {
             case RecordType.Int8:
@@ -142,7 +142,7 @@ public struct InspectCommand
                 writeln(pair.get!Provider);
                 break;
             default:
-                writeln("Unsupported value type: ", pair.type);
+                writefln!"Unsupported value type: %s"(pair.type);
                 break;
             }
         }
@@ -165,17 +165,16 @@ public struct InspectCommand
             switch (entry.entry.type)
             {
             case FileType.Regular:
-                writefln("  - /usr/%s -> %s [%s]",
-                        entry.target, entry.digestString(), to!string(entry.entry.type));
+                writefln!"  - /usr/%s -> %s [%s]"(entry.target,
+                        entry.digestString(), to!string(entry.entry.type));
                 break;
             case FileType.Symlink:
-                writefln("  - /usr/%s -> %s [%s]",
-                        entry.target, entry.symlinkSource(), to!string(entry.entry.type));
+                writefln!"  - /usr/%s -> %s [%s]"(entry.target,
+                        entry.symlinkSource(), to!string(entry.entry.type));
                 break;
             default:
-                writefln("  - /usr/%s [%s]", entry.target, to!string(entry.entry.type));
+                writefln!"  - /usr/%s [%s]"(entry.target, to!string(entry.entry.type));
                 break;
-
             }
         }
     }
@@ -190,7 +189,7 @@ public struct InspectCommand
         auto index = cast(IndexPayload) p;
         foreach (entry; index)
         {
-            writefln("  - %s [size: %9s]", cast(string) entry.digestString(),
+            writefln!"  - %s [size: %9s]"(cast(string) entry.digestString(),
                     formatBytes(entry.contentSize));
         }
     }

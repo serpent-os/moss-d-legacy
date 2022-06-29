@@ -21,7 +21,7 @@ import moss.core;
 import moss.cli : MossCLI;
 import moss.context;
 import moss.controller;
-import std.stdio : stderr;
+import std.stdio : stderr, writefln, writeln;
 import moss.deps.dependency;
 import moss.deps.registry.item;
 import std.string : join, endsWith, format;
@@ -77,7 +77,7 @@ public struct InfoCommand
             auto candidates = con.registryManager.byProvider(ProviderType.PackageName, pkg);
             if (candidates.empty)
             {
-                stderr.writeln("Unknown package: ", pkg);
+                stderr.writefln!"Unknown package: %s"(pkg);
                 continue;
             }
             lookups ~= candidates.array;
@@ -93,12 +93,11 @@ public struct InfoCommand
 
     public void printInfo(ref RegistryItem item)
     {
-        import std.stdio : writefln, writeln;
         import std.range : padLeft;
 
         static void printAligned(in string key, in string value)
         {
-            writefln("%-*s: %s", 14, key, value);
+            writefln!"%-*s: %s"(14, key, value);
         }
 
         auto info = item.info;

@@ -49,7 +49,7 @@ public struct IndexCommand
 
         if (!workDir.exists)
         {
-            stderr.writefln("Indexing directory does not exist");
+            stderr.writefln!"Indexing directory '%s' does not exist!"(workDir);
         }
 
         workDir = workDir.absolutePath;
@@ -68,7 +68,7 @@ public struct IndexCommand
             {
                 continue;
             }
-            writefln("Indexing: %s", path);
+            writefln!"Indexing: %s"(path);
             writer.addPackage(path, path.relativePath(workDir));
         }
         return ExitStatus.Failure;

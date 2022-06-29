@@ -19,7 +19,7 @@ public import moss.core.cli;
 import moss.core;
 import moss.format.binary.reader;
 import moss.format.binary.payload;
-import std.stdio : writeln, stderr;
+import std.stdio : writeln, writefln, stderr, stdout;
 import moss.core.ioutil;
 import std.sumtype : tryMatch;
 
@@ -69,13 +69,13 @@ public struct ExtractCommand
 
         if (!packageName.exists())
         {
-            stderr.writeln("No such package: ", packageName);
+            stderr.writefln!"No such package: %s"(packageName);
             return;
         }
 
         auto reader = new Reader(File(packageName, "rb"));
 
-        writeln("Extracting package: ", packageName);
+        stdout.writefln!"Extracting package: %s"(packageName);
 
         auto extractionDir = join([".", "mossExtraction"], "/");
         auto installDir = join([".", "mossInstall/usr"], "/");
@@ -131,7 +131,6 @@ public struct ExtractCommand
 
         void applyLayout(ref EntrySet entry, const(string) target)
         {
-            import std.stdio : writefln;
             import std.string : startsWith;
             import moss.core : FileType;
             import std.file : setAttributes;
@@ -140,7 +139,7 @@ public struct ExtractCommand
             auto targetPath = join([
                 installDir, target.startsWith("/") ? target[1 .. $]: target
             ], "/");
-            writefln("Constructing target: %s", targetPath);
+            writefln!"Constructing target: %s"(targetPath);
 
             switch (entry.entry.type)
             {
