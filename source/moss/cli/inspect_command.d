@@ -208,16 +208,24 @@ public struct InspectCommand
         string[4] units = ["B ", "KB", "MB", "GB"];
         uint[4] divisors = [1, 1_000, 1_000_000, 1_000_000_000];
 
+        /* default number of decimals */
+        ubyte decimals = 2;
+        if (bytes < 1000)
+        {
+            decimals = 0;
+        }
+
         for (int i = 3; i >= 0; i--) /* 3 2 1 0 */
         {
             float prettySISize = bytes / divisors[i];
             if (prettySISize >= 1.0)
             {
-                return format!"%.2f %s"(prettySISize, units[i]);
+                return format!"%.*f %s"(decimals, prettySISize, units[i]);
             }
         }
 
+
         /* At this point, 1 > bytes >= 0, and 0.x bytes makes no sense, so just return 0 */
-        return "0.00 B ";
+        return "0 B ";
     }
 }
