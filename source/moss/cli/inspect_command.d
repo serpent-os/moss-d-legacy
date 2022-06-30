@@ -20,6 +20,8 @@ import moss.core;
 import moss.deps.dependency;
 import moss.format.binary.reader;
 import moss.format.binary.payload;
+import std.exception : enforce;
+import std.format : format;
 import std.stdio;
 
 /**
@@ -195,24 +197,27 @@ public struct InspectCommand
     }
 
     /**
-     * Convert bytes to a pretty condensed version
+     * Convert bytes to a pretty, condensed version
      */
-    string formatBytes(float bytes)
+    string formatBytes(const float bytes) pure @safe
     {
-        import std.format : format;
+        /* Sensible invariant */
+        enforce(bytes >= 0, format!"formatBytes was called on a negative input (size: %s)!"(bytes));
 
-        const string[4] units = ["B ", "KB", "MB", "GB"];
-        const int[4] deci = [0, 2, 2, 2];
-        const auto k = 1000;
+        /* storage manufacturers use SI units */
+        string[4] units = ["B ", "KB", "MB", "GB"];
+        uint[4] divisors = [1, 1_000, 1_000_000, 1_000_000_000];
 
-        for (int i = 3; i >= 0; i--)
+        for (int i = 3; i >= 0; i--) /* 3 2 1 0 */
         {
-            auto correctsize = bytes / (k ^^ i);
-            if (correctsize > 1)
+            float prettySISize = bytes / divisors[i];
+            if (prettySISize >= 1.0)
             {
-                return "%.*f %s".format(deci[i], correctsize, units[i]);
+                return format!"%.2f %s"(prettySISize, units[i]);
             }
         }
-        assert(0);
+
+        /* At this point, 1 > bytes >= 0, and 0.x bytes makes no sense, so just return 0 */
+        return "0.00 B ";
     }
 }
