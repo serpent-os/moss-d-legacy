@@ -202,30 +202,38 @@ public struct InspectCommand
     string formatBytes(const float bytes) pure @safe
     {
         /* Sensible invariant */
-        enforce(bytes >= 0, format!"formatBytes was called on a negative input (size: %s)!"(bytes));
+        enforce(bytes >= 0,
+                format!"formatBytes was called with a negative size argument (%.2f)"(bytes));
 
-        /* storage manufacturers use SI units */
-        string[4] units = ["B ", "KB", "MB", "GB"];
-        uint[4] divisors = [1, 1_000, 1_000_000, 1_000_000_000];
-
-        /* default number of decimals */
+        float divisor;
+        string unitSI;
         ubyte decimals = 2;
-        if (bytes < 1000)
+
+        /* Comparisons are faster than floating point division */
+        if (bytes >= 1_000_000_000)
         {
+            divisor = 1_000_000_000;
+            unitSI = "GB";
+        }
+        else if (bytes >= 1_000_000)
+        {
+            divisor = 1_000_000;
+            unitSI = "MB";
+        }
+        else if (bytes >= 1_000)
+        {
+            divisor = 1_000;
+            unitSI = "KB";
+        }
+        /* bytes don't have decimals*/
+        else
+        {
+            divisor = 1;
+            unitSI = "B ";
             decimals = 0;
         }
 
-        for (int i = 3; i >= 0; i--) /* 3 2 1 0 */
-        {
-            float prettySISize = bytes / divisors[i];
-            if (prettySISize >= 1.0)
-            {
-                return format!"%.*f %s"(decimals, prettySISize, units[i]);
-            }
-        }
-
-
-        /* At this point, 1 > bytes >= 0, and 0.x bytes makes no sense, so just return 0 */
-        return "0 B ";
+        /* we want the format string checked at compile time, tyvm */
+        return format!"%.*f %s"(decimals, bytes / divisor, unitSI);
     }
 }
