@@ -15,7 +15,7 @@
 
 module moss.client.installation;
 
-import core.sys.posix.unistd : geteuid;
+import core.sys.posix.unistd : geteuid, access, W_OK;
 
 /**
  * System mutability - do we have readwrite?
@@ -51,7 +51,16 @@ public final class Installation
         if (geteuid() == 0)
         {
             _mut = Mutability.ReadWrite;
+            return;
         }
+
+        /* Potential read-write? Root MUST exist */
+        immutable canWrite = () @trusted {
+            import std.string : toStringz;
+
+            return access(_root.toStringz, W_OK) == 0;
+        }();
+        _mut = canWrite ? Mutability.ReadWrite : Mutability.ReadOnly;
     }
 
     /**

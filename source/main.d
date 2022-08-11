@@ -19,7 +19,7 @@ import std.experimental.logger;
 
 import moss.client;
 
-int main(string[] args)
+int main(string[] args) @safe
 {
     auto client = new MossClient();
     return 0;
