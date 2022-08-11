@@ -16,3 +16,4 @@
 module moss.client;
 
 public import moss.client.impl;
+public import moss.client.installation;

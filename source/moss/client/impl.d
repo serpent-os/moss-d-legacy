@@ -15,7 +15,7 @@
 
 module moss.client.impl;
 
-import core.sys.posix.unistd : geteuid;
+import moss.client.installation;
 
 /**
  * Provides high-level access to the moss system
@@ -27,42 +27,20 @@ public final class MossClient
      */
     this(in string root = "/") @safe
     {
-        _root = root;
-
-        /* Determine immediately if we have root permissions */
-        if (geteuid() != 0)
-        {
-            readOnly = true;
-        }
+        _installation = new Installation(root);
     }
 
     /**
-     * Set the root directory for this client
+     * Access to the Installation
      *
-     * Params:
-     *      dir = Rootfs directory
+     * Returns: Immutable reference
      */
-    pure @property void root(in string dir) @safe @nogc nothrow
+    pure @property const(Installation) installation() @safe @nogc nothrow const
     {
-        _root = dir;
-    }
-
-    /**
-     * Root property
-     *
-     * Returns: Configured root directory
-     *
-     */
-    pure @property string root() @safe @nogc nothrow const
-    {
-        return _root;
+        return _installation;
     }
 
 private:
 
-    /**
-     * Root directory for all ops
-     */
-    string _root = null;
-    bool readOnly;
+    Installation _installation;
 }
