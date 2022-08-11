@@ -5,22 +5,14 @@
  */
 
 /**
- * main
+ * moss.client
  *
- * Main executable for `moss`
+ * Client API for moss
  *
  * Authors: Copyright © 2020-2022 Serpent OS Developers
  * License: Zlib
  */
 
-module main;
+module moss.client;
 
-import std.experimental.logger;
-
-import moss.client;
-
-int main(string[] args)
-{
-    auto client = new MossClient();
-    return 0;
-}
+public import moss.client.impl;
