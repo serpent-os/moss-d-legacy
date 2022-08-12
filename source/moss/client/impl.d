@@ -16,6 +16,7 @@
 module moss.client.impl;
 
 import moss.client.installation;
+import moss.deps.registry;
 
 /**
  * Provides high-level access to the moss system
@@ -31,16 +32,34 @@ public final class MossClient
     }
 
     /**
+     * Close the Client/Registry
+     */
+    void close() @safe
+    {
+    }
+
+    /**
      * Access to the Installation
      *
-     * Returns: Immutable reference
+     * Returns: const reference
      */
     pure @property const(Installation) installation() @safe @nogc nothrow const
     {
         return _installation;
     }
 
+    /**
+     * Access to dependency registry
+     *
+     * Returns: const reference
+     */
+    pure @property const(RegistryManager) registry() @safe @nogc nothrow const
+    {
+        return _registry;
+    }
+
 private:
 
     Installation _installation;
+    RegistryManager _registry;
 }
