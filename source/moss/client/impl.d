@@ -29,6 +29,7 @@ public final class MossClient
     this(in string root = "/") @safe
     {
         _installation = new Installation(root);
+        _registry = new RegistryManager();
     }
 
     /**
@@ -36,6 +37,7 @@ public final class MossClient
      */
     void close() @safe
     {
+        _registry.close();
     }
 
     /**
