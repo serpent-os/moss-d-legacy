@@ -83,6 +83,21 @@ public final class Installation
         return _root;
     }
 
+    /**
+     * Variadic joinpath that "just werks"
+     */
+    pure auto joinPath(S...)(S p) @safe
+    {
+        import std.conv : to;
+        import std.algorithm : joiner;
+        import std.string : endsWith;
+
+        return () @trusted {
+            auto RoR = [_root.endsWith("/") ? _root[0 .. $ - 1] : _root, p[0 .. $]];
+            return joiner(RoR, "/",).to!string;
+        }();
+    }
+
 private:
     Mutability _mut = Mutability.ReadOnly;
     string _root = "/";

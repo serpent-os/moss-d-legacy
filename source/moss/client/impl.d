@@ -17,6 +17,7 @@ module moss.client.impl;
 
 import moss.client.installation;
 import moss.deps.registry;
+import moss.client.statedb;
 
 /**
  * Provides high-level access to the moss system
@@ -30,6 +31,7 @@ public final class MossClient
     {
         _installation = new Installation(root);
         _registry = new RegistryManager();
+        stateDB = new StateDB(_installation);
     }
 
     /**
@@ -38,6 +40,7 @@ public final class MossClient
     void close() @safe
     {
         _registry.close();
+        stateDB.close();
     }
 
     /**
@@ -64,4 +67,5 @@ private:
 
     Installation _installation;
     RegistryManager _registry;
+    StateDB stateDB;
 }
