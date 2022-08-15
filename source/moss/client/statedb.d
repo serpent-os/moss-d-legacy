@@ -22,6 +22,7 @@ import moss.db.keyvalue.interfaces;
 import moss.client.installation;
 import std.experimental.logger;
 import std.exception : enforce;
+import std.file : exists;
 
 public import std.stdint : uint8_t, uint64_t;
 
@@ -86,13 +87,21 @@ package:
      */
     this(Installation install) @safe
     {
-        immutable dbPath = "lmdb://" ~ install.joinPath(".moss", "db", "state");
+        immutable dbPath = install.joinPath(".moss", "db", "state");
         tracef("StateDB: %s", dbPath);
         auto flags = install.mutability == Mutability.ReadWrite
             ? DatabaseFlags.CreateIfNotExists : DatabaseFlags.ReadOnly;
-        Database.open(dbPath, flags).match!((Database db) { this.db = db; }, (DatabaseError err) {
-            throw new Exception(err.message);
-        });
+
+        /* We have no DB. */
+        if (!dbPath.exists && install.mutability == Mutability.ReadOnly)
+        {
+            errorf("StateDB: Cannot find %s", dbPath);
+            return;
+        }
+
+        Database.open("lmdbd://" ~ dbPath, flags).match!((Database db) {
+            this.db = db;
+        }, (DatabaseError err) { throw new Exception(err.message); });
 
         immutable err = db.update((scope tx) => tx.createModel!(State));
         enforce(err.isNull, err.message);
