@@ -5,9 +5,9 @@
  */
 
 /**
- * moss.client
+ * moss.client.cli
  *
- * Client API for moss
+ * Base command for our CLI
  *
  * Authors: Copyright © 2020-2022 Serpent OS Developers
  * License: Zlib
@@ -16,6 +16,28 @@
 module moss.client.cli;
 
 public import moss.core.cli;
+
+import moss.client.cli.install;
+import moss.client;
+import std.experimental.logger;
+
+package auto initialiseClient(scope ref BaseCommand pt) @trusted
+{
+    auto rootCLI = pt.findAncestor!MossCLI;
+
+    /* Enable the client now */
+    auto cl = new MossClient(rootCLI.rootDirectory);
+
+    /**
+     * Enable all trace statements
+     */
+    if (rootCLI.debugging)
+    {
+        globalLogLevel = LogLevel.trace;
+    }
+
+    return cl;
+}
 
 /**
  * Primary grouping for the moss cli
@@ -35,6 +57,20 @@ public import moss.core.cli;
      */
     static auto construct(ref string[] args) @trusted
     {
-        return cliProcessor!MossCLI(args);
+        auto p = cliProcessor!MossCLI(args);
+        p.addCommand!InstallCommand;
+        return p;
     }
+
+    /**
+     * Enable debugging
+     */
+    @Option("d", "debug", "Toggle debugging")
+    bool debugging = false;
+
+    /**
+     * Root directory for all operations
+     */
+    @Option("D", "directory", "Root directory")
+    string rootDirectory = "/";
 }

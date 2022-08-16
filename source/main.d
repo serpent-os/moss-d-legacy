@@ -31,7 +31,6 @@ import moss.client.cli;
 int main(string[] args) @safe
 {
     configureLogger();
-    globalLogLevel = LogLevel.trace;
 
     return () @trusted { return MossCLI.construct(args).process(args); }();
 }
