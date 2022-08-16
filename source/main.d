@@ -19,6 +19,7 @@ import std.experimental.logger;
 
 import moss.client;
 import moss.core.logger;
+import moss.client.cli;
 
 /**
  * Main routine.
@@ -32,10 +33,5 @@ int main(string[] args) @safe
     configureLogger();
     globalLogLevel = LogLevel.trace;
 
-    auto client = new MossClient();
-    scope (exit)
-    {
-        client.close();
-    }
-    return 0;
+    return () @trusted { return MossCLI.construct(args).process(args); }();
 }
