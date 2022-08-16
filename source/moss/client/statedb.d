@@ -99,7 +99,7 @@ package:
             return;
         }
 
-        Database.open("lmdbd://" ~ dbPath, flags).match!((Database db) {
+        Database.open("lmdb://" ~ dbPath, flags).match!((Database db) {
             this.db = db;
         }, (DatabaseError err) { throw new Exception(err.message); });
 
