@@ -17,6 +17,8 @@ module moss.client.cli.install;
 
 public import moss.core.cli;
 
+import moss.client.cli : initialiseClient;
+
 /**
  * Primary grouping for the moss cli
  */
@@ -31,6 +33,11 @@ public import moss.core.cli;
      */
     @CommandEntry() int run(ref string[] argv) @safe
     {
+        auto cl = initialiseClient(pt);
+        scope (exit)
+        {
+            cl.close();
+        }
         return 0;
     }
 }
