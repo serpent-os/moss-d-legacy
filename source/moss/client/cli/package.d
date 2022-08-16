@@ -25,9 +25,6 @@ package auto initialiseClient(scope ref BaseCommand pt) @trusted
 {
     auto rootCLI = pt.findAncestor!MossCLI;
 
-    /* Enable the client now */
-    auto cl = new MossClient(rootCLI.rootDirectory);
-
     /**
      * Enable all trace statements
      */
@@ -35,6 +32,9 @@ package auto initialiseClient(scope ref BaseCommand pt) @trusted
     {
         globalLogLevel = LogLevel.trace;
     }
+
+    /* Enable the client now */
+    auto cl = new MossClient(rootCLI.rootDirectory);
 
     return cl;
 }
