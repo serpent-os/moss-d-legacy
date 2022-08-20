@@ -47,6 +47,6 @@ import std.stdio : writeln;
         }
         auto name = argv[0];
         auto url = argv[1];
-        return cl.addRemote(name, url);
+        return cl.remotes.add(name, url);
     }
 }

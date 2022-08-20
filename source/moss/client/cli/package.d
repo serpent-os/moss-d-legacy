@@ -20,6 +20,7 @@ public import moss.core.cli;
 import moss.client.cli.install;
 import moss.client.cli.remote;
 import moss.client.cli.remote_add;
+import moss.client.cli.remote_list;
 import moss.client;
 import std.experimental.logger;
 
@@ -63,6 +64,7 @@ package auto initialiseClient(scope ref BaseCommand pt) @trusted
         p.addCommand!InstallCommand;
         auto remotes = p.addCommand!RemoteCommand;
         remotes.addCommand!RemoteAddCommand;
+        remotes.addCommand!RemoteListCommand;
         return p;
     }
 

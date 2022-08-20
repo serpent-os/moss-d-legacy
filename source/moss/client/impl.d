@@ -21,13 +21,7 @@ import moss.client.statedb;
 import moss.config.repo;
 import moss.config.io.configuration;
 import std.experimental.logger;
-
-import std.uni : isAlphaNum, toLower;
-import std.algorithm : map;
-import std.conv : to;
-import std.string : format;
-import std.path : dirName;
-import std.file : mkdirRecurse;
+import moss.client.remotes;
 
 /**
  * Provides high-level access to the moss system
@@ -42,7 +36,7 @@ public final class MossClient
         _installation = new Installation(root);
         _installation.ensureDirectories();
         _registry = new RegistryManager();
-        readRepos();
+        remoteManager = new RemoteManager(_installation);
         stateDB = new StateDB(_installation);
     }
 
@@ -53,35 +47,6 @@ public final class MossClient
     {
         _registry.close();
         stateDB.close();
-    }
-
-    /** API METHODS */
-    int addRemote(string identifier, string origin) @safe
-    {
-        import std.file : write;
-
-        if (installation.mutability != Mutability.ReadWrite)
-        {
-            errorf("Cannot add remote to non-mutable system");
-            return 1;
-        }
-
-        immutable saneID = identifier.map!((m) => (m.isAlphaNum ? m : '_').toLower)
-            .to!string;
-        immutable confFile = installation.joinPath("etc", "moss", "repos.conf.d", saneID ~ ".conf");
-        immutable description = "User added repository";
-        immutable data = format!`
-- %s:
-    description: "%s"
-    uri: "%s"
-`(saneID, description, origin);
-        tracef("New config at: %s", confFile);
-
-        confFile.dirName.mkdirRecurse();
-
-        write(confFile, data);
-
-        return 0;
     }
 
     /**
@@ -104,24 +69,18 @@ public final class MossClient
         return _registry;
     }
 
-private:
-
     /**
-     * Read the repos in and start doing something useful with them
+     * Access to Remote management
      */
-    void readRepos() @safe
+    pure @property RemoteManager remotes() @safe @nogc nothrow
     {
-        auto config = new RepositoryConfiguration();
-        () @trusted { config.load(_installation.root); }();
-        debug
-        {
-            import std.stdio : writeln;
-
-            writeln(config.sections);
-        }
+        return remoteManager;
     }
+
+private:
 
     Installation _installation;
     RegistryManager _registry;
     StateDB stateDB;
+    RemoteManager remoteManager;
 }
