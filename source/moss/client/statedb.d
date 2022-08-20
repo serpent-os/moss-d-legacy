@@ -87,7 +87,7 @@ package:
      */
     this(Installation install) @safe
     {
-        immutable dbPath = install.joinPath(".moss", "db", "state");
+        immutable dbPath = install.dbPath("state");
         tracef("StateDB: %s", dbPath);
         auto flags = install.mutability == Mutability.ReadWrite
             ? DatabaseFlags.CreateIfNotExists : DatabaseFlags.ReadOnly;
