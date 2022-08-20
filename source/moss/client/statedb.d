@@ -103,8 +103,11 @@ package:
             this.db = db;
         }, (DatabaseError err) { throw new Exception(err.message); });
 
-        immutable err = db.update((scope tx) => tx.createModel!(State));
-        enforce(err.isNull, err.message);
+        if (install.mutability == Mutability.ReadWrite)
+        {
+            immutable err = db.update((scope tx) => tx.createModel!(State));
+            enforce(err.isNull, err.message);
+        }
     }
 
     /**
