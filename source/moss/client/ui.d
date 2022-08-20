@@ -216,6 +216,30 @@ public final class UserInterface
         stdout.writefln!" ⦁ %s"(portion);
     }
 
+    /**
+     * Warn the user
+     *
+     * Params:
+     *      message = Message to print
+     */
+    void warn(string message) @safe
+    {
+        warn!"%s"(message);
+    }
+
+    /**
+     * Warn the user
+     *
+     * Params:
+     *      fmt = Format string
+     *      p = Parameters
+     */
+    void warn(string fmt, S...)(S p) @trusted
+    {
+        immutable portion = format!fmt(p);
+        stdout.writefln!" %s  %s"(Text("⚠").fg(Color.Yellow), portion);
+    }
+
 private:
 
     /**
