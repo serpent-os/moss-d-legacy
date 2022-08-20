@@ -20,6 +20,14 @@ import moss.deps.registry;
 import moss.client.statedb;
 import moss.config.repo;
 import moss.config.io.configuration;
+import std.experimental.logger;
+
+import std.uni : isAlphaNum, toLower;
+import std.algorithm : map;
+import std.conv : to;
+import std.string : format;
+import std.path : dirName;
+import std.file : mkdirRecurse;
 
 /**
  * Provides high-level access to the moss system
@@ -50,7 +58,30 @@ public final class MossClient
     /** API METHODS */
     int addRemote(string identifier, string origin) @safe
     {
-        return 1;
+        import std.file : write;
+
+        if (installation.mutability != Mutability.ReadWrite)
+        {
+            errorf("Cannot add remote to non-mutable system");
+            return 1;
+        }
+
+        immutable saneID = identifier.map!((m) => (m.isAlphaNum ? m : '_').toLower)
+            .to!string;
+        immutable confFile = installation.joinPath("etc", "moss", "repos.conf.d", saneID ~ ".conf");
+        immutable description = "User added repository";
+        immutable data = format!`
+- %s:
+    description: "%s"
+    uri: "%s"
+`(saneID, description, origin);
+        tracef("New config at: %s", confFile);
+
+        confFile.dirName.mkdirRecurse();
+
+        write(confFile, data);
+
+        return 0;
     }
 
     /**
