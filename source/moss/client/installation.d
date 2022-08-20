@@ -86,7 +86,7 @@ public final class Installation
     /**
      * Variadic joinpath that "just werks"
      */
-    pure auto joinPath(S...)(S p) @safe
+    pure auto joinPath(S...)(S p) @safe const
     {
         import std.conv : to;
         import std.algorithm : joiner;
@@ -96,6 +96,22 @@ public final class Installation
             auto RoR = [_root.endsWith("/") ? _root[0 .. $ - 1]: _root, p[0 .. $]];
             return joiner(RoR, "/",).to!string;
         }();
+    }
+
+    /**
+     * Join the root dbPath
+     */
+    pure string dbPath(S...)(S p) @safe const
+    {
+        return joinPath(".moss", "db", p);
+    }
+
+    /**
+     * Join the system caching path
+     */
+    pure auto cachePath(S...)(S p) @safe const
+    {
+        return joinPath(".moss", "cache", p);
     }
 
 private:
