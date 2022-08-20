@@ -16,6 +16,8 @@
 module moss.client.installation;
 
 import core.sys.posix.unistd : geteuid, access, W_OK;
+import std.file : mkdirRecurse, exists;
+import std.experimental.logger;
 
 /**
  * System mutability - do we have readwrite?
@@ -61,6 +63,33 @@ public final class Installation
             return access(_root.toStringz, W_OK) == 0;
         }();
         _mut = canWrite ? Mutability.ReadWrite : Mutability.ReadOnly;
+
+        tracef("Mutability: %s", _mut);
+        tracef("Root dir: %s", _root);
+        tracef("canWrite: %s", canWrite);
+    }
+
+    /**
+     * Ensure all support directories are in place
+     */
+    void ensureDirectories() @safe
+    {
+        if (_mut != Mutability.ReadWrite)
+        {
+            return;
+        }
+
+        foreach (ref dir; [
+            joinPath(".moss", "db"), joinPath(".moss", "cache"),
+        ])
+        {
+            if (dir.exists)
+            {
+                continue;
+            }
+            tracef("Construct: %s", dir);
+            dir.mkdirRecurse();
+        }
     }
 
     /**
