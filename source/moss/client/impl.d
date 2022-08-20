@@ -40,6 +40,8 @@ public final class MossClient
         _registry = new RegistryManager();
         remoteManager = new RemoteManager(_installation);
         stateDB = new StateDB(_installation);
+        _ui.warn!"%s\n    moss is %s unstable\n"(Text("Warning").fg(Color.White)
+                .attr(Attribute.Underline), Text("highly").attr(Attribute.Bold));
     }
 
     /**
