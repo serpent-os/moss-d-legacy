@@ -22,6 +22,7 @@ import moss.config.repo;
 import moss.config.io.configuration;
 import std.experimental.logger;
 import moss.client.remotes;
+import moss.client.ui;
 
 /**
  * Provides high-level access to the moss system
@@ -33,6 +34,7 @@ public final class MossClient
      */
     this(in string root = "/") @safe
     {
+        _ui = new UserInterface();
         _installation = new Installation(root);
         _installation.ensureDirectories();
         _registry = new RegistryManager();
@@ -77,10 +79,19 @@ public final class MossClient
         return remoteManager;
     }
 
+    /**
+     * User interface implementation
+     */
+    pure @property UserInterface ui() @safe @nogc nothrow
+    {
+        return _ui;
+    }
+
 private:
 
     Installation _installation;
     RegistryManager _registry;
     StateDB stateDB;
     RemoteManager remoteManager;
+    UserInterface _ui;
 }
