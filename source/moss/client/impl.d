@@ -18,6 +18,8 @@ module moss.client.impl;
 import moss.client.installation;
 import moss.deps.registry;
 import moss.client.statedb;
+import moss.config.repo;
+import moss.config.io.configuration;
 
 /**
  * Provides high-level access to the moss system
@@ -31,6 +33,7 @@ public final class MossClient
     {
         _installation = new Installation(root);
         _registry = new RegistryManager();
+        readRepos();
         stateDB = new StateDB(_installation);
     }
 
@@ -64,6 +67,21 @@ public final class MossClient
     }
 
 private:
+
+    /**
+     * Read the repos in and start doing something useful with them
+     */
+    void readRepos() @safe
+    {
+        auto config = new RepositoryConfiguration();
+        () @trusted { config.load(_installation.root); }();
+        debug
+        {
+            import std.stdio : writeln;
+
+            writeln(config.sections);
+        }
+    }
 
     Installation _installation;
     RegistryManager _registry;

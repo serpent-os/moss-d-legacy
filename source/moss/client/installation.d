@@ -93,7 +93,7 @@ public final class Installation
         import std.string : endsWith;
 
         return () @trusted {
-            auto RoR = [_root.endsWith("/") ? _root[0 .. $ - 1] : _root, p[0 .. $]];
+            auto RoR = [_root.endsWith("/") ? _root[0 .. $ - 1]: _root, p[0 .. $]];
             return joiner(RoR, "/",).to!string;
         }();
     }
