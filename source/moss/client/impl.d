@@ -46,6 +46,12 @@ public final class MossClient
         stateDB.close();
     }
 
+    /** API METHODS */
+    int addRemote(string identifier, string origin) @safe
+    {
+        return 1;
+    }
+
     /**
      * Access to the Installation
      *
