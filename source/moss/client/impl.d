@@ -32,6 +32,7 @@ public final class MossClient
     this(in string root = "/") @safe
     {
         _installation = new Installation(root);
+        _installation.ensureDirectories();
         _registry = new RegistryManager();
         readRepos();
         stateDB = new StateDB(_installation);
