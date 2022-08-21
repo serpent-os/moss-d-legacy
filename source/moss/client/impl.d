@@ -35,16 +35,17 @@ public final class MossClient
      */
     this(in string root = "/") @safe
     {
+        fc = new FetchController();
+
         _ui = new UserInterface();
         _installation = new Installation(root);
         _installation.ensureDirectories();
         _registry = new RegistryManager();
-        remoteManager = new RemoteManager(_installation);
+        remoteManager = new RemoteManager(fc, _installation);
         stateDB = new StateDB(_installation);
         _ui.warn!"%s\n    moss is %s unstable\n"(Text("Warning").fg(Color.White)
                 .attr(Attribute.Underline), Text("highly").attr(Attribute.Bold));
 
-        fc = new FetchController();
     }
 
     /**

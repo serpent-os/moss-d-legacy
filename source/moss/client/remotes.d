@@ -22,10 +22,11 @@ import std.uni : isAlphaNum, toLower;
 import std.algorithm : map;
 import std.conv : to;
 import std.string : format;
-import std.path : dirName;
+import std.path : dirName, baseName;
 import std.file : mkdirRecurse;
 import std.experimental.logger;
 public import moss.core.errors;
+import moss.core.fetchcontext;
 
 alias RemoteResult = Optional!(Success, Failure);
 
@@ -38,9 +39,10 @@ public final class RemoteManager
     /**
      * Initialise the RemoteManager with the given Installation
      */
-    this(Installation install) @safe
+    this(FetchContext fetch, Installation install) @safe
     {
         this.installation = install;
+        this.fetch = fetch;
         reloadConfiguration();
     }
 
@@ -97,11 +99,40 @@ public final class RemoteManager
 
         write(confFile, data);
 
-        return cast(RemoteResult) Success();
+        return refresh();
+    }
+
+    /**
+     * Refresh all of the remotes
+     *
+     * Returns: RemoteResult
+     */
+    RemoteResult refresh() @safe
+    {
+        reloadConfiguration();
+        foreach (ref rm; remotes)
+        {
+            auto destPath = installation.joinPath(".moss", "remotes", rm.id, rm.uri.baseName);
+            destPath.dirName.mkdirRecurse();
+            auto fetchable = Fetchable(rm.uri, destPath, 0, FetchType.RegularFile, null);
+            info(fetchable);
+            fetch.enqueue(fetchable);
+        }
+
+        /**
+         * Fetch all of our fetchables
+         */
+        while (!fetch.empty)
+        {
+            fetch.fetch();
+        }
+
+        return cast(RemoteResult) fail("Not yet implemented");
     }
 
 private:
 
     Repository[] remotes;
     Installation installation;
+    FetchContext fetch;
 }
