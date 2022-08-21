@@ -23,6 +23,7 @@ import moss.config.io.configuration;
 import std.experimental.logger;
 import moss.client.remotes;
 import moss.client.ui;
+import moss.fetcher.controller;
 
 /**
  * Provides high-level access to the moss system
@@ -42,6 +43,8 @@ public final class MossClient
         stateDB = new StateDB(_installation);
         _ui.warn!"%s\n    moss is %s unstable\n"(Text("Warning").fg(Color.White)
                 .attr(Attribute.Underline), Text("highly").attr(Attribute.Bold));
+
+        fc = new FetchController();
     }
 
     /**
@@ -89,6 +92,14 @@ public final class MossClient
         return _ui;
     }
 
+    /**
+     * Return the fetch controller
+     */
+    pure @property FetchContext fetchContext() @safe @nogc nothrow
+    {
+        return fc;
+    }
+
 private:
 
     Installation _installation;
@@ -96,4 +107,5 @@ private:
     StateDB stateDB;
     RemoteManager remoteManager;
     UserInterface _ui;
+    FetchController fc;
 }
