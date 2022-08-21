@@ -62,11 +62,21 @@ public final class RemoteManager
         return remotes;
     }
 
-    /** API METHODS */
+    /**
+     * Add a new remote
+     *
+     * Params:
+     *      identifier = Unique identifier for the remote
+     *      origin = Where to download things from.
+     * Returns: A RemoteResult
+     */
     RemoteResult add(string identifier, string origin) @safe
     {
         import std.file : write;
 
+        /**
+         * Mutable only!
+         */
         if (installation.mutability != Mutability.ReadWrite)
         {
             return cast(RemoteResult) fail("Cannot add remote to non-mutable system");
