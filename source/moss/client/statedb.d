@@ -25,6 +25,8 @@ import std.exception : enforce;
 import std.file : exists;
 
 public import std.stdint : uint8_t, uint64_t;
+public import moss.core.errors;
+import std.string : format;
 
 /**
  * Each state has a unique numerical identifier
@@ -73,6 +75,8 @@ public enum StateType : uint8_t
     uint64_t tsCreated;
 }
 
+public alias StateResult = Optional!(Success, Failure);
+
 /**
  * Manages our State entries
  */
@@ -87,27 +91,38 @@ package:
      */
     this(Installation install) @safe
     {
-        immutable dbPath = install.dbPath("state");
+        this.installation = install;
+    }
+
+    /**
+     * Attempt to connect
+     */
+    StateResult connect() @safe
+    {
+        immutable dbPath = installation.dbPath("state");
         tracef("StateDB: %s", dbPath);
-        auto flags = install.mutability == Mutability.ReadWrite
+        auto flags = installation.mutability == Mutability.ReadWrite
             ? DatabaseFlags.CreateIfNotExists : DatabaseFlags.ReadOnly;
 
         /* We have no DB. */
-        if (!dbPath.exists && install.mutability == Mutability.ReadOnly)
+        if (!dbPath.exists && installation.mutability == Mutability.ReadOnly)
         {
-            errorf("StateDB: Cannot find %s", dbPath);
-            return;
+            return cast(StateResult) fail(format!"StateDB: Cannot find %s"(dbPath));
         }
 
         Database.open("lmdb://" ~ dbPath, flags).match!((Database db) {
             this.db = db;
         }, (DatabaseError err) { throw new Exception(err.message); });
 
-        if (install.mutability == Mutability.ReadWrite)
+        if (installation.mutability == Mutability.ReadWrite)
         {
             immutable err = db.update((scope tx) => tx.createModel!(State));
-            enforce(err.isNull, err.message);
+            if (!err.isNull)
+            {
+                return cast(StateResult) fail(err.message);
+            }
         }
+        return cast(StateResult) Success();
     }
 
     /**
@@ -125,4 +140,5 @@ package:
 private:
 
     Database db;
+    Installation installation;
 }
