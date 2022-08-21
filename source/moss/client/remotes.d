@@ -25,6 +25,9 @@ import std.string : format;
 import std.path : dirName;
 import std.file : mkdirRecurse;
 import std.experimental.logger;
+public import moss.core.errors;
+
+alias RemoteResult = Optional!(Success, Failure);
 
 /**
  * Manage various system remotes - whether they're source or binary.
@@ -60,14 +63,13 @@ public final class RemoteManager
     }
 
     /** API METHODS */
-    int add(string identifier, string origin) @safe
+    RemoteResult add(string identifier, string origin) @safe
     {
         import std.file : write;
 
         if (installation.mutability != Mutability.ReadWrite)
         {
-            errorf("Cannot add remote to non-mutable system");
-            return 1;
+            return cast(RemoteResult) fail("Cannot add remote to non-mutable system");
         }
 
         immutable saneID = identifier.map!((m) => (m.isAlphaNum ? m : '_').toLower)
@@ -85,7 +87,7 @@ public final class RemoteManager
 
         write(confFile, data);
 
-        return 0;
+        return cast(RemoteResult) Success();
     }
 
 private:
