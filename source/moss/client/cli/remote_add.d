@@ -18,7 +18,10 @@ module moss.client.cli.remote_add;
 public import moss.core.cli;
 
 import moss.client.cli : initialiseClient;
+import moss.core.errors;
 import std.stdio : writeln;
+import std.sumtype;
+import std.experimental.logger;
 
 /**
  * Add a remote to the system
@@ -47,6 +50,10 @@ import std.stdio : writeln;
         }
         auto name = argv[0];
         auto url = argv[1];
-        return cl.remotes.add(name, url);
+
+        return cl.remotes.add(name, url).match!((Failure f) {
+            errorf("%s", f.message);
+            return 1;
+        }, (_) { infof("Added remote %s", name); return 0; });
     }
 }
