@@ -46,6 +46,7 @@ public final class MossClient
         _ui.warn!"%s\n    moss is %s unstable\n"(Text("Warning").fg(Color.White)
                 .attr(Attribute.Underline), Text("highly").attr(Attribute.Bold));
 
+        stateDB.connect.match!((Failure f) => fatalf(f.message), (_) {});
     }
 
     /**
