@@ -20,6 +20,9 @@ import moss.db.keyvalue;
 import moss.db.keyvalue.errors;
 import moss.db.keyvalue.interfaces;
 import moss.db.keyvalue.orm;
+import std.file : exists;
+import std.experimental.logger;
+import std.string : format;
 
 /**
  * Either works or it doesn't :)
@@ -52,11 +55,26 @@ public final class MetaDB
      */
     MetaResult connect() @safe
     {
-        return cast(MetaResult) fail("Not yet implemented");
+        tracef("MetaDB: %s", dbPath);
+        auto flags = mut == Mutability.ReadWrite
+            ? DatabaseFlags.CreateIfNotExists : DatabaseFlags.ReadOnly;
+
+        /* We have no DB. */
+        if (!dbPath.exists && mut == Mutability.ReadOnly)
+        {
+            return cast(MetaResult) fail(format!"MetaDB: Cannot find %s"(dbPath));
+        }
+
+        Database.open("lmdb://" ~ dbPath, flags).match!((Database db) {
+            this.db = db;
+        }, (DatabaseError err) { throw new Exception(err.message); });
+
+        return cast(MetaResult) Success();
     }
 
 private:
 
     string dbPath;
     Mutability mut;
+    Database db;
 }
