@@ -189,11 +189,15 @@ public final class MetaDB
             reader.close();
         }
 
-        /* Wipe the existing entries */
-        immutable clrError = db.update((scope tx) => tx.removeAll!MetaEntry);
-        if (!clrError.isNull)
+        immutable wipe = db.update((scope tx) => tx.removeAll!MetaEntry);
+        if (!wipe.isNull)
         {
-            return cast(MetaResult) fail(clrError.message);
+            return cast(MetaResult) fail(wipe.message);
+        }
+        immutable rebuild = db.update((scope tx) => tx.createModel!MetaEntry);
+        if (!rebuild.isNull)
+        {
+            return cast(MetaResult) fail(rebuild.message);
         }
 
         static DatabaseResult helper(scope Reader reader, scope Transaction tx) @trusted
