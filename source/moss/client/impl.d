@@ -25,6 +25,8 @@ import moss.client.remotes;
 import moss.client.ui;
 import moss.fetcher.controller;
 
+import moss.client.remoteplugin;
+
 /**
  * Provides high-level access to the moss system
  */
@@ -40,13 +42,14 @@ public final class MossClient
         _ui = new UserInterface();
         _installation = new Installation(root);
         _installation.ensureDirectories();
-        _registry = new RegistryManager();
         remoteManager = new RemoteManager(fc, _installation);
         stateDB = new StateDB(_installation);
         _ui.warn!"%s\n    moss is %s unstable\n"(Text("Warning").fg(Color.White)
                 .attr(Attribute.Underline), Text("highly").attr(Attribute.Bold));
 
         stateDB.connect.match!((Failure f) => fatalf(f.message), (_) {});
+
+        reloadPlugins();
     }
 
     /**
@@ -103,6 +106,25 @@ public final class MossClient
     }
 
 private:
+
+    /**
+     * Hot-reload the DB
+     */
+    void reloadPlugins() @safe
+    {
+        if (_registry !is null)
+        {
+            _registry.close();
+        }
+        _registry = new RegistryManager();
+
+        /* Reload the remotes */
+        foreach (rm; remotes.active)
+        {
+            auto plugin = new RemotePlugin(rm, _installation);
+            _registry.addPlugin(plugin);
+        }
+    }
 
     Installation _installation;
     RegistryManager _registry;
