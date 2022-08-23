@@ -271,6 +271,18 @@ public final class MetaDB
         return cast(MetaResult) fail(err.message);
     }
 
+    /**
+     * Close the underlying connection
+     */
+    void close() @trusted
+    {
+        if (db !is null)
+        {
+            db.close();
+            db = null;
+        }
+    }
+
 private:
 
     string dbPath;
