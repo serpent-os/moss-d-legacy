@@ -17,6 +17,7 @@ module moss.client.cli;
 
 public import moss.core.cli;
 
+import moss.client.cli.info;
 import moss.client.cli.install;
 import moss.client.cli.list;
 import moss.client.cli.list_available;
@@ -69,6 +70,7 @@ package auto initialiseClient(scope ref BaseCommand pt) @trusted
         auto remotes = p.addCommand!RemoteCommand;
         remotes.addCommand!RemoteAddCommand;
         remotes.addCommand!RemoteListCommand;
+        p.addCommand!InfoCommand;
         return p;
     }
 
