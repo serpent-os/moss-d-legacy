@@ -189,6 +189,13 @@ public final class MetaDB
             reader.close();
         }
 
+        /* Wipe the existing entries */
+        immutable clrError = db.update((scope tx) => tx.removeAll!MetaEntry);
+        if (!clrError.isNull)
+        {
+            return cast(MetaResult) fail(clrError.message);
+        }
+
         static DatabaseResult helper(scope Reader reader, scope Transaction tx) @trusted
         {
             foreach (payload; reader.payloads!MetaPayload)
@@ -274,7 +281,7 @@ public final class MetaDB
     /**
      * Close the underlying connection
      */
-    void close() @trusted
+    void close() @safe
     {
         if (db !is null)
         {
