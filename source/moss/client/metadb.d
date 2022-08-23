@@ -29,6 +29,22 @@ public import moss.deps.dependency;
 import moss.deps.registry : ItemInfo;
 
 /**
+ * Simple ORM to store backlinks for providers.
+ */
+@Model struct ProviderMap
+{
+    /**
+     * Something along the lines of, pkgconfig(someName)
+     */
+    @PrimaryKey string identifier;
+
+    /**
+     * Package identifiers matching in the map
+     */
+    string[] pkgIDs;
+}
+
+/**
  * A MetaEntry is our ORM-specific storage of moss
  * metadata.
  */
@@ -198,7 +214,7 @@ public final class MetaDB
          */
         if (mut == Mutability.ReadWrite)
         {
-            auto err = db.update((scope tx) => tx.createModel!MetaEntry);
+            auto err = db.update((scope tx) => tx.createModel!(MetaEntry, ProviderMap));
             if (!err.isNull)
             {
                 return cast(MetaResult) fail(err.message);
@@ -223,15 +239,44 @@ public final class MetaDB
             reader.close();
         }
 
-        immutable wipe = db.update((scope tx) => tx.removeAll!MetaEntry);
+        immutable wipe = db.update((scope tx) @safe {
+            auto e1 = tx.removeAll!MetaEntry;
+            if (!e1.isNull)
+            {
+                return e1;
+            }
+            return tx.removeAll!ProviderMap;
+        });
         if (!wipe.isNull)
         {
             return cast(MetaResult) fail(wipe.message);
         }
-        immutable rebuild = db.update((scope tx) => tx.createModel!MetaEntry);
+        immutable rebuild = db.update((scope tx) => tx.createModel!(MetaEntry, ProviderMap));
         if (!rebuild.isNull)
         {
             return cast(MetaResult) fail(rebuild.message);
+        }
+
+        /**
+         * Store a single provider.
+         */
+        static DatabaseResult storeProvider(string pkgID, in Provider prov, scope Transaction tx) @safe
+        {
+            auto bucketID = prov.toString();
+            ProviderMap storage;
+            immutable e = storage.load(tx, bucketID);
+            if (e.code != DatabaseErrorCode.BucketNotFound && e.code
+                    != DatabaseErrorCode.KeyNotFound)
+            {
+                return e;
+            }
+            storage.pkgIDs ~= pkgID;
+            immutable e2 = storage.save(tx);
+            if (!e2.isNull)
+            {
+                return e2;
+            }
+            return NoDatabaseError;
         }
 
         static DatabaseResult helper(scope Reader reader, scope Transaction tx) @trusted
@@ -297,6 +342,24 @@ public final class MetaDB
                         entry.versionIdentifier = pair.get!string;
                         break;
                     }
+                }
+
+                /* We need to store all the providers now.. */
+                foreach (prov; entry.providers)
+                {
+                    auto e = storeProvider(entry.pkgID, prov, tx);
+                    if (!e.isNull)
+                    {
+                        return e;
+                    }
+                }
+
+                /* Now store the name() provider. */
+                auto e = storeProvider(entry.pkgID, Provider(entry.name,
+                        ProviderType.PackageName), tx);
+                if (!e.isNull)
+                {
+                    return e;
                 }
 
                 immutable err = entry.save(tx);
