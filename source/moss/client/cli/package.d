@@ -18,6 +18,8 @@ module moss.client.cli;
 public import moss.core.cli;
 
 import moss.client.cli.install;
+import moss.client.cli.list;
+import moss.client.cli.list_available;
 import moss.client.cli.remote;
 import moss.client.cli.remote_add;
 import moss.client.cli.remote_list;
@@ -62,6 +64,8 @@ package auto initialiseClient(scope ref BaseCommand pt) @trusted
     {
         auto p = cliProcessor!MossCLI(args);
         p.addCommand!InstallCommand;
+        auto list = p.addCommand!ListCommand;
+        list.addCommand!ListAvailableCommand;
         auto remotes = p.addCommand!RemoteCommand;
         remotes.addCommand!RemoteAddCommand;
         remotes.addCommand!RemoteListCommand;
