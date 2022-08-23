@@ -20,10 +20,10 @@ public import moss.config.repo;
 public import moss.client.installation;
 
 import moss.client.metadb;
-import std.sumtype;
 import moss.core.errors;
-
-import std.experimental.logger;
+import std.algorithm : map;
+import std.array : array;
+import std.sumtype;
 
 /**
  * Instantiated from a Remote to provide access to
@@ -69,9 +69,10 @@ public final class RemotePlugin : RegistryPlugin
     /**
      * Get ItemInfo for specific pkgID
      */
-    override ItemInfo info(in string pkgID) @safe const
+    override ItemInfo info(in string pkgID) @trusted const
     {
-        return ItemInfo.init;
+        auto dbi = cast(MetaDB) db;
+        return dbi.info(pkgID);
     }
 
     /**
@@ -101,9 +102,13 @@ public final class RemotePlugin : RegistryPlugin
     /**
      * Retrive a list of all pkgs matching the given flags
      */
-    override const(RegistryItem)[] list(in ItemFlags flags) @safe const
+    override const(RegistryItem)[] list(in ItemFlags flags) @trusted const
     {
-        return null;
+        auto dbi = cast(MetaDB) db;
+        return dbi.list().map!((entry) {
+            static immutable flags = ItemFlags.Available;
+            return RegistryItem(entry.pkgID, cast(RegistryPlugin) this, flags);
+        }).array();
     }
 
     /**
