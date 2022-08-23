@@ -265,11 +265,12 @@ public final class MetaDB
             auto bucketID = prov.toString();
             ProviderMap storage;
             immutable e = storage.load(tx, bucketID);
-            if (e.code != DatabaseErrorCode.BucketNotFound && e.code
-                    != DatabaseErrorCode.KeyNotFound)
+            if (!e.isNull && e.code != DatabaseErrorCode.BucketNotFound
+                    && e.code != DatabaseErrorCode.KeyNotFound)
             {
                 return e;
             }
+            storage.identifier = bucketID;
             storage.pkgIDs ~= pkgID;
             immutable e2 = storage.save(tx);
             if (!e2.isNull)
@@ -389,6 +390,21 @@ public final class MetaDB
             db.close();
             db = null;
         }
+    }
+
+    /**
+     * Find all pkgIDs matching the given provider query
+     */
+    auto byProvider(ProviderType providerType, string datum) @safe
+    {
+        immutable lookupName = Provider(datum, providerType).toString;
+        ProviderMap lookup;
+        immutable e = db.view((in tx) => lookup.load(tx, lookupName));
+        if (!e.isNull)
+        {
+            return null;
+        }
+        return lookup.pkgIDs;
     }
 
 private:
