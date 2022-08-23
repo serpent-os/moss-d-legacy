@@ -407,6 +407,20 @@ public final class MetaDB
         return lookup.pkgIDs;
     }
 
+    /**
+     * Return the Nullable item
+     */
+    MetaEntry byID(string pkgID) @safe
+    {
+        MetaEntry lookup;
+        immutable err = db.view((in tx) => lookup.load(tx, pkgID));
+        if (err.isNull)
+        {
+            return lookup;
+        }
+        return MetaEntry.init;
+    }
+
 private:
 
     string dbPath;

@@ -87,17 +87,21 @@ public final class RemotePlugin : RegistryPlugin
     /**
      * Return dependencies for the given pkgID
      */
-    override const(Dependency)[] dependencies(in string pkgID) @safe const
+    override const(Dependency)[] dependencies(in string pkgID) @trusted const
     {
-        return null;
+        auto dbi = cast(MetaDB) db;
+        auto item = dbi.byID(pkgID);
+        return item.dependencies;
     }
 
     /**
      * Return providers for the given pkgID
      */
-    override const(Provider)[] providers(in string pkgID) @safe const
+    override const(Provider)[] providers(in string pkgID) @trusted const
     {
-        return null;
+        auto dbi = cast(MetaDB) db;
+        auto item = dbi.byID(pkgID);
+        return item.providers;
     }
 
     /**
