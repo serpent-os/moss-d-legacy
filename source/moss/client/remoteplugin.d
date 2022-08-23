@@ -23,6 +23,8 @@ import moss.client.metadb;
 import std.sumtype;
 import moss.core.errors;
 
+import std.experimental.logger;
+
 /**
  * Instantiated from a Remote to provide access to
  * packages
@@ -37,12 +39,14 @@ public final class RemotePlugin : RegistryPlugin
      */
     this(Repository remoteConfig, Installation installation) @safe
     {
-        this.remoteConfig = remoteConfig;
+        this._remoteConfig = remoteConfig;
         this.installation = installation;
         dbPath = installation.joinPath(".moss", "remotes", remoteConfig.id, "db");
         db = new MetaDB(dbPath, installation.mutability);
 
-        db.connect().tryMatch!((Success _) {});
+        db.connect.match!((Success _) {}, (Failure f) {
+            throw new Error(f.message);
+        });
     }
 
     /**
@@ -118,9 +122,17 @@ public final class RemotePlugin : RegistryPlugin
         db.close();
     }
 
+    /**
+     * Remote configuration
+     */
+    pure @property auto remoteConfig() @safe @nogc nothrow const
+    {
+        return _remoteConfig;
+    }
+
 private:
 
-    Repository remoteConfig;
+    Repository _remoteConfig;
     Installation installation;
     string dbPath;
     MetaDB db;

@@ -27,6 +27,8 @@ import std.file : mkdirRecurse;
 import std.experimental.logger;
 public import moss.core.errors;
 import moss.core.fetchcontext;
+import moss.client.remoteplugin;
+import moss.deps.registry;
 
 alias RemoteResult = Optional!(Success, Failure);
 
@@ -39,8 +41,9 @@ public final class RemoteManager
     /**
      * Initialise the RemoteManager with the given Installation
      */
-    this(FetchContext fetch, Installation install) @safe
+    this(RegistryManager registry, FetchContext fetch, Installation install) @safe
     {
+        this.registry = registry;
         this.installation = install;
         this.fetch = fetch;
         reloadConfiguration();
@@ -54,6 +57,18 @@ public final class RemoteManager
         auto config = new RepositoryConfiguration();
         () @trusted { config.load(installation.root); }();
         remotes = config.sections;
+
+        foreach (plugin; plugins)
+        {
+            registry.removePlugin(plugin);
+        }
+        plugins = [];
+        foreach (ref remoteConfig; remotes)
+        {
+            auto plugin = new RemotePlugin(remoteConfig, installation);
+            registry.addPlugin(plugin);
+            plugins ~= plugin;
+        }
     }
 
     /**
@@ -95,6 +110,8 @@ public final class RemoteManager
 `(saneID, description, origin);
         tracef("New config at: %s", confFile);
 
+        auto remotePath = installation.joinPath(".moss", "remotes", saneID);
+        remotePath.mkdirRecurse();
         confFile.dirName.mkdirRecurse();
 
         write(confFile, data);
@@ -127,7 +144,18 @@ public final class RemoteManager
             fetch.fetch();
         }
 
-        return cast(RemoteResult) fail("Not yet implemented");
+        /* Reload the indexes */
+        foreach (ref plugin; plugins)
+        {
+            immutable indexFile = installation.joinPath(".moss", "remotes",
+                    plugin.remoteConfig.id, plugin.remoteConfig.uri.baseName);
+            infof("Rebuilding indices on `%s`", plugin.remoteConfig.id);
+            plugin.loadFromIndex(indexFile).match!((Failure f) {
+                errorf("Failed to refresh plugin: %s", f.message);
+            }, (_) {});
+        }
+
+        return cast(RemoteResult) Success();
     }
 
 private:
@@ -135,4 +163,6 @@ private:
     Repository[] remotes;
     Installation installation;
     FetchContext fetch;
+    RemotePlugin[] plugins;
+    RegistryManager registry;
 }
