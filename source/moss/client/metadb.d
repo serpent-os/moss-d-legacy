@@ -26,6 +26,7 @@ import std.string : format;
 
 public import std.stdint : uint64_t;
 public import moss.deps.dependency;
+import moss.deps.registry : ItemInfo;
 
 /**
  * A MetaEntry is our ORM-specific storage of moss
@@ -136,6 +137,39 @@ public final class MetaDB
     {
         this.dbPath = dbPath;
         this.mut = mut;
+    }
+
+    /**
+     * Grab ItemInfo for the given pkg, which saves a lot
+     * of effort for the plugins.
+     */
+    auto info(string pkgID) @safe
+    {
+        MetaEntry entry;
+        immutable err = db.view((in tx) => entry.load(tx, pkgID));
+        if (!err.isNull)
+        {
+            return ItemInfo.init;
+        }
+        immutable licenses = () @trusted {
+            return cast(immutable(string[])) entry.licenses;
+        }();
+        return ItemInfo(entry.name, entry.summary, entry.description,
+                entry.sourceRelease, entry.versionIdentifier, entry.homepage, licenses);
+    }
+
+    auto list() @safe
+    {
+        MetaEntry[] entries;
+
+        db.view((in tx) @safe {
+            foreach (ent; tx.list!MetaEntry())
+            {
+                entries ~= ent;
+            }
+            return NoDatabaseError;
+        });
+        return entries;
     }
 
     /**
