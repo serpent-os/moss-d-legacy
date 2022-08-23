@@ -46,6 +46,14 @@ public final class RemotePlugin : RegistryPlugin
     }
 
     /**
+     * Support populating the db
+     */
+    auto loadFromIndex(string indexFile) @safe
+    {
+        return db.loadFromIndex(indexFile);
+    }
+
+    /**
      * Examine MetaDB for matching providers
      */
     override RegistryItem[] queryProviders(in DependencyType type,
