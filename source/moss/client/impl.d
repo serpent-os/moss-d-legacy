@@ -73,9 +73,9 @@ public final class MossClient
     /**
      * Access to dependency registry
      *
-     * Returns: const reference
+     * Returns: reference
      */
-    pure @property const(RegistryManager) registry() @safe @nogc nothrow const
+    pure @property RegistryManager registry() @safe @nogc nothrow
     {
         return _registry;
     }
