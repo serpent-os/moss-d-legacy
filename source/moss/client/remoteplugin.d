@@ -60,10 +60,11 @@ public final class RemotePlugin : RegistryPlugin
     /**
      * Examine MetaDB for matching providers
      */
-    override RegistryItem[] queryProviders(in DependencyType type,
-            in string matcher, ItemFlags flags = ItemFlags.None) @safe
+    override RegistryItem[] queryProviders(in ProviderType type, in string matcher,
+            ItemFlags flags = ItemFlags.None) @trusted
     {
-        return null;
+        return db.byProvider(type, matcher).map!((pkgID) => RegistryItem(pkgID,
+                cast(RegistryPlugin) this, flags)).array();
     }
 
     /**
