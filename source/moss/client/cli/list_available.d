@@ -42,7 +42,8 @@ static void printItem(ulong longestName, ref DisplayItem item) @trusted
 /**
  * List the available packages
  */
-@CommandName("available") @CommandHelp("List available packages", "TODO: Improve docs") struct ListAvailableCommand
+@CommandName("available") @CommandAlias("la") @CommandHelp(
+        "List available packages", "TODO: Improve docs") struct ListAvailableCommand
 {
     BaseCommand pt;
     alias pt this;
