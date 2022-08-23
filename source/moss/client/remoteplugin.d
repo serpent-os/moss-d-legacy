@@ -19,6 +19,10 @@ public import moss.deps.registry;
 public import moss.config.repo;
 public import moss.client.installation;
 
+import moss.client.metadb;
+import std.sumtype;
+import moss.core.errors;
+
 /**
  * Instantiated from a Remote to provide access to
  * packages
@@ -35,6 +39,10 @@ public final class RemotePlugin : RegistryPlugin
     {
         this.remoteConfig = remoteConfig;
         this.installation = installation;
+        dbPath = installation.joinPath(".moss", "remotes", remoteConfig.id, "db");
+        db = new MetaDB(dbPath, installation.mutability);
+
+        db.connect().tryMatch!((Success _) {});
     }
 
     /**
@@ -99,11 +107,13 @@ public final class RemotePlugin : RegistryPlugin
      */
     override void close() @safe
     {
-
+        db.close();
     }
 
 private:
 
     Repository remoteConfig;
     Installation installation;
+    string dbPath;
+    MetaDB db;
 }
