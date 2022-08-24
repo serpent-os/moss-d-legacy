@@ -35,7 +35,7 @@ static void printCandidate(scope ref RegistryItem item) @trusted
     ItemInfo info = item.info();
     auto rr = cast(RemotePlugin) item.plugin;
 
-    static immutable longestColumn = 16;
+    static immutable longestColumn = 13;
 
     static void printRow(string columnID, string portion) @trusted
     {
@@ -59,7 +59,7 @@ static void printCandidate(scope ref RegistryItem item) @trusted
     if (!dependencies.empty)
     {
         auto deps = dependencies.map!((d) => d.toString).join(", ")
-            .wrap(80 - longestColumn, "", "                  ", 4);
+            .wrap(80 - longestColumn, "", "               ", 4);
         printRow("Dependencies", deps.endsWith("\n") ? deps[0 .. $ - 1] : deps);
     }
 
@@ -67,7 +67,7 @@ static void printCandidate(scope ref RegistryItem item) @trusted
     if (!providers.empty)
     {
         auto provs = providers.map!((d) => d.toString).join(", ")
-            .wrap(80 - longestColumn, "", "                  ", 4);
+            .wrap(80 - longestColumn, "", "               ", 4);
         printRow("Providers", provs.endsWith("\n") ? provs[0 .. $ - 1] : provs);
     }
 }
