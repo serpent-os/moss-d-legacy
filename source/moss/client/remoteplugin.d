@@ -63,8 +63,12 @@ public final class RemotePlugin : RegistryPlugin
     override RegistryItem[] queryProviders(in ProviderType type, in string matcher,
             ItemFlags flags = ItemFlags.None) @trusted
     {
+        if ((flags & ItemFlags.Available) != ItemFlags.Available && flags != ItemFlags.None)
+        {
+            return null;
+        }
         return db.byProvider(type, matcher).map!((pkgID) => RegistryItem(pkgID,
-                cast(RegistryPlugin) this, flags)).array();
+                cast(RegistryPlugin) this, ItemFlags.Available)).array();
     }
 
     /**
@@ -109,10 +113,13 @@ public final class RemotePlugin : RegistryPlugin
      */
     override const(RegistryItem)[] list(in ItemFlags flags) @trusted const
     {
+        if ((flags & ItemFlags.Available) != ItemFlags.Available && flags != ItemFlags.None)
+        {
+            return null;
+        }
         auto dbi = cast(MetaDB) db;
         return dbi.list().map!((entry) {
-            static immutable flags = ItemFlags.Available;
-            return RegistryItem(entry.pkgID, cast(RegistryPlugin) this, flags);
+            return RegistryItem(entry.pkgID, cast(RegistryPlugin) this, ItemFlags.Available);
         }).array();
     }
 
