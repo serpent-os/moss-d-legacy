@@ -86,7 +86,7 @@ import moss.client.ui;
             if (writeLen + colWritten > 64)
             {
                 colWritten = 0;
-                writef!"\n %s"(toWrite);
+                writef!",\n %s"(toWrite);
             }
             else
             {
