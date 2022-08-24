@@ -24,6 +24,7 @@ import std.stdio : writefln;
 import std.algorithm : map;
 import std.array : array;
 import std.algorithm : each, sort, SwapStrategy, maxElement;
+import std.range : empty;
 
 struct DisplayItem
 {
@@ -62,6 +63,10 @@ static void printItem(ulong longestName, ref DisplayItem item) @trusted
                     format!"%s-%s"(info.versionID, info.releaseNumber));
             }).array();
         }();
+        if (di.empty)
+        {
+            return 0;
+        }
         di.sort!((a, b) => a.name < b.name);
         immutable largestName = di.maxElement!"a.name.length".name.length;
         immutable largestVersion = di.maxElement!"a.versionID.length".versionID.length;
