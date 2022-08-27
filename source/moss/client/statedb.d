@@ -73,6 +73,11 @@ public enum StateType : uint8_t
      * Creation timestamp
      */
     uint64_t tsCreated;
+
+    /**
+     * Relevant type for this State
+     */
+    StateType type = StateType.Transaction;
 }
 
 public alias StateResult = Optional!(Success, Failure);
