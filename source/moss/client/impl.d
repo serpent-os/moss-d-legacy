@@ -16,16 +16,16 @@
 module moss.client.impl;
 
 import moss.client.installation;
-import moss.deps.registry;
-import moss.client.statedb;
-import moss.config.repo;
-import moss.config.io.configuration;
-import std.experimental.logger;
-import moss.client.remotes;
-import moss.client.ui;
-import moss.fetcher.controller;
-
+import moss.client.layoutdb;
 import moss.client.remoteplugin;
+import moss.client.remotes;
+import moss.client.statedb;
+import moss.client.ui;
+import moss.config.io.configuration;
+import moss.config.repo;
+import moss.deps.registry;
+import moss.fetcher.controller;
+import std.experimental.logger;
 
 /**
  * Provides high-level access to the moss system
@@ -44,11 +44,14 @@ public final class MossClient
         _installation.ensureDirectories();
         _registry = new RegistryManager();
         remoteManager = new RemoteManager(_registry, fc, _installation);
-        stateDB = new StateDB(_installation);
         _ui.warn!"%s\n    moss is %s unstable\n"(Text("Warning").fg(Color.White)
                 .attr(Attribute.Underline), Text("highly").attr(Attribute.Bold));
 
+        stateDB = new StateDB(_installation);
         stateDB.connect.match!((Failure f) => fatalf(f.message), (_) {});
+
+        layoutDB = new LayoutDB(_installation);
+        layoutDB.connect.match!((Failure f) => fatalf(f.message), (_) {});
     }
 
     /**
@@ -109,6 +112,7 @@ private:
     Installation _installation;
     RegistryManager _registry;
     StateDB stateDB;
+    LayoutDB layoutDB;
     RemoteManager remoteManager;
     UserInterface _ui;
     FetchController fc;
