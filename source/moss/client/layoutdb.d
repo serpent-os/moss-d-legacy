@@ -24,6 +24,7 @@ import std.exception : enforce;
 import std.experimental.logger;
 import std.file : exists;
 import std.string : format;
+import std.array : array;
 public import moss.format.binary.payload.layout;
 
 public import moss.core.errors;
@@ -44,7 +45,7 @@ public @Model struct Layout
     /**
      * Entries for the filesystem
      */
-    LayoutEntry[] entries;
+    EntrySet[] entries;
 }
 
 /**
@@ -105,6 +106,21 @@ package:
             db.close();
             db = null;
         }
+    }
+
+    /**
+     * Store a single LayoutPayload in the DB
+     */
+    LayoutResult store(string pkgID, scope LayoutPayload lp) @safe
+    {
+        Layout lt = Layout(pkgID);
+        lt.entries = lp.array;
+        immutable err = db.update((scope tx) => lt.save(tx));
+        if (!err.isNull)
+        {
+            return cast(LayoutResult) fail(err.message);
+        }
+        return cast(LayoutResult) Success();
     }
 
 private:
