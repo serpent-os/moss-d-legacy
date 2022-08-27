@@ -44,7 +44,7 @@ public @Model struct Layout
     /**
      * Entries for the filesystem
      */
-    LayoutEntry entries;
+    LayoutEntry[] entries;
 }
 
 /**
