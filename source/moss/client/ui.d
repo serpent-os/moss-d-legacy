@@ -297,13 +297,11 @@ public final class UserInterface
         auto nColumns = columnsLimit / largestWidth;
         auto workset = displayable.array;
         workset.sort!"a.toString < b.toString";
-        auto nRows = workset.length / nColumns;
 
-        foreach (row; 0 .. nRows)
+        foreach (set; workset.chunks(nColumns))
         {
-            foreach (col; 0 .. nColumns)
+            foreach (elem; set)
             {
-                auto elem = workset[nColumns * row + col];
                 stdout.writef!"%s%*s"(elem, largestWidth - elem.length, " ");
             }
             stdout.writeln();
