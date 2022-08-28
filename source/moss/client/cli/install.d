@@ -72,39 +72,7 @@ import moss.client.ui;
             }
         }
         cl.ui.inform("The following packages will be installed\n");
-        ulong colWritten = 0;
-        ulong elemWritten = 0;
-        foreach (r; result)
-        {
-            if (r.installed)
-            {
-                continue;
-            }
-            auto writeLen = r.info.name.length + r.info.versionID.length + 1;
-            auto toWrite = format!"%s %s"(Text(r.info.name)
-                    .attr(Attribute.Bold), Text(r.info.versionID).fg(Color.Magenta));
-            if (writeLen + colWritten > 64)
-            {
-                colWritten = 0;
-                writef!",\n %s"(toWrite);
-            }
-            else
-            {
-                if (elemWritten == 0)
-                {
-                    writef!" %s"(toWrite);
-                    colWritten += writeLen;
-                }
-                else
-                {
-                    writef!", %s"(toWrite);
-                    colWritten += writeLen + 2;
-                }
-            }
-            ++elemWritten;
-        }
-        writef("\n");
-
+        cl.ui.emitAsColumns(result);
         return 0;
     }
 }

@@ -21,7 +21,43 @@ import std.meta : staticMap;
 import std.traits : EnumMembers, getUDAs;
 
 import std.stdio : stdout;
-import std.string : format;
+import std.string : format, join;
+import std.range : isInputRange, chunks, empty, ElementType;
+import std.algorithm : map, maxElement, each;
+import std.conv : to;
+
+import moss.deps.registry.item : RegistryItem;
+
+/**
+ * Renderable Text[] for a RegistryItem
+ */
+auto toTexts(RegistryItem item) @safe
+{
+    auto info = item.info();
+    return [
+        Text(info.name).attr(Attribute.Bold), Text(" - "),
+        Text(info.versionID).fg(Color.Magenta), Text("-"),
+        Text(info.releaseNumber.to!string).fg(Color.Cyan),
+    ];
+}
+
+/* Map input items into Text representation */
+private static struct TextMap
+{
+    Text[] repr;
+
+    auto toString() @safe
+    {
+        return repr.map!((r) => r.toString).join("");
+    }
+
+    auto @property length() @safe
+    {
+        ulong val;
+        repr.each!((v) => val += v.text.length);
+        return val;
+    }
+}
 
 /**
  * Encapsulate information about the current
@@ -238,6 +274,54 @@ public final class UserInterface
     {
         immutable portion = format!fmt(p);
         stdout.writefln!" %s  %s"(Text("⚠").fg(Color.Yellow), portion);
+    }
+
+    /**
+    * Emit the given things as column separated
+    */
+    void emitAsColumns(R)(R items) @trusted const if (isInputRange!R)
+    {
+        static int columnsLimit = 80;
+        import std.array : array;
+        import std.algorithm : sort;
+
+        if (items.empty)
+        {
+            return;
+        }
+
+        auto displayable = items.map!((i) => TextMap(toTexts(i)));
+        /* Auto pad. */
+        auto largestWidth = (displayable.maxElement!"a.length".length) + 4;
+
+        auto nColumns = columnsLimit / largestWidth;
+        auto workset = displayable.array;
+        workset.sort!"a.toString < b.toString";
+        auto nRows = workset.length / nColumns;
+
+        foreach (row; 0 .. nRows)
+        {
+            foreach (col; 0 .. nColumns)
+            {
+                auto elem = workset[nColumns * row + col];
+                stdout.writef!"%s%*s"(elem, largestWidth - elem.length, " ");
+            }
+            stdout.writeln();
+        }
+
+        /*
+        foreach (chunk; displayable.chunks(nColumns))
+        {
+            foreach (elem; chunk)
+            {
+                () @trusted {
+                    stdout.writef!"%0s%s"(largestWidth - elem.length, " ", elem);
+                }();
+            }
+            () @trusted {
+                stdout.writeln();
+            }();
+        }*/
     }
 
 private:
