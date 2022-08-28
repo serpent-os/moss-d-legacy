@@ -300,9 +300,18 @@ public final class UserInterface
 
         foreach (set; workset.chunks(nColumns))
         {
+            uint i;
             foreach (elem; set)
             {
-                stdout.writef!"%s%*s"(elem, largestWidth - elem.length, " ");
+                ++i;
+                if (i == nColumns)
+                {
+                    stdout.writef!"%s"(elem);
+                }
+                else
+                {
+                    stdout.writef!"%s%*s"(elem, largestWidth - elem.length, " ");
+                }
             }
             stdout.writeln();
         }
