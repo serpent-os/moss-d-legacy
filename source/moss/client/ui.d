@@ -308,20 +308,6 @@ public final class UserInterface
             }
             stdout.writeln();
         }
-
-        /*
-        foreach (chunk; displayable.chunks(nColumns))
-        {
-            foreach (elem; chunk)
-            {
-                () @trusted {
-                    stdout.writef!"%0s%s"(largestWidth - elem.length, " ", elem);
-                }();
-            }
-            () @trusted {
-                stdout.writeln();
-            }();
-        }*/
     }
 
 private:
