@@ -50,7 +50,8 @@ import moss.client.ui;
         RegistryItem[] selections;
         foreach (item; argv)
         {
-            auto candidates = cl.registry.byName(item);
+            auto search = fromString!Provider(item);
+            auto candidates = cl.registry.byProvider(search.type, search.target);
             if (candidates.empty)
             {
                 errorf("Cannot find package %s", item);
