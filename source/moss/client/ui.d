@@ -20,8 +20,8 @@ import std.string : format;
 import std.meta : staticMap;
 import std.traits : EnumMembers, getUDAs;
 
-import std.stdio : stdout;
-import std.string : format, join;
+import std.stdio : stdout, stdin;
+import std.string : format, join, startsWith;
 import std.range : isInputRange, chunks, empty, ElementType;
 import std.algorithm : map, maxElement, each;
 import std.conv : to;
@@ -249,7 +249,7 @@ public final class UserInterface
     void inform(string fmt, S...)(S p) @trusted
     {
         immutable portion = format!fmt(p);
-        stdout.writefln!" ⦁ %s"(portion);
+        stdout.writefln!"%s"(Text(portion));
     }
 
     /**
@@ -274,6 +274,42 @@ public final class UserInterface
     {
         immutable portion = format!fmt(p);
         stdout.writefln!" %s  %s"(Text("⚠").fg(Color.Yellow), portion);
+    }
+
+    /**
+     * Ask a Yes/No question
+     *
+     * Params:
+     *      message = Message to print
+     * Returns: True if the user selected Yes
+     */
+    bool ask(string message) @safe
+    {
+        return ask!"%s"(message);
+    }
+
+    /**
+     * Ask the user a Yes/No question
+     *
+     * Params:
+     *      fmt = Format string
+     *      p = Paramters
+     * Returns: True if the user selected Yes
+     */
+    bool ask(string fmt, S...)(S p) @trusted
+    {
+        immutable portion = format!fmt(p);
+        stdout.writef("%s [ %s%s / %s%s ] ", Text(portion).fg(Color.Blue)
+                .attr(Attribute.Bold), Text("Y").fg(Color.Red)
+                .attr(Attribute.Bold), Text("es").fg(Color.Red), Text("N")
+                .fg(Color.Green).attr(Attribute.Bold), Text("o").fg(Color.Green));
+        /* TODO: Fail without stdin */
+        immutable response = stdin.readln();
+        if (response.startsWith("y") || response.startsWith("Y"))
+        {
+            return true;
+        }
+        return false;
     }
 
     /**
