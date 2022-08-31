@@ -80,6 +80,8 @@ import moss.client.ui;
             cl.ui.warn("Exiting at user's request");
             return 1;
         }
+        /* Do the deal. */
+        cl.applyTransaction(tx);
         return 0;
     }
 }
