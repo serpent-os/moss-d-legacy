@@ -30,6 +30,114 @@ import moss.deps.registry.item : RegistryItem;
 import moss.core.fetchcontext;
 
 /**
+ * Encapsulate a progress job
+ */
+public final class ProgressBar
+{
+
+    @disable this();
+
+    /**
+     * Construct a new ProgressBar
+     */
+    this(uint index)
+    {
+        _barIndex = index;
+    }
+
+    /**
+     * Index of this bar (for traversal)
+     */
+    pure @property auto barIndex() @safe @nogc nothrow const
+    {
+        return _barIndex;
+    }
+
+    pure @property auto label() @safe @nogc nothrow const
+    {
+        return _label;
+    }
+
+    /**
+     * Update the label
+     */
+    @property void label(string s) @safe
+    {
+        if (_label == s)
+        {
+            return;
+        }
+        _label = s;
+        update();
+    }
+
+    /**
+     * Draw this ProgressBar.
+     */
+    void draw()
+    {
+
+    }
+
+    /**
+     * Total property
+     */
+    pure @property double total() @safe @nogc nothrow const
+    {
+        return _total;
+    }
+
+    /**
+     * Ditto
+     */
+    @property void total(double dlTotal) @safe
+    {
+        if (_total == dlTotal)
+        {
+            return;
+        }
+        _total = dlTotal;
+        update();
+    }
+
+    /**
+     * Current property
+     */
+    pure @property double current() @safe @nogc nothrow const
+    {
+        return _current;
+    }
+
+    /**
+     * Ditto
+     */
+    @property void current(double dlCurrent) @safe
+    {
+        if (_current == dlCurrent)
+        {
+            return;
+        }
+        _current = dlCurrent;
+        update();
+    }
+
+private:
+
+    void update() @safe
+    {
+        if (total <= 0)
+        {
+            return;
+        }
+    }
+
+    uint _barIndex;
+    double _total;
+    double _current;
+    string _label;
+}
+
+/**
  * Renderable Text[] for a RegistryItem
  */
 auto toTexts(RegistryItem item) @safe
@@ -384,4 +492,6 @@ private:
     }
 
     TerminalInfo tinfo;
+    ProgressBar[] bars;
+    ProgressBar totalBar;
 }
