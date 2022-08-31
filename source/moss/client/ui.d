@@ -27,6 +27,7 @@ import std.algorithm : map, maxElement, each;
 import std.conv : to;
 
 import moss.deps.registry.item : RegistryItem;
+import moss.core.fetchcontext;
 
 /**
  * Renderable Text[] for a RegistryItem
@@ -220,11 +221,16 @@ public template bgColor(Color c)
  */
 public final class UserInterface
 {
+    @disable this();
+
     /**
      * Construct a new UserInterface
      */
-    this() @safe
+    this(FetchContext fetchContext) @safe
     {
+        fetchContext.onComplete.connect(&onComplete);
+        fetchContext.onProgress.connect(&onProgress);
+        fetchContext.onFail.connect(&onFail);
         initTinfo();
     }
 
@@ -354,6 +360,18 @@ public final class UserInterface
     }
 
 private:
+
+    void onFail(Fetchable f, string failureMessage) @safe
+    {
+    }
+
+    void onProgress(uint workerThread, Fetchable f, double current, double total) @safe
+    {
+    }
+
+    void onComplete(Fetchable f, long code) @safe
+    {
+    }
 
     /**
      * Initialise knowledge of the TerminalInfo
