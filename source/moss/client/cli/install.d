@@ -74,6 +74,12 @@ import moss.client.ui;
         }
         cl.ui.inform("The following packages will be installed\n");
         cl.ui.emitAsColumns(result);
+        cl.ui.inform("");
+        if (!cl.ui.ask("Do you want to continue?"))
+        {
+            cl.ui.warn("Exiting at user's request");
+            return 1;
+        }
         return 0;
     }
 }
