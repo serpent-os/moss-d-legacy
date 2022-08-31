@@ -41,7 +41,7 @@ public final class MossClient
     {
         fc = new FetchController();
 
-        _ui = new UserInterface();
+        _ui = new UserInterface(fc);
         _installation = new Installation(root);
         _installation.ensureDirectories();
         _registry = new RegistryManager();
