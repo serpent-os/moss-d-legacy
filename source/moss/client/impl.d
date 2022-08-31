@@ -25,7 +25,9 @@ import moss.config.io.configuration;
 import moss.config.repo;
 import moss.deps.registry;
 import moss.fetcher.controller;
+import std.exception : enforce;
 import std.experimental.logger;
+import std.range : empty;
 
 /**
  * Provides high-level access to the moss system
@@ -49,6 +51,10 @@ public final class MossClient
 
         layoutDB = new LayoutDB(_installation);
         layoutDB.connect.match!((Failure f) => fatalf(f.message), (_) {});
+
+        fetchContext.onComplete.connect(&onComplete);
+        fetchContext.onFail.connect(&onFail);
+        fetchContext.onProgress.connect(&onProgress);
     }
 
     /**
@@ -104,7 +110,36 @@ public final class MossClient
         return fc;
     }
 
+    /**
+     * Apply the transaction
+     *
+     * This will perform any caching + downloading up-front using the
+     * .ui object for output.
+     *
+     * Throws: enforce() exception to ensure input isn't jank
+     * Params:
+     *      tx = Registry transaction
+     */
+    void applyTransaction(scope Transaction tx) @safe
+    {
+        auto application = tx.apply();
+        enforce(tx.problems.empty, "applyTransaction: Expected zero problems");
+        enforce(!application.empty, "applyTransaction: Expected valid application");
+    }
+
 private:
+
+    void onFail(Fetchable f, string failureMessage) @safe
+    {
+    }
+
+    void onProgress(uint workerThread, Fetchable f, double current, double total) @safe
+    {
+    }
+
+    void onComplete(Fetchable f, long code) @safe
+    {
+    }
 
     Installation _installation;
     RegistryManager _registry;
