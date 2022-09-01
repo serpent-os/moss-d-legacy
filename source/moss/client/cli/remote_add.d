@@ -22,6 +22,7 @@ import moss.core.errors;
 import std.stdio : writeln;
 import std.sumtype;
 import std.experimental.logger;
+import moss.client.ui;
 
 /**
  * Add a remote to the system
@@ -50,6 +51,10 @@ import std.experimental.logger;
         }
         auto name = argv[0];
         auto url = argv[1];
+
+        /* Reserve just one for this fetch */
+        auto pbar = new ProgressBar(0);
+        cl.ui.addProgressbar(pbar);
 
         return cl.remotes.add(name, url).match!((Failure f) {
             errorf("%s", f.message);

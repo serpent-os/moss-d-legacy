@@ -25,6 +25,7 @@ import std.string : format, join, startsWith;
 import std.range : isInputRange, chunks, empty, ElementType;
 import std.algorithm : map, maxElement, each;
 import std.conv : to;
+import std.path : baseName;
 
 import moss.deps.registry.item : RegistryItem;
 import moss.core.fetchcontext;
@@ -40,7 +41,7 @@ public final class ProgressBar
     /**
      * Construct a new ProgressBar
      */
-    this(uint index)
+    this(uint index) @safe
     {
         _barIndex = index;
     }
@@ -74,9 +75,28 @@ public final class ProgressBar
     /**
      * Draw this ProgressBar.
      */
-    void draw()
+    void draw(int oldLine) @trusted
     {
-
+        if (barIndex > oldLine)
+        {
+            /* +ve */
+            auto diff = barIndex - oldLine;
+            stdout.writef!"\x1B[%sA"(diff);
+        }
+        else if (barIndex == oldLine)
+        {
+        }
+        else
+        {
+            /* -ve */
+            auto diff = oldLine - barIndex;
+            stdout.writef!"\x1B[%sB"(diff);
+        }
+        stdout.flush();
+        stdout.write("\x1B[2K");
+        stdout.flush();
+        stdout.writef!"\r%s"(msg);
+        stdout.flush();
     }
 
     /**
@@ -129,12 +149,39 @@ private:
         {
             return;
         }
+        auto pct = _total / _current;
+        static const totalElements = 24;
+        auto fraction = (totalElements * pct);
+        static const barEmpty = "▭";
+        static const barFull = "◼";
+        msg = "";
+        foreach (i; 0 .. totalElements)
+        {
+            if (fraction < i)
+            {
+                msg ~= barEmpty;
+            }
+            else
+            {
+                msg ~= barFull;
+            }
+        }
+        auto percentage = cast(int)(pct * 100.0);
+        if (percentage < 0)
+        {
+            return;
+        }
+        auto pctLabel = format!"%2d%%"(cast(int)(pct * 100.0));
+        auto pctString = format!"%*s%s"(5 - pctLabel.length, " ", pctLabel);
+        msg = format!" %s %s %s"(Text(msg).fg(Color.Cyan).attr(Attribute.Bold),
+                Text(pctString), Text(_label).attr(Attribute.Italic));
     }
 
     uint _barIndex;
     double _total;
     double _current;
     string _label;
+    string msg;
 }
 
 /**
@@ -467,6 +514,26 @@ public final class UserInterface
         }
     }
 
+    /**
+     * Stash the bar
+     */
+    void addProgressbar(ProgressBar bar) @safe
+    {
+        bars ~= bar;
+    }
+
+    /**
+     * Prepare bars for rendering
+     */
+    void prepBars() @trusted
+    {
+        barIndex = 0;
+        foreach (bar; bars)
+        {
+            stdout.writeln();
+        }
+    }
+
 private:
 
     void onFail(Fetchable f, string failureMessage) @safe
@@ -475,6 +542,15 @@ private:
 
     void onProgress(uint workerThread, Fetchable f, double current, double total) @safe
     {
+        synchronized (this)
+        {
+            auto bar = bars[workerThread];
+            bar.total = total;
+            bar.current = current;
+            bar.label = f.sourceURI.baseName;
+            bar.draw(barIndex);
+            barIndex = cast(int) workerThread;
+        }
     }
 
     void onComplete(Fetchable f, long code) @safe
@@ -494,4 +570,5 @@ private:
     TerminalInfo tinfo;
     ProgressBar[] bars;
     ProgressBar totalBar;
+    int barIndex = 0;
 }

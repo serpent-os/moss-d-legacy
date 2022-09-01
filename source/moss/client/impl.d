@@ -125,6 +125,27 @@ public final class MossClient
         auto application = tx.apply();
         enforce(tx.problems.empty, "applyTransaction: Expected zero problems");
         enforce(!application.empty, "applyTransaction: Expected valid application");
+
+        auto mainbar = new ProgressBar(uint.max);
+        /* TODO: Fix the max jobs! */
+        auto maxJobs = 8;
+
+        foreach (i; 0 .. maxJobs)
+        {
+            auto pbar = new ProgressBar(i);
+            ui.addProgressbar(pbar);
+        }
+
+        foreach (pkg; application)
+        {
+            pkg.fetch(fetchContext);
+        }
+
+        ui.prepBars();
+        while (!fetchContext.empty)
+        {
+            fetchContext.fetch();
+        }
     }
 
 private:

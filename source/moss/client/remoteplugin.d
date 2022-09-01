@@ -21,9 +21,12 @@ public import moss.client.installation;
 
 import moss.client.metadb;
 import moss.core.errors;
+import std.file : mkdirRecurse;
 import std.algorithm : map;
 import std.array : array;
 import std.sumtype;
+import std.string : format;
+import std.path : dirName, buildPath, baseName;
 
 /**
  * Instantiated from a Remote to provide access to
@@ -128,7 +131,15 @@ public final class RemotePlugin : RegistryPlugin
      */
     override void fetchItem(FetchContext context, in string pkgID) @safe
     {
-
+        MetaEntry item = db.byID(pkgID);
+        auto uri = format!"%s/%s"(remoteConfig.uri.dirName, item.uri);
+        auto expHash = item.hash;
+        auto downloadPath = installation.cachePath("downloads", "v1",
+                expHash[0 .. 5], expHash[$ - 5 .. $]);
+        auto downloadPathFull = downloadPath.buildPath(expHash);
+        downloadPath.mkdirRecurse();
+        auto fj = Fetchable(uri, downloadPathFull, item.downloadSize, FetchType.RegularFile, null);
+        context.enqueue(fj);
     }
 
     /**
