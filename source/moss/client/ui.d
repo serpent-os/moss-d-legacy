@@ -460,7 +460,7 @@ public final class UserInterface
     bool ask(string fmt, S...)(S p) @trusted
     {
         immutable portion = format!fmt(p);
-        stdout.writef("%s [ %s%s / %s%s ] ", Text(portion).fg(Color.Blue)
+        stdout.writef("%s [ %s%s / %s%s ] ", Text(portion).fg(Color.Yellow)
                 .attr(Attribute.Bold), Text("Y").fg(Color.Red)
                 .attr(Attribute.Bold), Text("es").fg(Color.Red), Text("N")
                 .fg(Color.Green).attr(Attribute.Bold), Text("o").fg(Color.Green));
@@ -489,7 +489,7 @@ public final class UserInterface
 
         auto displayable = items.map!((i) => TextMap(toTexts(i)));
         /* Auto pad. */
-        auto largestWidth = (displayable.maxElement!"a.length".length) + 4;
+        auto largestWidth = (displayable.maxElement!"a.length".length) + 2;
 
         auto nColumns = columnsLimit / largestWidth;
         auto workset = displayable.array;
