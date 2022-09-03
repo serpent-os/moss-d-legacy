@@ -87,12 +87,9 @@ public final class Renderer
      */
     void draw() @safe
     {
-        synchronized (this)
+        foreach (index, child; children.enumerate.filter!((t) => t.value.changed))
         {
-            foreach (index, child; children.enumerate.filter!((t) => t.value.changed))
-            {
-                drawChild(cast(int) index, child);
-            }
+            drawChild(cast(int) index, child);
         }
     }
 

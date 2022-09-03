@@ -167,14 +167,11 @@ private:
 
     void onProgress(uint workerThread, Fetchable f, double total, double current) @safe
     {
-        synchronized (this)
-        {
-            auto fp = fetchProgress[workerThread];
-            fp.total = total;
-            fp.current = current;
-            fp.label = f.sourceURI.baseName;
-            renderer.draw();
-        }
+        auto fp = fetchProgress[workerThread];
+        fp.total = total;
+        fp.current = current;
+        fp.label = f.sourceURI.baseName;
+        renderer.draw();
     }
 
     void onComplete(Fetchable f, long code) @safe
