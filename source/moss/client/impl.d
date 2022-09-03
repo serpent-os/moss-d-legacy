@@ -28,6 +28,7 @@ import moss.fetcher.controller;
 import std.exception : enforce;
 import std.experimental.logger;
 import std.range : empty;
+import moss.client.label : Label;
 import moss.client.progressbar : ProgressBar;
 import moss.client.renderer : Renderer;
 import std.path : baseName;
@@ -139,7 +140,8 @@ public final class MossClient
             totalProgress.total = totalProgress.total + 1;
         }
 
-        ui.inform!"\n%s\n"(Text("Downloading packages").attr(Attribute.Bold));
+        /* Space out the text */
+        renderer.add(new Label());
 
         foreach (i; 0 .. 8)
         {
@@ -147,6 +149,8 @@ public final class MossClient
             fetchProgress ~= fp;
             renderer.add(fp);
         }
+
+        renderer.add(new Label(Text("Total downloaded").attr(Attribute.Underline)));
         renderer.add(totalProgress);
 
         while (!fetchContext.empty)
@@ -181,9 +185,8 @@ private:
             auto c = totalProgress.current;
             c++;
             totalProgress.current = c;
-            totalProgress.label = format!"%d of %d fetched into cache"(
-                    cast(int) totalProgress.current, cast(int) totalProgress.total);
-            renderer.draw();
+            totalProgress.label = format!"%d out of %d"(cast(int) totalProgress.current,
+                    cast(int) totalProgress.total);
         }
     }
 
