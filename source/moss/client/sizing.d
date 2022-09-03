@@ -19,7 +19,7 @@ import std.algorithm : max, min;
 import std.math : floor, log, pow;
 import std.string : format;
 
-private static const suffixes = ["B", "KiB", "MiB", "GiB", "TiB"];
+private static immutable suffixes = ["B", "KiB", "MiB", "GiB", "TiB"];
 private static immutable ulong suffixN = cast(ulong)((cast(long) suffixes.length) - 1);
 private static immutable unitSize = log(1024);
 
@@ -29,9 +29,21 @@ private static immutable unitSize = log(1024);
  */
 public struct FormattedSize
 {
+    /**
+     * Number of bytes by power
+     */
     double numUnits;
+
+    /**
+     * A suffix such as "MiB"
+     */
     string suffix;
 
+    /**
+     * Default pretty print
+     *
+     * Returns: String representation of this FormattedSize
+     */
     auto toString() @safe const
     {
         return format!"%.2f%s"(numUnits, suffix);
@@ -45,7 +57,7 @@ public struct FormattedSize
  *      inp = Double precision size
  * Returns: String formatted size
  */
-FormattedSize formatSize(double inp) @safe
+pure FormattedSize formattedSize(double inp) @safe @nogc nothrow
 {
     immutable bytes = max(inp, 0);
     immutable power = min(floor((bytes > 0 ? log(bytes) : 0) / unitSize), suffixN);
