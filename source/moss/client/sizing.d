@@ -57,7 +57,7 @@ public struct FormattedSize
  *      inp = Double precision size
  * Returns: String formatted size
  */
-pure FormattedSize formattedSize(double inp) @safe @nogc nothrow
+pure FormattedSize formattedSize(scope const ref double inp) @safe @nogc nothrow
 {
     immutable bytes = max(inp, 0);
     immutable power = min(floor((bytes > 0 ? log(bytes) : 0) / unitSize), suffixN);
