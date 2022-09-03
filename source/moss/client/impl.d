@@ -55,6 +55,13 @@ public final class MossClient
         layoutDB = new LayoutDB(_installation);
         layoutDB.connect.match!((Failure f) => fatalf(f.message), (_) {});
 
+        foreach (i; 0 .. 8)
+        {
+            fetchProgress ~= new ProgressBar();
+        }
+        totalProgress = new ProgressBar();
+        totalProgress.special = true;
+
         fetchContext.onComplete.connect(&onComplete);
         fetchContext.onFail.connect(&onFail);
         fetchContext.onProgress.connect(&onProgress);
@@ -130,9 +137,6 @@ public final class MossClient
         enforce(!application.empty, "applyTransaction: Expected valid application");
 
         renderer = new Renderer();
-        fetchProgress = null;
-        totalProgress = new ProgressBar();
-        totalProgress.special = true;
 
         foreach (pkg; application)
         {
@@ -143,11 +147,9 @@ public final class MossClient
         /* Space out the text */
         renderer.add(new Label());
 
-        foreach (i; 0 .. 8)
+        foreach (bar; fetchProgress)
         {
-            auto fp = new ProgressBar();
-            fetchProgress ~= fp;
-            renderer.add(fp);
+            renderer.add(bar);
         }
 
         renderer.add(new Label(Text("Total downloaded").attr(Attribute.Underline)));
@@ -175,19 +177,19 @@ private:
         fp.total = total;
         fp.current = current;
         fp.label = f.sourceURI.baseName;
-        renderer.draw();
+        if (renderer !is null)
+        {
+            renderer.draw();
+        }
     }
 
     void onComplete(Fetchable f, long code) @safe
     {
-        synchronized (this)
-        {
-            auto c = totalProgress.current;
-            c++;
-            totalProgress.current = c;
-            totalProgress.label = format!"%d out of %d"(cast(int) totalProgress.current,
-                    cast(int) totalProgress.total);
-        }
+        auto c = totalProgress.current;
+        c++;
+        totalProgress.current = c;
+        totalProgress.label = format!"%d out of %d"(cast(int) totalProgress.current,
+                cast(int) totalProgress.total);
     }
 
     Installation _installation;
