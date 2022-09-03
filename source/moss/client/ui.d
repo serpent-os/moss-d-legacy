@@ -28,7 +28,6 @@ import std.conv : to;
 import std.path : baseName;
 
 import moss.deps.registry.item : RegistryItem;
-import moss.core.fetchcontext;
 
 /**
  * Encapsulate a progress job
@@ -376,16 +375,11 @@ public template bgColor(Color c)
  */
 public final class UserInterface
 {
-    @disable this();
-
     /**
      * Construct a new UserInterface
      */
-    this(FetchContext fetchContext) @safe
+    this() @safe
     {
-        fetchContext.onComplete.connect(&onComplete);
-        fetchContext.onProgress.connect(&onProgress);
-        fetchContext.onFail.connect(&onFail);
         initTinfo();
     }
 
@@ -514,48 +508,7 @@ public final class UserInterface
         }
     }
 
-    /**
-     * Stash the bar
-     */
-    void addProgressbar(ProgressBar bar) @safe
-    {
-        bars ~= bar;
-    }
-
-    /**
-     * Prepare bars for rendering
-     */
-    void prepBars() @trusted
-    {
-        barIndex = 0;
-        foreach (bar; bars)
-        {
-            stdout.writeln();
-        }
-    }
-
 private:
-
-    void onFail(Fetchable f, string failureMessage) @safe
-    {
-    }
-
-    void onProgress(uint workerThread, Fetchable f, double current, double total) @safe
-    {
-        synchronized (this)
-        {
-            auto bar = bars[workerThread];
-            bar.total = total;
-            bar.current = current;
-            bar.label = f.sourceURI.baseName;
-            bar.draw(barIndex);
-            barIndex = cast(int) workerThread;
-        }
-    }
-
-    void onComplete(Fetchable f, long code) @safe
-    {
-    }
 
     /**
      * Initialise knowledge of the TerminalInfo
@@ -568,7 +521,4 @@ private:
     }
 
     TerminalInfo tinfo;
-    ProgressBar[] bars;
-    ProgressBar totalBar;
-    int barIndex = 0;
 }
