@@ -52,10 +52,6 @@ import moss.client.ui;
         auto name = argv[0];
         auto url = argv[1];
 
-        /* Reserve just one for this fetch */
-        auto pbar = new ProgressBar(0);
-        cl.ui.addProgressbar(pbar);
-
         return cl.remotes.add(name, url).match!((Failure f) {
             errorf("%s", f.message);
             return 1;

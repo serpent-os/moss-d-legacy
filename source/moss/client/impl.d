@@ -28,6 +28,9 @@ import moss.fetcher.controller;
 import std.exception : enforce;
 import std.experimental.logger;
 import std.range : empty;
+import moss.client.progressbar : ProgressBar;
+import moss.client.renderer : Renderer;
+import std.path : baseName;
 
 /**
  * Provides high-level access to the moss system
@@ -40,8 +43,7 @@ public final class MossClient
     this(in string root = "/") @safe
     {
         fc = new FetchController();
-
-        _ui = new UserInterface(fc);
+        _ui = new UserInterface();
         _installation = new Installation(root);
         _installation.ensureDirectories();
         _registry = new RegistryManager();
@@ -126,26 +128,35 @@ public final class MossClient
         enforce(tx.problems.empty, "applyTransaction: Expected zero problems");
         enforce(!application.empty, "applyTransaction: Expected valid application");
 
-        auto mainbar = new ProgressBar(uint.max);
-        /* TODO: Fix the max jobs! */
-        auto maxJobs = 8;
-
-        foreach (i; 0 .. maxJobs)
-        {
-            auto pbar = new ProgressBar(i);
-            ui.addProgressbar(pbar);
-        }
+        renderer = new Renderer();
+        fetchProgress = null;
+        totalProgress = new ProgressBar();
+        totalProgress.special = true;
 
         foreach (pkg; application)
         {
             pkg.fetch(fetchContext);
+            totalProgress.total = totalProgress.total + 1;
         }
 
-        ui.prepBars();
+        ui.inform!"\n%s\n"(Text("Downloading packages").attr(Attribute.Bold));
+
+        foreach (i; 0 .. 8)
+        {
+            auto fp = new ProgressBar();
+            fetchProgress ~= fp;
+            renderer.add(fp);
+        }
+        renderer.add(totalProgress);
+
         while (!fetchContext.empty)
         {
             fetchContext.fetch();
         }
+        renderer.redraw();
+        import std.stdio : writeln;
+
+        writeln();
     }
 
 private:
@@ -154,12 +165,29 @@ private:
     {
     }
 
-    void onProgress(uint workerThread, Fetchable f, double current, double total) @safe
+    void onProgress(uint workerThread, Fetchable f, double total, double current) @safe
     {
+        synchronized (this)
+        {
+            auto fp = fetchProgress[workerThread];
+            fp.total = total;
+            fp.current = current;
+            fp.label = f.sourceURI.baseName;
+            renderer.draw();
+        }
     }
 
     void onComplete(Fetchable f, long code) @safe
     {
+        synchronized (this)
+        {
+            auto c = totalProgress.current;
+            c++;
+            totalProgress.current = c;
+            totalProgress.label = format!"%d of %d fetched into cache"(
+                    cast(int) totalProgress.current, cast(int) totalProgress.total);
+            renderer.draw();
+        }
     }
 
     Installation _installation;
@@ -169,4 +197,7 @@ private:
     RemoteManager remoteManager;
     UserInterface _ui;
     FetchController fc;
+    ProgressBar[] fetchProgress;
+    ProgressBar totalProgress;
+    Renderer renderer;
 }
