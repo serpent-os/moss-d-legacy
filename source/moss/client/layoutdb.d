@@ -129,6 +129,15 @@ package:
         return cast(LayoutResult) Success();
     }
 
+    /**
+     * Enumerate all layout entries */
+    EntrySet[] entries(string pkgID) @safe
+    {
+        Layout ret;
+        db.view((in tx) => ret.load(tx, pkgID));
+        return ret.entries;
+    }
+
 private:
 
     Database db;
