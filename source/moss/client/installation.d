@@ -152,6 +152,14 @@ public final class Installation
         return joinPath(".moss", "assets", p);
     }
 
+    /**
+     * Root paths (install roots)
+     */
+    pure auto rootPath(S...)(S p) @safe const
+    {
+        return joinPath(".moss", "root", p);
+    }
+
 private:
     Mutability _mut = Mutability.ReadOnly;
     string _root = "/";
