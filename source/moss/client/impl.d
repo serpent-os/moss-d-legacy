@@ -16,9 +16,12 @@
 module moss.client.impl;
 
 import moss.client.installation;
+import moss.client.label : Label;
 import moss.client.layoutdb;
+import moss.client.progressbar : ProgressBar;
 import moss.client.remoteplugin;
 import moss.client.remotes;
+import moss.client.renderer : Renderer;
 import moss.client.statedb;
 import moss.client.systemcache;
 import moss.client.ui;
@@ -26,13 +29,14 @@ import moss.config.io.configuration;
 import moss.config.repo;
 import moss.deps.registry;
 import moss.fetcher.controller;
+import moss.format.binary.payload.meta : MetaPayload;
+import moss.format.binary.reader : Reader;
 import std.exception : enforce;
 import std.experimental.logger;
-import std.range : empty;
-import moss.client.label : Label;
-import moss.client.progressbar : ProgressBar;
-import moss.client.renderer : Renderer;
 import std.path : baseName;
+import std.range : empty;
+import std.stdio : File;
+import std.string : endsWith;
 
 /**
  * Provides high-level access to the moss system
@@ -196,6 +200,9 @@ private:
         }
     }
 
+    /**
+     * Download completed, cache it.
+     */
     void onComplete(Fetchable f, long code) @safe
     {
         auto c = totalProgress.current;
@@ -203,6 +210,29 @@ private:
         totalProgress.current = c;
         totalProgress.label = format!"%d out of %d"(cast(int) totalProgress.current,
                 cast(int) totalProgress.total);
+
+        if (!f.sourceURI.endsWith(".stone"))
+        {
+            return;
+        }
+
+        auto r = new Reader(File(f.destinationPath, "rb"));
+        scope (exit)
+        {
+            r.close();
+        }
+        MetaPayload mp = () @trusted { return r.payload!MetaPayload; }();
+        immutable pkgID = () @trusted { return mp.getPkgID(); }();
+
+        /* Cache it */
+        immutable precache = _cache.install(pkgID, r).match!((Success _) {
+            /* Layout DB merge */
+            return cast(CacheResult) layoutDB.install(pkgID, r);
+        }, (Failure f) { return cast(CacheResult) f; },);
+
+        precache.match!((Success _) {}, (Failure fa) {
+            errorf("Failure to cache pkg: %s", fa);
+        });
     }
 
     Installation _installation;
