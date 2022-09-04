@@ -20,6 +20,7 @@ import moss.client.layoutdb;
 import moss.client.remoteplugin;
 import moss.client.remotes;
 import moss.client.statedb;
+import moss.client.systemcache;
 import moss.client.ui;
 import moss.config.io.configuration;
 import moss.config.repo;
@@ -48,6 +49,7 @@ public final class MossClient
         _installation = new Installation(root);
         _installation.ensureDirectories();
         _registry = new RegistryManager();
+        _cache = new SystemCache(_installation);
         remoteManager = new RemoteManager(_registry, fc, _installation);
         stateDB = new StateDB(_installation);
         stateDB.connect.match!((Failure f) => fatalf(f.message), (_) {});
@@ -118,6 +120,14 @@ public final class MossClient
     pure @property FetchContext fetchContext() @safe @nogc nothrow
     {
         return fc;
+    }
+
+    /**
+     * Return the System Cache
+     */
+    pure @property SystemCache cache() @safe @nogc nothrow
+    {
+        return _cache;
     }
 
     /**
@@ -196,6 +206,7 @@ private:
     RegistryManager _registry;
     StateDB stateDB;
     LayoutDB layoutDB;
+    SystemCache _cache;
     RemoteManager remoteManager;
     UserInterface _ui;
     FetchController fc;
