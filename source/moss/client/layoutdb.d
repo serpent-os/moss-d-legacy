@@ -25,6 +25,7 @@ import std.experimental.logger;
 import std.file : exists;
 import std.string : format;
 import std.array : array;
+public import moss.format.binary.reader;
 public import moss.format.binary.payload.layout;
 
 public import moss.core.errors;
@@ -111,8 +112,13 @@ package:
     /**
      * Store a single LayoutPayload in the DB
      */
-    LayoutResult store(string pkgID, scope LayoutPayload lp) @safe
+    LayoutResult install(string pkgID, scope Reader r) @safe
     {
+        LayoutPayload lp = () @trusted { return r.payload!LayoutPayload; }();
+        if (lp is null)
+        {
+            return cast(LayoutResult) fail("Missing LayoutPayload");
+        }
         Layout lt = Layout(pkgID);
         lt.entries = lp.array;
         immutable err = db.update((scope tx) => lt.save(tx));
