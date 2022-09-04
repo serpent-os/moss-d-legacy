@@ -24,8 +24,13 @@ import moss.db.keyvalue;
 import moss.db.keyvalue.errors;
 import moss.db.keyvalue.orm;
 import std.experimental.logger;
-import std.file : exists;
+import std.file : exists, mkdirRecurse;
 import std.string : format;
+import moss.format.binary.reader;
+import moss.format.binary.payload.content;
+import moss.format.binary.payload.index;
+import moss.core.ioutil;
+import std.path : dirName;
 
 /**
  * All SystemCache operations return a CacheResult
@@ -99,8 +104,76 @@ public final class SystemCache
             {
                 return cast(CacheResult) fail(err.message);
             }
+            installation.cachePath("content").mkdirRecurse();
         }
         return cast(CacheResult) Success();
+    }
+
+    /**
+     * Install the given package into the SystemCache
+     */
+    CacheResult install(string pkgID, scope Reader reader) @trusted
+    {
+        IndexPayload ip = reader.payload!IndexPayload;
+        ContentPayload cp = reader.payload!ContentPayload;
+        if (ip is null)
+        {
+            return cast(CacheResult) fail("Missing IndexPayload!");
+        }
+        if (cp is null)
+        {
+            return cast(CacheResult) fail("Missing ContentPayload!");
+        }
+
+        /* tmpfs must be avoided otherwise we'll kill RAM */
+        string contentPath = installation.cachePath("content", pkgID);
+        scope (exit)
+        {
+            import std.file : remove;
+
+            contentPath.remove();
+        }
+
+        reader.unpackContent(cp, contentPath);
+        auto content = File(contentPath, "rb");
+        scope (exit)
+        {
+            content.close();
+        }
+
+        auto err = db.update((scope tx) @trusted {
+            foreach (idx; ip)
+            {
+                string cacheID = idx.digestString();
+
+                /* Check if we have this already */
+                CacheEntry lookup;
+                auto errLookup = lookup.load(tx, cacheID);
+                if (errLookup.isNull)
+                {
+                    continue;
+                }
+
+                /* Splice the file */
+                auto err = spliceFile(content, cacheID, idx);
+                if (!err.isNull)
+                {
+                    return DatabaseResult(DatabaseError(DatabaseErrorCode.UncaughtException,
+                        cast(string) err.get.toString));
+                }
+
+                lookup.id = cacheID;
+                lookup.refCount = 0;
+                auto errCopy = lookup.save(tx);
+                if (!errCopy.isNull)
+                {
+                    return errCopy;
+                }
+            }
+            return NoDatabaseError;
+        });
+
+        return err.isNull ? cast(CacheResult) Success() : cast(CacheResult) fail(err.message);
     }
 
     /**
@@ -116,8 +189,39 @@ public final class SystemCache
         db = null;
     }
 
+    /**
+     * Full path for the hashed file
+     */
+    string fullPath(string hash) @safe
+    {
+        if (hash.length >= 10)
+        {
+            return installation.assetsPath("v2", hash[0 .. 2], hash[2 .. 4], hash[4 .. 6], hash);
+        }
+        return installation.assetsPath("v2", hash);
+    }
+
 private:
+
+    Nullable!(CError, CError.init) spliceFile(scope const ref File content,
+            string cachePath, IndexEntry idx) @trusted
+    {
+        immutable string splicedPath = fullPath(cachePath);
+        immutable splicedTree = splicedPath.dirName;
+        splicedTree.mkdirRecurse;
+
+        auto op = File(splicedPath, "wb");
+        scope (exit)
+        {
+            op.close();
+        }
+        return IOUtil.copyFileRange(content.fileno, idx.start, op.fileno, 0,
+                idx.contentSize).match!((bool b) {
+            return Nullable!(CError, CError.init)(CError.init);
+        }, (CError e) { return Nullable!(CError, CError.init)(e); });
+    }
 
     Installation installation;
     Database db;
+    string contentPath;
 }
