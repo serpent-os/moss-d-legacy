@@ -50,6 +50,7 @@ public final class MossClient
         _installation.ensureDirectories();
         _registry = new RegistryManager();
         _cache = new SystemCache(_installation);
+        _cache.connect.match!((Failure f) => fatalf(f.message), (_) {});
         remoteManager = new RemoteManager(_registry, fc, _installation);
         stateDB = new StateDB(_installation);
         stateDB.connect.match!((Failure f) => fatalf(f.message), (_) {});
@@ -76,6 +77,8 @@ public final class MossClient
     {
         _registry.close();
         stateDB.close();
+        _cache.close();
+        layoutDB.close();
     }
 
     /**
