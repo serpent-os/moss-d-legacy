@@ -36,7 +36,7 @@ import std.exception : enforce;
 import std.experimental.logger;
 import std.path : baseName;
 import std.range : empty;
-import std.stdio : File;
+import std.stdio : File, writeln;
 import std.string : endsWith;
 
 /**
@@ -181,28 +181,29 @@ public final class MossClient
             fetchContext.fetch();
         }
 
-        renderer.draw();
+        renderer.redraw();
 
         /* Lets get ourselves a state ID */
         stateDB.save(st);
 
-        totalProgress.current = 0;
-        totalProgress.type = ProgressBarType.Blitter;
-        totalProgress.total = 0;
-        totalProgress.label = "Computing filesystem layout";
-        stepLabel.label = Text("Blitting filesystem").attr(Attribute.Underline);
-        renderer.draw();
+        writeln();
+        renderer.add(new Label());
+        renderer.add(new Label(Text("Blitting filesystem").attr(Attribute.Underline)));
+        auto blitBar = new ProgressBar();
+        blitBar.label = "Computing filesystem layout";
+        blitBar.type = ProgressBarType.Blitter;
+        renderer.add(blitBar);
+        renderer.redraw();
 
         auto sroot = new SystemRoot(_installation, _cache, st.id);
         foreach (pkg; application)
         {
             sroot.pushEntries(layoutDB.entries(pkg.pkgID));
         }
-        sroot.apply(renderer, totalProgress);
+        sroot.apply(renderer, blitBar);
 
+        /* Redraw and jump line */
         renderer.redraw();
-        import std.stdio : writeln;
-
         writeln();
     }
 
