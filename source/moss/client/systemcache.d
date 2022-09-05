@@ -20,17 +20,20 @@ public import std.sumtype;
 public import moss.client.installation;
 public import std.stdint : uint64_t;
 
+import moss.core.ioutil;
 import moss.db.keyvalue;
 import moss.db.keyvalue.errors;
 import moss.db.keyvalue.orm;
-import std.experimental.logger;
-import std.file : exists, mkdirRecurse;
-import std.string : format;
-import moss.format.binary.reader;
 import moss.format.binary.payload.content;
 import moss.format.binary.payload.index;
-import moss.core.ioutil;
+import moss.format.binary.reader;
+import std.experimental.logger;
+import std.mmfile;
+import std.algorithm : each;
+import std.file : exists, mkdirRecurse;
 import std.path : dirName;
+import std.string : format;
+import std.range : chunks;
 
 /**
  * All SystemCache operations return a CacheResult
@@ -112,7 +115,7 @@ public final class SystemCache
     /**
      * Install the given package into the SystemCache
      */
-    CacheResult install(string pkgID, scope Reader reader) @trusted
+    CacheResult install(string pkgID, scope Reader reader, bool useTmp = false) @trusted
     {
         IndexPayload ip = reader.payload!IndexPayload;
         ContentPayload cp = reader.payload!ContentPayload;
@@ -125,7 +128,8 @@ public final class SystemCache
             return cast(CacheResult) fail("Missing ContentPayload!");
         }
 
-        return installByDisk(pkgID, cp, ip, reader);
+        return useTmp ? installByMemory(pkgID, cp, ip, reader) : installByDisk(pkgID,
+                cp, ip, reader);
     }
 
     /**
@@ -155,12 +159,67 @@ public final class SystemCache
 
 private:
 
+    CacheResult installByMemory(string pkgID, scope ContentPayload cp,
+            scope IndexPayload ip, scope Reader reader) @trusted
+    {
+        return IOUtil.createTemporary("/tmp/mossContent-XXXXXX").match!((TemporaryFile tmp) {
+            /* Clean up this temporary file on closure */
+            scope (exit)
+            {
+                import std.file : remove;
+
+                tmp.realPath.remove();
+            }
+            /* Unpack into tmpfs */
+            reader.unpackContent(cp, tmp.realPath);
+
+            scope mapped = new MmFile(File(tmp.realPath, "rb"));
+
+            /* Handle idx entries */
+            immutable err = db.update((scope tx) @trusted {
+                foreach (idx; ip)
+                {
+                    string cacheID = idx.digestString();
+
+                    /* Check if we have this already */
+                    CacheEntry lookup;
+                    auto errLookup = lookup.load(tx, cacheID);
+                    if (errLookup.isNull)
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        copyFileRegion(mapped, cacheID, idx);
+                    }
+                    catch (Exception ex)
+                    {
+                        return DatabaseResult(DatabaseError(DatabaseErrorCode.UncaughtException,
+                        cast(string) ex.message));
+                    }
+
+                    lookup.id = cacheID;
+                    lookup.refCount = 0;
+                    auto errCopy = lookup.save(tx);
+                    if (!errCopy.isNull)
+                    {
+                        return errCopy;
+                    }
+                }
+                return NoDatabaseError;
+            });
+            return err.isNull ? cast(CacheResult) Success() : cast(CacheResult) fail(err.message);
+        }, (CError err) { return cast(CacheResult) fail(cast(string) err.toString); });
+    }
+
     /**
      * Install using copy_file_range for files on the disk.
      *
      * This is our low memory strategy
      */
-    CacheResult installByDisk(string pkgID, scope ContentPayload cp, scope IndexPayload ip, scope Reader reader) @trusted
+    CacheResult installByDisk(string pkgID, scope ContentPayload cp,
+            scope IndexPayload ip, scope Reader reader) @trusted
     {
         /* tmpfs must be avoided otherwise we'll kill RAM */
         string contentPath = installation.cachePath("content", pkgID);
@@ -229,6 +288,25 @@ private:
                 idx.contentSize).match!((bool b) {
             return Nullable!(CError, CError.init)(CError.init);
         }, (CError e) { return Nullable!(CError, CError.init)(e); });
+    }
+
+    /**
+     * Caught up in dlang exceptions..
+     */
+    void copyFileRegion(scope MmFile mapped, string cachePath, IndexEntry idx) @trusted
+    {
+        immutable string splicedPath = fullPath(cachePath);
+        immutable splicedTree = splicedPath.dirName;
+        splicedTree.mkdirRecurse;
+
+        auto op = File(splicedPath, "wb");
+        scope (exit)
+        {
+            op.close();
+        }
+
+        auto copyableRange = cast(ubyte[]) mapped[idx.start .. idx.end];
+        copyableRange.chunks(4 * 1024 * 1024).each!((b) => op.rawWrite(b));
     }
 
     Installation installation;
