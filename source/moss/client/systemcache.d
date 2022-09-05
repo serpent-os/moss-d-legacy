@@ -125,6 +125,43 @@ public final class SystemCache
             return cast(CacheResult) fail("Missing ContentPayload!");
         }
 
+        return installByDisk(pkgID, cp, ip, reader);
+    }
+
+    /**
+     * Close the underlying resources
+     */
+    void close() @safe
+    {
+        if (db is null)
+        {
+            return;
+        }
+        db.close();
+        db = null;
+    }
+
+    /**
+     * Full path for the hashed file
+     */
+    string fullPath(string hash) @safe
+    {
+        if (hash.length >= 10)
+        {
+            return installation.assetsPath("v2", hash[0 .. 2], hash[2 .. 4], hash[4 .. 6], hash);
+        }
+        return installation.assetsPath("v2", hash);
+    }
+
+private:
+
+    /**
+     * Install using copy_file_range for files on the disk.
+     *
+     * This is our low memory strategy
+     */
+    CacheResult installByDisk(string pkgID, scope ContentPayload cp, scope IndexPayload ip, scope Reader reader) @trusted
+    {
         /* tmpfs must be avoided otherwise we'll kill RAM */
         string contentPath = installation.cachePath("content", pkgID);
         scope (exit)
@@ -175,33 +212,6 @@ public final class SystemCache
 
         return err.isNull ? cast(CacheResult) Success() : cast(CacheResult) fail(err.message);
     }
-
-    /**
-     * Close the underlying resources
-     */
-    void close() @safe
-    {
-        if (db is null)
-        {
-            return;
-        }
-        db.close();
-        db = null;
-    }
-
-    /**
-     * Full path for the hashed file
-     */
-    string fullPath(string hash) @safe
-    {
-        if (hash.length >= 10)
-        {
-            return installation.assetsPath("v2", hash[0 .. 2], hash[2 .. 4], hash[4 .. 6], hash);
-        }
-        return installation.assetsPath("v2", hash);
-    }
-
-private:
 
     Nullable!(CError, CError.init) spliceFile(scope const ref File content,
             string cachePath, IndexEntry idx) @trusted
