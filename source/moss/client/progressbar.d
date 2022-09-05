@@ -21,6 +21,16 @@ import std.string : format;
 import moss.client.ui;
 
 /**
+ * Specialisation of rendering
+ */
+public enum ProgressBarType
+{
+    Standard,
+    Download,
+    Blitter,
+}
+
+/**
  * Basic ProgressBar implementation
  */
 public final class ProgressBar : Renderable
@@ -56,12 +66,24 @@ public final class ProgressBar : Renderable
                 msg ~= barFull;
             }
         }
+        Color renderColor;
+        final switch (_type)
+        {
+        case ProgressBarType.Standard:
+            renderColor = Color.Cyan;
+            break;
+        case ProgressBarType.Download:
+            renderColor = Color.Green;
+            break;
+        case ProgressBarType.Blitter:
+            renderColor = Color.Yellow;
+            break;
+        }
         auto percentage = cast(int)(pct * 100.0);
         auto pctLabel = format!"%2d%%"(cast(int)(pct * 100.0));
         auto pctString = format!"%*s%s"(5 - pctLabel.length, " ", pctLabel);
-        return format!" %s %s %s"(Text(msg).fg(_special ? Color.Green
-                : Color.Cyan).attr(Attribute.Bold), Text(pctString),
-                Text(_label).attr(Attribute.Italic));
+        return format!" %s %s %s"(Text(msg).fg(renderColor)
+                .attr(Attribute.Bold), Text(pctString), Text(_label).attr(Attribute.Italic));
     }
 
     /**
@@ -143,24 +165,24 @@ public final class ProgressBar : Renderable
     }
 
     /**
-     * Special property (different colour)
+     * Progressbar type (different colour)
      *
-     * Returns: True if this is a specialised progressbar
+     * Returns: Type of progressbar
      */
-    pure @property bool special() @safe @nogc nothrow const
+    pure @property ProgressBarType type() @safe @nogc nothrow const
     {
-        return _special;
+        return _type;
     }
 
     /**
-     * Special property
+     * Progressbar type
      *
      * Params:
-     *      b = Set to special
+     *      type = New type
      */
-    pure @property void special(bool b) @safe @nogc nothrow
+    pure @property void type(ProgressBarType type) @safe @nogc nothrow
     {
-        _special = b;
+        _type = type;
     }
 
 private:
@@ -168,5 +190,5 @@ private:
     double _total = 0;
     double _current = 0;
     string _label;
-    bool _special;
+    ProgressBarType _type = ProgressBarType.Standard;
 }
