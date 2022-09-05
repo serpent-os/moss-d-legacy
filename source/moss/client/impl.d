@@ -18,12 +18,13 @@ module moss.client.impl;
 import moss.client.installation;
 import moss.client.label : Label;
 import moss.client.layoutdb;
-import moss.client.progressbar : ProgressBar;
+import moss.client.progressbar : ProgressBar, ProgressBarType;
 import moss.client.remoteplugin;
 import moss.client.remotes;
 import moss.client.renderer : Renderer;
 import moss.client.statedb;
 import moss.client.systemcache;
+import moss.client.systemroot;
 import moss.client.ui;
 import moss.config.io.configuration;
 import moss.config.repo;
@@ -67,7 +68,7 @@ public final class MossClient
             fetchProgress ~= new ProgressBar();
         }
         totalProgress = new ProgressBar();
-        totalProgress.special = true;
+        totalProgress.type = ProgressBarType.Download;
 
         fetchContext.onComplete.connect(&onComplete);
         fetchContext.onFail.connect(&onFail);
@@ -176,6 +177,23 @@ public final class MossClient
         {
             fetchContext.fetch();
         }
+
+        renderer.redraw();
+
+        auto blitBar = new ProgressBar();
+        blitBar.type = ProgressBarType.Blitter;
+        renderer.add(new Label());
+        renderer.add(new Label(Text("Blitting filesystem root").attr(Attribute.Underline)));
+        renderer.add(blitBar);
+        renderer.draw();
+
+        auto sroot = new SystemRoot(_installation, _cache, 0);
+        foreach (pkg; application)
+        {
+            sroot.pushEntries(layoutDB.entries(pkg.pkgID));
+        }
+        sroot.apply(renderer, blitBar);
+
         renderer.redraw();
         import std.stdio : writeln;
 
