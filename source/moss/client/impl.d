@@ -170,7 +170,8 @@ public final class MossClient
             renderer.add(bar);
         }
 
-        renderer.add(new Label(Text("Total downloaded").attr(Attribute.Underline)));
+        auto stepLabel = new Label(Text("Total downloaded").attr(Attribute.Underline));
+        renderer.add(stepLabel);
         renderer.add(totalProgress);
 
         while (!fetchContext.empty)
@@ -178,13 +179,13 @@ public final class MossClient
             fetchContext.fetch();
         }
 
-        renderer.redraw();
+        renderer.draw();
 
-        auto blitBar = new ProgressBar();
-        blitBar.type = ProgressBarType.Blitter;
-        renderer.add(new Label());
-        renderer.add(new Label(Text("Blitting filesystem root").attr(Attribute.Underline)));
-        renderer.add(blitBar);
+        totalProgress.current = 0;
+        totalProgress.type = ProgressBarType.Blitter;
+        totalProgress.total = 0;
+        totalProgress.label = "Computing filesystem layout";
+        stepLabel.label = Text("Blitting filesystem").attr(Attribute.Underline);
         renderer.draw();
 
         auto sroot = new SystemRoot(_installation, _cache, 0);
@@ -192,7 +193,7 @@ public final class MossClient
         {
             sroot.pushEntries(layoutDB.entries(pkg.pkgID));
         }
-        sroot.apply(renderer, blitBar);
+        sroot.apply(renderer, totalProgress);
 
         renderer.redraw();
         import std.stdio : writeln;
