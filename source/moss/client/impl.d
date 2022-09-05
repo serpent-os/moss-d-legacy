@@ -156,6 +156,8 @@ public final class MossClient
 
         renderer = new Renderer();
 
+        auto st = stateDB.createState(tx, application);
+
         foreach (pkg; application)
         {
             pkg.fetch(fetchContext);
@@ -181,6 +183,9 @@ public final class MossClient
 
         renderer.draw();
 
+        /* Lets get ourselves a state ID */
+        stateDB.save(st);
+
         totalProgress.current = 0;
         totalProgress.type = ProgressBarType.Blitter;
         totalProgress.total = 0;
@@ -188,7 +193,7 @@ public final class MossClient
         stepLabel.label = Text("Blitting filesystem").attr(Attribute.Underline);
         renderer.draw();
 
-        auto sroot = new SystemRoot(_installation, _cache, 0);
+        auto sroot = new SystemRoot(_installation, _cache, st.id);
         foreach (pkg; application)
         {
             sroot.pushEntries(layoutDB.entries(pkg.pkgID));

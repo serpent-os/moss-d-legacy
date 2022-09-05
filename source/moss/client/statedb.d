@@ -15,13 +15,18 @@
 
 module moss.client.statedb;
 
+import moss.client.installation;
 import moss.db.keyvalue;
 import moss.db.keyvalue.errors;
-import moss.db.keyvalue.orm;
 import moss.db.keyvalue.interfaces;
-import moss.client.installation;
-import std.experimental.logger;
+import moss.db.keyvalue.orm;
+import registry = moss.deps.registry;
+import std.algorithm : map;
+import std.array : array;
+import std.datetime;
+import std.datetime.systime;
 import std.exception : enforce;
+import std.experimental.logger;
 import std.file : exists;
 
 public import std.stdint : uint8_t, uint64_t;
@@ -140,6 +145,50 @@ package:
             db.close();
             db = null;
         }
+    }
+
+    /**
+     * Create a new state from the input registry items
+     */
+    State createState(registry.Transaction tx, in registry.RegistryItem[] items) @safe
+    {
+        State st = State(0);
+        auto now = Clock.currTime(UTC());
+        /* TODO: Improve! */
+        st.summary = "Automatically generated state";
+        st.description = "Automatically generated state";
+        st.tsCreated = now.toUnixTime();
+        st.type = StateType.Transaction;
+
+        /* TODO: Record automatic deps! */
+        st.pkgIDs = () @trusted {
+            return cast(string[]) items.map!((p) => p.pkgID).array;
+        }();
+
+        return st;
+    }
+
+    /**
+     * Save a populated State
+     */
+    StateResult save(ref State st) @safe
+    {
+        immutable err = db.update((scope tx) @safe {
+            State lookup;
+            /* Disallow overwrite */
+            immutable lookupErr = lookup.load(tx, st.id);
+            if (lookupErr.isNull)
+            {
+                return DatabaseResult(DatabaseError(DatabaseErrorCode.BucketExists,
+                    "Trying to overwrite existing state"));
+            }
+            return st.save(tx);
+        });
+        if (!err.isNull)
+        {
+            return cast(StateResult) fail(err.get.message);
+        }
+        return cast(StateResult) Success();
     }
 
 private:
