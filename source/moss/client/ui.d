@@ -23,7 +23,7 @@ import std.traits : EnumMembers, getUDAs;
 import std.stdio : stdout, stdin;
 import std.string : format, join, startsWith;
 import std.range : isInputRange, chunks, empty, ElementType;
-import std.algorithm : map, maxElement, each;
+import std.algorithm : map, maxElement, each, max;
 import std.conv : to;
 import std.path : baseName;
 import core.sys.posix.sys.ioctl;
@@ -486,17 +486,24 @@ public final class UserInterface
         /* Auto pad. */
         auto largestWidth = (displayable.maxElement!"a.length".length) + 2;
 
-        auto nColumns = tinfo.window.ws_col / largestWidth;
+        immutable nColumns = tinfo.window.ws_col / largestWidth;
         auto workset = displayable.array;
         workset.sort!"a.toString < b.toString";
 
-        foreach (set; workset.chunks(nColumns))
+        immutable colHeight = max(workset.length / nColumns, 1);
+        auto rendered =0;
+        foreach (y; 0.. colHeight)
         {
-            uint i;
-            foreach (elem; set)
+            foreach (x; 0..nColumns)
             {
-                ++i;
-                if (i == nColumns)
+                auto offset = y + (x * colHeight);
+                if (offset >= workset.length)
+                {
+                    break;
+                }
+                auto elem = workset[offset];
+                ++rendered;
+                if (x == nColumns)
                 {
                     stdout.writef!"%s"(elem);
                 }
