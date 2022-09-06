@@ -23,8 +23,9 @@ import std.stdio : writefln, writef;
 import std.experimental.logger;
 import std.range : empty;
 import std.string : join, wrap, format;
-import std.algorithm : map;
+import std.algorithm : map, filter;
 import moss.client.ui;
+import moss.client.statedb;
 
 /**
  * Primary grouping for the moss cli
@@ -73,7 +74,8 @@ import moss.client.ui;
             }
         }
         cl.ui.inform("The following packages will be installed\n");
-        cl.ui.emitAsColumns(result);
+        auto newPkgs = result.filter!((p) => !p.installed);
+        cl.ui.emitAsColumns(newPkgs);
         cl.ui.inform("");
         if (!cl.ui.ask("Do you want to continue?"))
         {

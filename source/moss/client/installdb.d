@@ -66,6 +66,16 @@ public final class InstallDB
         db = null;
     }
 
+package:
+
+    /**
+     * Expose the MetaDB for friends.
+     */
+    pure @property MetaDB metaDB() @safe @nogc nothrow
+    {
+        return db;
+    }
+
 private:
 
     Installation installation;

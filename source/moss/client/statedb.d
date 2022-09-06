@@ -191,6 +191,16 @@ package:
         return cast(StateResult) Success();
     }
 
+    /**
+     * Return the selections in the given StateID
+     */
+    auto selections(StateID id) @safe
+    {
+        State st;
+        db.view((in tx) => st.load(tx, id));
+        return st.pkgIDs;
+    }
+
 private:
 
     Database db;
