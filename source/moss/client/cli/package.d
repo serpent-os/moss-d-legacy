@@ -24,6 +24,7 @@ import moss.client.cli.list_available;
 import moss.client.cli.remote;
 import moss.client.cli.remote_add;
 import moss.client.cli.remote_list;
+import moss.client.cli.remote_update;
 import moss.client.cli.search;
 import moss.client;
 import std.experimental.logger;
@@ -71,6 +72,7 @@ package auto initialiseClient(scope ref BaseCommand pt) @trusted
         auto remotes = p.addCommand!RemoteCommand;
         remotes.addCommand!RemoteAddCommand;
         remotes.addCommand!RemoteListCommand;
+        remotes.addCommand!RemoteUpdateCommand;
         p.addCommand!InfoCommand;
         p.addCommand!SearchCommand;
         return p;
