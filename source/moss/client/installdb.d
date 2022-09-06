@@ -17,6 +17,7 @@ module moss.client.installdb;
 
 import moss.client.metadb;
 import moss.client.installation;
+import moss.format.binary.payload.meta : MetaPayload;
 
 /**
  * Wraps MetaDB to allow installing/retrieval of metadata.
@@ -34,6 +35,14 @@ public final class InstallDB
         this.installation = installation;
         auto dbPath = installation.dbPath("install");
         this.db = new MetaDB(dbPath, installation.mutability);
+    }
+
+    /**
+     * Install via MetaDB
+     */
+    auto install(scope MetaPayload mp) @safe
+    {
+        return db.install(mp);
     }
 
     /**

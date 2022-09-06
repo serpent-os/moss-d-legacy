@@ -365,7 +365,10 @@ private:
         /* Cache it */
         immutable precache = _cache.install(pkgID, r, cacheProgress, true).match!((Success _) {
             /* Layout DB merge */
-            return cast(CacheResult) layoutDB.install(pkgID, r);
+            return cast(CacheResult) layoutDB.install(pkgID, r).match!( /* InstallDB merge */
+                (Success _) { return cast(CacheResult) installDB.install(mp); }, (Failure f) {
+                    return cast(CacheResult) f;
+                });
         }, (Failure f) { return cast(CacheResult) f; },);
 
         precache.match!((Success _) {}, (Failure fa) {

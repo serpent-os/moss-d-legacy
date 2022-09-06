@@ -321,6 +321,19 @@ public final class MetaDB
         return MetaEntry.init;
     }
 
+    /**
+     * Install a single package directly
+     *
+     * Params:
+     *      payload = The MetaPayload
+     * Returns: Optional success or failure
+     */
+    MetaResult install(scope MetaPayload payload) @safe
+    {
+        immutable err = db.update((scope tx) => insertPayload(tx, payload));
+        return err.isNull ? cast(MetaResult) Success() : cast(MetaResult) fail(err.message);
+    }
+
 private:
 
     /**
