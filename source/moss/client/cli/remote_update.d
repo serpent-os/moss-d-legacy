@@ -27,8 +27,7 @@ import moss.client.ui;
 /**
  * Add a remote to the system
  */
-@CommandName("update") @CommandAlias("ur") @CommandHelp(
-        "Refresh remotes", "TODO: Improve docs") struct RemoteUpdateCommand
+@CommandName("update") @CommandAlias("ur") @CommandHelp("Refresh remotes", "TODO: Improve docs") struct RemoteUpdateCommand
 {
     BaseCommand pt;
     alias pt this;

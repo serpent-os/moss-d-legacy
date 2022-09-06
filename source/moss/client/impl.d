@@ -37,7 +37,7 @@ import std.experimental.logger;
 import std.path : baseName;
 import std.range : empty;
 import std.stdio : File, writeln;
-import std.string : endsWith;
+import std.string : endsWith, join;
 import core.time;
 
 import core.thread.osthread;
@@ -263,9 +263,52 @@ public final class MossClient
         /* Redraw and jump line */
         renderer.redraw();
         writeln();
+
+        /* Update system pointer */
+        updateSystemPointer(st);
     }
 
 private:
+
+    void updateSystemPointer(scope ref State newState) @safe
+    {
+        import std.conv : to;
+
+        auto rootfsDir = join([".moss/root", to!string(newState.id)], "/");
+
+        /* Construct the primary usr link */
+        auto usrSource = join([rootfsDir, "usr"], "/");
+        atomicRootfsLink(usrSource, "usr");
+
+        /* Compat links to make usrmerge work */
+        atomicRootfsLink("usr/bin", "bin");
+        atomicRootfsLink("usr/lib", "lib");
+        atomicRootfsLink("usr/lib", "lib64");
+        atomicRootfsLink("usr/lib32", "lib32");
+    }
+
+    void atomicRootfsLink(in string sourcePath, in string targetPath) @trusted
+    {
+        import std.file : remove, symlink, rename, exists, isSymlink, readLink;
+
+        auto finalTarget = installation.joinPath(targetPath);
+        auto stagingTarget = installation.joinPath(format!"%s.next"(targetPath));
+
+        if (stagingTarget.exists)
+        {
+            stagingTarget.remove();
+        }
+
+        /* If the symlink is already correct, leave it be */
+        if (finalTarget.exists && finalTarget.isSymlink && finalTarget.readLink() == sourcePath)
+        {
+            return;
+        }
+
+        /* Symlink staging link in now */
+        symlink(sourcePath, stagingTarget);
+        rename(stagingTarget, finalTarget);
+    }
 
     void onFail(Fetchable f, string failureMessage) @safe
     {
