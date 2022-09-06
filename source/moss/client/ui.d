@@ -491,10 +491,10 @@ public final class UserInterface
         workset.sort!"a.toString < b.toString";
 
         immutable colHeight = max(workset.length / nColumns, 1);
-        auto rendered =0;
-        foreach (y; 0.. colHeight)
+        auto rendered = 0;
+        foreach (y; 0 .. colHeight)
         {
-            foreach (x; 0..nColumns)
+            foreach (x; 0 .. nColumns)
             {
                 auto offset = y + (x * colHeight);
                 if (offset >= workset.length)
