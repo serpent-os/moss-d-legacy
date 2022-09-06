@@ -27,6 +27,7 @@ import std.string : format;
 public import std.stdint : uint64_t;
 public import moss.deps.dependency;
 import moss.deps.registry : ItemInfo;
+import moss.format.binary.payload.meta : MetaPayload, RecordTag, RecordType;
 
 /**
  * Simple ORM to store backlinks for providers.
@@ -257,122 +258,21 @@ public final class MetaDB
             return cast(MetaResult) fail(rebuild.message);
         }
 
-        /**
-         * Store a single provider.
-         */
-        static DatabaseResult storeProvider(string pkgID, in Provider prov, scope Transaction tx) @safe
-        {
-            auto bucketID = prov.toString();
-            ProviderMap storage;
-            immutable e = storage.load(tx, bucketID);
-            if (!e.isNull && e.code != DatabaseErrorCode.BucketNotFound
-                    && e.code != DatabaseErrorCode.KeyNotFound)
-            {
-                return e;
-            }
-            storage.identifier = bucketID;
-            storage.pkgIDs ~= pkgID;
-            immutable e2 = storage.save(tx);
-            if (!e2.isNull)
-            {
-                return e2;
-            }
-            return NoDatabaseError;
-        }
-
-        static DatabaseResult helper(scope Reader reader, scope Transaction tx) @trusted
+        DatabaseResult updater(scope Transaction tx) @trusted
         {
             foreach (payload; reader.payloads!MetaPayload)
             {
                 MetaPayload mp = cast(MetaPayload) payload;
-                MetaEntry entry;
-                entry.pkgID = mp.getPkgID;
-                foreach (pair; mp)
-                {
-                    final switch (pair.tag)
-                    {
-                    case RecordTag.Architecture:
-                        entry.architecture = pair.get!string;
-                        break;
-                    case RecordTag.BuildRelease:
-                        entry.buildRelease = pair.get!uint64_t;
-                        break;
-                    case RecordTag.Conflicts:
-                        /* Not yet supported */
-                        break;
-                    case RecordTag.Depends:
-                        entry.dependencies ~= pair.get!Dependency;
-                        break;
-                    case RecordTag.Description:
-                        entry.description = pair.get!string;
-                        break;
-                    case RecordTag.Homepage:
-                        entry.homepage = pair.get!string;
-                        break;
-                    case RecordTag.License:
-                        entry.licenses ~= pair.get!string;
-                        break;
-                    case RecordTag.Name:
-                        entry.name = pair.get!string;
-                        break;
-                    case RecordTag.PackageHash:
-                        entry.hash = pair.get!string;
-                        break;
-                    case RecordTag.PackageSize:
-                        entry.downloadSize = pair.get!uint64_t;
-                        break;
-                    case RecordTag.PackageURI:
-                        entry.uri = pair.get!string;
-                        break;
-                    case RecordTag.Provides:
-                        entry.providers ~= pair.get!Provider;
-                        break;
-                    case RecordTag.Release:
-                        entry.sourceRelease = pair.get!uint64_t;
-                        break;
-                    case RecordTag.SourceID:
-                        entry.sourceID = pair.get!string;
-                        break;
-                    case RecordTag.Summary:
-                        entry.summary = pair.get!string;
-                        break;
-                    case RecordTag.Unknown:
-                        /* derp */
-                        break;
-                    case RecordTag.Version:
-                        entry.versionIdentifier = pair.get!string;
-                        break;
-                    }
-                }
-
-                /* We need to store all the providers now.. */
-                foreach (prov; entry.providers)
-                {
-                    auto e = storeProvider(entry.pkgID, prov, tx);
-                    if (!e.isNull)
-                    {
-                        return e;
-                    }
-                }
-
-                /* Now store the name() provider. */
-                auto e = storeProvider(entry.pkgID, Provider(entry.name,
-                        ProviderType.PackageName), tx);
+                immutable e = insertPayload(tx, mp);
                 if (!e.isNull)
                 {
                     return e;
-                }
-
-                immutable err = entry.save(tx);
-                if (!err.isNull)
-                {
-                    return err;
                 }
             }
             return NoDatabaseError;
         }
 
-        immutable err = db.update((scope tx) @safe { return helper(reader, tx); });
+        immutable err = db.update(&updater);
         if (err.isNull)
         {
             return cast(MetaResult) Success();
@@ -422,6 +322,133 @@ public final class MetaDB
     }
 
 private:
+
+    /**
+     * Insert all supported metapayload records into the transaction
+     *
+     * Params:
+     *      tx = DB Transaction
+     *      mp = MetaPayload
+     * Returns: Nullable DatabaseError
+     */
+    DatabaseResult insertPayload(scope Transaction tx, scope MetaPayload mp) @trusted
+    {
+        MetaEntry entry;
+        entry.pkgID = mp.getPkgID;
+        foreach (pair; mp)
+        {
+            final switch (pair.tag)
+            {
+            case RecordTag.Architecture:
+                entry.architecture = pair.get!string;
+                break;
+            case RecordTag.BuildRelease:
+                entry.buildRelease = pair.get!uint64_t;
+                break;
+            case RecordTag.Conflicts:
+                /* Not yet supported */
+                break;
+            case RecordTag.Depends:
+                entry.dependencies ~= pair.get!Dependency;
+                break;
+            case RecordTag.Description:
+                entry.description = pair.get!string;
+                break;
+            case RecordTag.Homepage:
+                entry.homepage = pair.get!string;
+                break;
+            case RecordTag.License:
+                entry.licenses ~= pair.get!string;
+                break;
+            case RecordTag.Name:
+                entry.name = pair.get!string;
+                break;
+            case RecordTag.PackageHash:
+                entry.hash = pair.get!string;
+                break;
+            case RecordTag.PackageSize:
+                entry.downloadSize = pair.get!uint64_t;
+                break;
+            case RecordTag.PackageURI:
+                entry.uri = pair.get!string;
+                break;
+            case RecordTag.Provides:
+                entry.providers ~= pair.get!Provider;
+                break;
+            case RecordTag.Release:
+                entry.sourceRelease = pair.get!uint64_t;
+                break;
+            case RecordTag.SourceID:
+                entry.sourceID = pair.get!string;
+                break;
+            case RecordTag.Summary:
+                entry.summary = pair.get!string;
+                break;
+            case RecordTag.Unknown:
+                /* derp */
+                break;
+            case RecordTag.Version:
+                entry.versionIdentifier = pair.get!string;
+                break;
+            }
+        }
+
+        /* We need to store all the providers now.. */
+        foreach (prov; entry.providers)
+        {
+            auto e = insertProvider(tx, entry.pkgID, prov);
+            if (!e.isNull)
+            {
+                return e;
+            }
+        }
+
+        /* Now store the name() provider. */
+        auto e = insertProvider(tx, entry.pkgID, Provider(entry.name, ProviderType.PackageName));
+        if (!e.isNull)
+        {
+            return e;
+        }
+
+        immutable eStore = entry.save(tx);
+        if (!eStore.isNull)
+        {
+            return eStore;
+        }
+        return NoDatabaseError;
+    }
+
+    /**
+     * Insert the provider into the global reverse mapping
+     *
+     * This permits a simplified reverse lookup table to very
+     * quickly check the dependency providers.
+     *
+     * Params:
+     *      tx = DB Transaction
+     *      pkgID = Unique package identifier
+     *      prov = The provider to insert
+     * Returns: Nullable DatabaseError
+     */
+    DatabaseResult insertProvider(scope Transaction tx, string pkgID, Provider prov) @safe
+    {
+        auto bucketID = prov.toString();
+        ProviderMap storage;
+        immutable e = storage.load(tx, bucketID);
+        if (!e.isNull && e.code != DatabaseErrorCode.BucketNotFound
+                && e.code != DatabaseErrorCode.KeyNotFound)
+        {
+            return e;
+        }
+        storage.identifier = bucketID;
+        storage.pkgIDs ~= pkgID;
+        immutable e2 = storage.save(tx);
+        if (!e2.isNull)
+        {
+            return e2;
+        }
+        return NoDatabaseError;
+    }
 
     string dbPath;
     Mutability mut;
