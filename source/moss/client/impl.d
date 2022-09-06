@@ -15,6 +15,7 @@
 
 module moss.client.impl;
 
+import moss.client.activeplugin;
 import moss.client.installation;
 import moss.client.installdb;
 import moss.client.label : Label;
@@ -119,6 +120,10 @@ public final class MossClient
         /* Layout DB */
         layoutDB = new LayoutDB(_installation);
         layoutDB.connect.match!((Failure f) => fatalf(f.message), (_) {});
+
+        /* Actively installed */
+        auto active = new ActivePlugin(_installation, installDB, stateDB);
+        _registry.addPlugin(active);
 
         /* Progress bar management */
         foreach (i; 0 .. 4)
