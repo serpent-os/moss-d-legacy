@@ -15,7 +15,7 @@
 
 module moss.client.ui;
 
-import core.sys.posix.unistd : isatty, STDOUT_FILENO;
+import core.sys.posix.unistd : isatty, STDIN_FILENO, STDOUT_FILENO;
 import std.string : format;
 import std.meta : staticMap;
 import std.traits : EnumMembers, getUDAs;
@@ -26,6 +26,7 @@ import std.range : isInputRange, chunks, empty, ElementType;
 import std.algorithm : map, maxElement, each;
 import std.conv : to;
 import std.path : baseName;
+import core.sys.posix.sys.ioctl;
 
 import moss.deps.registry.item : RegistryItem;
 
@@ -222,6 +223,7 @@ package struct TerminalInfo
 {
     bool supportsColor;
     bool hasPTY;
+    winsize window;
 }
 
 alias ansiValue = uint;
@@ -472,7 +474,6 @@ public final class UserInterface
     */
     void emitAsColumns(R)(R items) @trusted const if (isInputRange!R)
     {
-        static int columnsLimit = 80;
         import std.array : array;
         import std.algorithm : sort;
 
@@ -485,7 +486,7 @@ public final class UserInterface
         /* Auto pad. */
         auto largestWidth = (displayable.maxElement!"a.length".length) + 2;
 
-        auto nColumns = columnsLimit / largestWidth;
+        auto nColumns = tinfo.window.ws_col / largestWidth;
         auto workset = displayable.array;
         workset.sort!"a.toString < b.toString";
 
@@ -518,6 +519,17 @@ private:
         immutable hasTTY = isatty(STDOUT_FILENO) == 0;
         tinfo.supportsColor = hasTTY;
         tinfo.hasPTY = hasTTY;
+
+        immutable ret = () @trusted {
+            return ioctl(STDIN_FILENO, TIOCGWINSZ, &tinfo.window);
+        }();
+
+        /* Fallback. */
+        if (ret != 0)
+        {
+            tinfo.window.ws_col = 80;
+            tinfo.window.ws_row = 24;
+        }
     }
 
     TerminalInfo tinfo;
