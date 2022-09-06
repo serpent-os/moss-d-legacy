@@ -16,6 +16,7 @@
 module moss.client.impl;
 
 import moss.client.installation;
+import moss.client.installdb;
 import moss.client.label : Label;
 import moss.client.layoutdb;
 import moss.client.progressbar : ProgressBar, ProgressBarType;
@@ -93,20 +94,33 @@ public final class MossClient
      */
     this(in string root = "/") @safe
     {
+        /* Essentials */
         fc = new FetchController(4);
         _ui = new UserInterface();
         _installation = new Installation(root);
         _installation.ensureDirectories();
         _registry = new RegistryManager();
+
+        /* Install DB */
+        installDB = new InstallDB(_installation);
+        installDB.connect.match!((Failure f) => fatalf(f.message), (_) {});
+
+        /* System Cache */
         _cache = new SystemCache(_installation);
         _cache.connect.match!((Failure f) => fatalf(f.message), (_) {});
+
+        /* Remote management */
         remoteManager = new RemoteManager(_registry, fc, _installation);
+
+        /* StateDB */
         stateDB = new StateDB(_installation);
         stateDB.connect.match!((Failure f) => fatalf(f.message), (_) {});
 
+        /* Layout DB */
         layoutDB = new LayoutDB(_installation);
         layoutDB.connect.match!((Failure f) => fatalf(f.message), (_) {});
 
+        /* Progress bar management */
         foreach (i; 0 .. 4)
         {
             fetchProgress ~= new ProgressBar();
@@ -116,6 +130,7 @@ public final class MossClient
         totalProgress = new ProgressBar();
         totalProgress.type = ProgressBarType.Download;
 
+        /* Callbacks for downloads */
         fetchContext.onComplete.connect(&onComplete);
         fetchContext.onFail.connect(&onFail);
         fetchContext.onProgress.connect(&onProgress);
@@ -130,6 +145,7 @@ public final class MossClient
         stateDB.close();
         _cache.close();
         layoutDB.close();
+        installDB.close();
     }
 
     /**
@@ -358,6 +374,7 @@ private:
     }
 
     Installation _installation;
+    InstallDB installDB;
     RegistryManager _registry;
     StateDB stateDB;
     LayoutDB layoutDB;
