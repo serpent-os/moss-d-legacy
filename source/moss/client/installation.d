@@ -16,8 +16,13 @@
 module moss.client.installation;
 
 import core.sys.posix.unistd : geteuid, access, W_OK;
-import std.file : mkdirRecurse, exists;
+import std.path : dirName, baseName;
+import std.file : mkdirRecurse, exists, isSymlink, readLink;
 import std.experimental.logger;
+import std.string : endsWith;
+import std.conv : to;
+
+public import moss.client.statedb : StateID;
 
 /**
  * System mutability - do we have readwrite?
@@ -54,6 +59,23 @@ public final class Installation
         {
             _mut = Mutability.ReadWrite;
             return;
+        }
+
+        /* Detect current state */
+        immutable usrPath = joinPath("usr");
+        if (usrPath.exists && usrPath.isSymlink)
+        {
+            auto usrTarget = usrPath.readLink();
+            if (usrTarget.endsWith("usr"))
+            {
+                _activeState = to!StateID(usrTarget.dirName.baseName);
+                tracef("Active State ID: %d", _activeState);
+            }
+        }
+
+        if (_activeState == 0)
+        {
+            warning("Unable to discover Active State ID");
         }
 
         /* Potential read-write? Root MUST exist */
@@ -160,7 +182,17 @@ public final class Installation
         return joinPath(".moss", "root", p);
     }
 
+    /**
+     * Access the active state 
+     */
+    pure @property StateID activeState() @safe @nogc nothrow const
+    {
+        return _activeState;
+    }
+
 private:
     Mutability _mut = Mutability.ReadOnly;
     string _root = "/";
+    /* 0 = no state */
+    StateID _activeState = 0;
 }
