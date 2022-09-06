@@ -38,6 +38,50 @@ import std.path : baseName;
 import std.range : empty;
 import std.stdio : File, writeln;
 import std.string : endsWith;
+import core.time;
+
+import core.thread.osthread;
+
+/**
+ * To throttle updates we only redraw the renderer on
+ * a dedicated thread, allowing minimised and grouped
+ * updates
+ */
+package class UIThread : Thread
+{
+
+    @disable this();
+
+    this(Renderer ren) @trusted
+    {
+        super(&run);
+        this.renderer = ren;
+    }
+
+    void stop() @trusted
+    {
+        running = false;
+        join();
+    }
+
+private:
+
+    void run() @trusted
+    {
+        running = true;
+        while (running)
+        {
+            synchronized (renderer)
+            {
+                renderer.draw();
+            }
+            sleep(dur!"msecs"(1000 / 25));
+        }
+    }
+
+    Renderer renderer;
+    __gshared bool running;
+}
 
 /**
  * Provides high-level access to the moss system
@@ -49,7 +93,7 @@ public final class MossClient
      */
     this(in string root = "/") @safe
     {
-        fc = new FetchController();
+        fc = new FetchController(4);
         _ui = new UserInterface();
         _installation = new Installation(root);
         _installation.ensureDirectories();
@@ -63,10 +107,12 @@ public final class MossClient
         layoutDB = new LayoutDB(_installation);
         layoutDB.connect.match!((Failure f) => fatalf(f.message), (_) {});
 
-        foreach (i; 0 .. 8)
+        foreach (i; 0 .. 4)
         {
             fetchProgress ~= new ProgressBar();
         }
+        cacheProgress = new ProgressBar();
+        cacheProgress.type = ProgressBarType.Cacher;
         totalProgress = new ProgressBar();
         totalProgress.type = ProgressBarType.Download;
 
@@ -150,6 +196,7 @@ public final class MossClient
      */
     void applyTransaction(scope Transaction tx) @safe
     {
+        ProgressBar blitBar;
         auto application = tx.apply();
         enforce(tx.problems.empty, "applyTransaction: Expected zero problems");
         enforce(!application.empty, "applyTransaction: Expected valid application");
@@ -173,34 +220,45 @@ public final class MossClient
         }
 
         auto stepLabel = new Label(Text("Total downloaded").attr(Attribute.Underline));
+        renderer.add(new Label());
         renderer.add(stepLabel);
         renderer.add(totalProgress);
+        renderer.add(new Label());
+
+        renderer.add(new Label(Text("Cache activity").attr(Attribute.Underline)));
+        renderer.add(cacheProgress);
+
+        auto thr = new UIThread(renderer);
+        () @trusted { thr.start(); }();
 
         while (!fetchContext.empty)
         {
             fetchContext.fetch();
         }
 
-        renderer.redraw();
-
         /* Lets get ourselves a state ID */
         stateDB.save(st);
 
-        writeln();
-        renderer.add(new Label());
-        renderer.add(new Label(Text("Blitting filesystem").attr(Attribute.Underline)));
-        auto blitBar = new ProgressBar();
-        blitBar.label = "Computing filesystem layout";
-        blitBar.type = ProgressBarType.Blitter;
-        renderer.add(blitBar);
-        renderer.redraw();
+        synchronized (renderer)
+        {
+            renderer.redraw();
+            renderer.add(new Label());
+            renderer.add(new Label(Text("Blitting filesystem").attr(Attribute.Underline)));
+            blitBar = new ProgressBar();
+            blitBar.label = "Computing filesystem layout";
+            blitBar.type = ProgressBarType.Blitter;
+            renderer.add(blitBar);
+            renderer.redraw();
+        }
 
         auto sroot = new SystemRoot(_installation, _cache, st.id);
         foreach (pkg; application)
         {
             sroot.pushEntries(layoutDB.entries(pkg.pkgID));
         }
-        sroot.apply(renderer, blitBar);
+        sroot.apply(blitBar);
+
+        thr.stop();
 
         /* Redraw and jump line */
         renderer.redraw();
@@ -219,10 +277,6 @@ private:
         fp.total = total;
         fp.current = current;
         fp.label = f.sourceURI.baseName;
-        if (renderer !is null)
-        {
-            renderer.draw();
-        }
     }
 
     /**
@@ -250,7 +304,7 @@ private:
         immutable pkgID = () @trusted { return mp.getPkgID(); }();
 
         /* Cache it */
-        immutable precache = _cache.install(pkgID, r).match!((Success _) {
+        immutable precache = _cache.install(pkgID, r, cacheProgress, true).match!((Success _) {
             /* Layout DB merge */
             return cast(CacheResult) layoutDB.install(pkgID, r);
         }, (Failure f) { return cast(CacheResult) f; },);
@@ -270,5 +324,6 @@ private:
     FetchController fc;
     ProgressBar[] fetchProgress;
     ProgressBar totalProgress;
+    ProgressBar cacheProgress;
     Renderer renderer;
 }

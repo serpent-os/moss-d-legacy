@@ -29,8 +29,6 @@ import moss.core : FileType;
 import std.string : format;
 import moss.client.progressbar;
 import moss.core.ioutil;
-import std.datetime.systime;
-import core.time : dur;
 import std.file : symlink, mkdirRecurse, setAttributes;
 
 public alias RootResult = Optional!(Success, Failure);
@@ -75,7 +73,7 @@ public final class SystemRoot
     /**
      * Apply the transaction to disk
      */
-    RootResult apply(Renderer ren, ProgressBar blitBar) @safe
+    RootResult apply(ProgressBar blitBar) @safe
     {
         import std.experimental.logger : infof;
 
@@ -84,29 +82,15 @@ public final class SystemRoot
         string stateID = to!string(_rootID);
         string madeDir = null;
 
-        SysTime lastUpdated = Clock.currTime();
-        immutable updateInterval = dur!"msecs"(1000 / 20);
-        bool renderedFirstEntry;
-
         foreach (entry; systemEntries[])
         {
             auto fpName = installation.rootPath(stateID, "usr", entry.target);
             auto fpDir = fpName.dirName;
 
-            immutable timeNow = Clock.currTime();
-
             scope (exit)
             {
                 blitBar.current = blitBar.current + 1;
                 blitBar.label = format!"%s of %s entries"(blitBar.current, blitBar.total);
-
-                /* We throttle redraws. */
-                if (!renderedFirstEntry || timeNow - lastUpdated >= updateInterval)
-                {
-                    lastUpdated = timeNow;
-                    renderedFirstEntry = true;
-                    ren.draw();
-                }
             }
 
             /* Ensure we have the parent directory */

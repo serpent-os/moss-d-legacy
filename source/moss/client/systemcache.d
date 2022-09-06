@@ -19,6 +19,7 @@ public import moss.core.errors;
 public import std.sumtype;
 public import moss.client.installation;
 public import std.stdint : uint64_t;
+public import moss.client.progressbar;
 
 import moss.core.ioutil;
 import moss.db.keyvalue;
@@ -115,7 +116,7 @@ public final class SystemCache
     /**
      * Install the given package into the SystemCache
      */
-    CacheResult install(string pkgID, scope Reader reader, bool useTmp = false) @trusted
+    CacheResult install(string pkgID, scope Reader reader, ProgressBar cacheBar, bool useTmp = false) @trusted
     {
         IndexPayload ip = reader.payload!IndexPayload;
         ContentPayload cp = reader.payload!ContentPayload;
@@ -128,8 +129,12 @@ public final class SystemCache
             return cast(CacheResult) fail("Missing ContentPayload!");
         }
 
-        return useTmp ? installByMemory(pkgID, cp, ip, reader) : installByDisk(pkgID,
-                cp, ip, reader);
+        cacheBar.total = ip.recordCount;
+        cacheBar.current = 0;
+        cacheBar.label = "Caching " ~ pkgID;
+
+        return useTmp ? installByMemory(pkgID, cp, ip, reader, cacheBar) : installByDisk(pkgID,
+                cp, ip, reader, cacheBar);
     }
 
     /**
@@ -160,7 +165,7 @@ public final class SystemCache
 private:
 
     CacheResult installByMemory(string pkgID, scope ContentPayload cp,
-            scope IndexPayload ip, scope Reader reader) @trusted
+            scope IndexPayload ip, scope Reader reader, ProgressBar cacheBar) @trusted
     {
         return IOUtil.createTemporary("/tmp/mossContent-XXXXXX").match!((TemporaryFile tmp) {
             /* Clean up this temporary file on closure */
@@ -180,6 +185,7 @@ private:
                 foreach (idx; ip)
                 {
                     string cacheID = idx.digestString();
+                    cacheBar.current = cacheBar.current + 1;
 
                     /* Check if we have this already */
                     CacheEntry lookup;
@@ -219,7 +225,7 @@ private:
      * This is our low memory strategy
      */
     CacheResult installByDisk(string pkgID, scope ContentPayload cp,
-            scope IndexPayload ip, scope Reader reader) @trusted
+            scope IndexPayload ip, scope Reader reader, ProgressBar cacheBar) @trusted
     {
         /* tmpfs must be avoided otherwise we'll kill RAM */
         string contentPath = installation.cachePath("content", pkgID);
@@ -241,6 +247,7 @@ private:
             foreach (idx; ip)
             {
                 string cacheID = idx.digestString();
+                cacheBar.current = cacheBar.current + 1;
 
                 /* Check if we have this already */
                 CacheEntry lookup;
