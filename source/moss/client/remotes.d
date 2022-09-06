@@ -17,18 +17,18 @@ module moss.client.remotes;
 
 public import moss.config.repo;
 public import moss.client.installation;
+public import moss.core.errors;
 
-import std.uni : isAlphaNum, toLower;
+import moss.client.remoteplugin;
+import moss.core.fetchcontext;
+import moss.deps.registry;
 import std.algorithm : map;
 import std.conv : to;
-import std.string : format;
-import std.path : dirName, baseName;
-import std.file : mkdirRecurse;
 import std.experimental.logger;
-public import moss.core.errors;
-import moss.core.fetchcontext;
-import moss.client.remoteplugin;
-import moss.deps.registry;
+import std.file : mkdirRecurse;
+import std.path : baseName, dirName;
+import std.string : format;
+import std.uni : isAlphaNum, toLower;
 
 alias RemoteResult = Optional!(Success, Failure);
 
@@ -132,7 +132,6 @@ public final class RemoteManager
             auto destPath = installation.joinPath(".moss", "remotes", rm.id, rm.uri.baseName);
             destPath.dirName.mkdirRecurse();
             auto fetchable = Fetchable(rm.uri, destPath, 0, FetchType.RegularFile, null);
-            info(fetchable);
             fetch.enqueue(fetchable);
         }
 
