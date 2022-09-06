@@ -28,6 +28,7 @@ public enum ProgressBarType
     Standard,
     Download,
     Blitter,
+    Cacher,
 }
 
 /**
@@ -76,7 +77,10 @@ public final class ProgressBar : Renderable
             renderColor = Color.Green;
             break;
         case ProgressBarType.Blitter:
-            renderColor = Color.Yellow;
+            renderColor = Color.Magenta;
+            break;
+        case ProgressBarType.Cacher:
+            renderColor = Color.Red;
             break;
         }
         auto percentage = cast(int)(pct * 100.0);
