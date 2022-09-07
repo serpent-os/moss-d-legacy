@@ -26,6 +26,7 @@ import std.string : join, wrap, format;
 import std.algorithm : map, filter;
 import moss.client.ui;
 import moss.client.statedb;
+import moss.client.cli : MossCLI;
 
 /**
  * Primary grouping for the moss cli
@@ -41,6 +42,7 @@ import moss.client.statedb;
      */
     @CommandEntry() int run(ref string[] argv) @safe
     {
+        auto base = () @trusted { return pt.findAncestor!MossCLI; }();
         auto cl = initialiseClient(pt);
         scope (exit)
         {
@@ -77,10 +79,13 @@ import moss.client.statedb;
         auto newPkgs = result.filter!((p) => !p.installed);
         cl.ui.emitAsColumns(newPkgs);
         cl.ui.inform("");
-        if (!cl.ui.ask("Do you want to continue?"))
+        if (!base.yesAll)
         {
-            cl.ui.warn("Exiting at user's request");
-            return 1;
+            if (!cl.ui.ask("Do you want to continue?"))
+            {
+                cl.ui.warn("Exiting at user's request");
+                return 1;
+            }
         }
         /* Do the deal. */
         cl.applyTransaction(tx);
