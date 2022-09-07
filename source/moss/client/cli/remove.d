@@ -89,7 +89,8 @@ import std.stdio : writeln;
             cl.ui.inform("No changes have been made to your system");
             return 1;
         }
-        error("Not yet implemented");
-        return 1;
+
+        cl.applyTransaction(tx);
+        return 0;
     }
 }
