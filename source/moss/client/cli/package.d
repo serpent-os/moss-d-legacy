@@ -91,4 +91,10 @@ package auto initialiseClient(scope ref BaseCommand pt) @trusted
      */
     @Option("D", "directory", "Root directory")
     string rootDirectory = "/";
+
+    /**
+     * Assume yes for all questions
+     */
+    @Option("y", "yes-all", "Assume yes for all questions")
+    bool yesAll;
 }
