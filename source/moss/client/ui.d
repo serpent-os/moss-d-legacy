@@ -490,7 +490,13 @@ public final class UserInterface
         auto workset = displayable.array;
         workset.sort!"a.toString < b.toString";
 
-        immutable colHeight = max(workset.length / nColumns, 1);
+        /* Ensure small sets go multiline */
+        auto colHeight = max(workset.length / nColumns, 1);
+        if (workset.length > nColumns && colHeight == 1)
+        {
+            colHeight++;
+        }
+
         auto rendered = 0;
         foreach (y; 0 .. colHeight)
         {
