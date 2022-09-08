@@ -37,7 +37,7 @@ import moss.format.binary.reader : Reader;
 import std.exception : enforce;
 import std.experimental.logger;
 import std.path : baseName;
-import std.file : mkdirRecurse;
+import std.file : mkdirRecurse, exists;
 import std.range : empty;
 import std.stdio : File, writeln;
 import std.string : endsWith, join;
@@ -224,6 +224,8 @@ public final class MossClient
 
         dlTotal = 0;
         dlCurrent = 0;
+        cacheTotal = 0;
+        cacheCurrent = 0;
 
         ProgressBar blitBar;
         auto application = tx.apply();
@@ -232,6 +234,7 @@ public final class MossClient
         renderer = new Renderer();
 
         auto st = stateDB.createState(tx, application);
+        string[] precacheItems;
 
         /* For all packages in state - form job queue */
         foreach (pkg; application)
@@ -262,7 +265,16 @@ public final class MossClient
 
             /* TODO: Do we have it downloaded somewhere? */
             workQueue[job.remoteURI] = job;
+
+            if (job.destinationPath.exists)
+            {
+                precacheItems ~= job.remoteURI;
+                continue;
+            }
+
             dlTotal += expSize;
+            cacheTotal++;
+
             /* TODO: Set closure for caching + hash verification! */
             void threadCompletionHandler(immutable(Fetchable) f, long code) @trusted
             {
@@ -273,34 +285,42 @@ public final class MossClient
                 cachePackage(f.sourceURI);
             }
 
+            /* Only fetch what is missing. */
             auto fc = Fetchable(job.remoteURI, job.destinationPath, expSize,
                     FetchType.RegularFile, &threadCompletionHandler);
             fetchContext.enqueue(fc);
         }
 
         downloadProgress.total = workQueue.length;
-        immutable bool haveWork = workQueue.length > 0;
+        immutable bool haveWork = workQueue.length > 0 || !precacheItems.empty;
 
         /* Can't have progress on no work.. */
         if (haveWork)
         {
-            /* Space out the text */
-            renderer.add(new Label());
-
-            foreach (bar; fetchProgress)
+            if (dlTotal > 0)
             {
-                renderer.add(bar);
+                /* Space out the text */
+                renderer.add(new Label());
+
+                foreach (bar; fetchProgress)
+                {
+                    renderer.add(bar);
+                }
+
+                auto stepLabel = new Label(Text("Total downloaded").attr(Attribute.Underline));
+                renderer.add(new Label());
+                renderer.add(stepLabel);
+                renderer.add(downloadProgress);
+                renderer.add(new Label());
             }
 
-            auto stepLabel = new Label(Text("Total downloaded").attr(Attribute.Underline));
-            renderer.add(new Label());
-            renderer.add(stepLabel);
-            renderer.add(downloadProgress);
-            renderer.add(new Label());
-
-            renderer.add(new Label(Text("Cache activity").attr(Attribute.Underline)));
+            /* Cache regardless */
+            cacheLabel = new Label(Text("Cache activity").attr(Attribute.Underline));
+            renderer.add(cacheLabel);
             renderer.add(cacheProgress);
         }
+
+        cacheTotal = workQueue.length;
 
         auto thr = new UIThread(renderer);
         () @trusted { thr.start(); }();
@@ -308,6 +328,11 @@ public final class MossClient
         while (!fetchContext.empty)
         {
             fetchContext.fetch();
+        }
+
+        foreach (pkg; precacheItems)
+        {
+            cachePackage(pkg);
         }
 
         /* Lets get ourselves a state ID */
@@ -438,6 +463,10 @@ private:
             precache.match!((Success _) {}, (Failure fa) {
                 errorf("Failure to cache pkg: %s", fa);
             });
+
+            cacheCurrent++;
+            cacheLabel.label = Text(format!"Cached %d of %d"(cacheCurrent,
+                    cacheTotal)).attr(Attribute.Underline);
         }
     }
 
@@ -452,9 +481,12 @@ private:
     FetchController fc;
     ProgressBar[] fetchProgress;
     ProgressBar downloadProgress;
+    Label cacheLabel;
     ProgressBar cacheProgress;
     Renderer renderer;
     Job[string] workQueue;
     double dlTotal = 0;
     double dlCurrent = 0;
+    ulong cacheTotal;
+    ulong cacheCurrent;
 }
