@@ -15,6 +15,8 @@
 
 module moss.client.impl;
 
+import core.thread.osthread;
+import core.time;
 import moss.client.activeplugin;
 import moss.client.installation;
 import moss.client.installdb;
@@ -36,14 +38,12 @@ import moss.format.binary.payload.meta : MetaPayload;
 import moss.format.binary.reader : Reader;
 import std.exception : enforce;
 import std.experimental.logger;
+import std.file : exists, mkdirRecurse;
 import std.path : baseName;
-import std.file : mkdirRecurse, exists;
+import std.path : buildPath;
 import std.range : empty;
 import std.stdio : File, writeln;
-import std.string : endsWith, join;
-import core.time;
-import std.path : buildPath;
-import core.thread.osthread;
+import std.string : endsWith, format, join;
 
 /**
  * To throttle updates we only redraw the renderer on
