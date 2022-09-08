@@ -81,6 +81,8 @@ public final class SystemRoot
 
         string stateID = to!string(_rootID);
         string madeDir = null;
+        auto usrDir = installation.rootPath(stateID, "usr");
+        usrDir.mkdirRecurse();
 
         foreach (entry; systemEntries[])
         {

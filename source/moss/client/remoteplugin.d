@@ -127,19 +127,21 @@ public final class RemotePlugin : RegistryPlugin
     }
 
     /**
-     * Begin fetching of a specific item
+     * Create job for fetching this item
+     *
+     * Params:
+     *      pkgID = Unique package Identifier
+     * Returns: Job with type FetchPackage
      */
-    override void fetchItem(FetchContext context, in string pkgID) @safe
+    override Job fetchItem(in string pkgID) @safe
     {
         MetaEntry item = db.byID(pkgID);
-        auto uri = format!"%s/%s"(remoteConfig.uri.dirName, item.uri);
-        auto expHash = item.hash;
-        auto downloadPath = installation.cachePath("downloads", "v1",
-                expHash[0 .. 5], expHash[$ - 5 .. $]);
-        auto downloadPathFull = downloadPath.buildPath(expHash);
-        downloadPath.mkdirRecurse();
-        auto fj = Fetchable(uri, downloadPathFull, item.downloadSize, FetchType.RegularFile, null);
-        context.enqueue(fj);
+        Job download = new Job(JobType.FetchPackage, pkgID);
+        download.checksum = item.hash;
+        download.remoteURI = format!"%s/%s"(remoteConfig.uri.dirName, item.uri);
+        download.expectedSize = item.downloadSize;
+
+        return download;
     }
 
     /**

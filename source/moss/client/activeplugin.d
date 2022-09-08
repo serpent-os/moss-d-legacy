@@ -127,8 +127,12 @@ public final class ActivePlugin : RegistryPlugin
 
     }
 
-    override void fetchItem(FetchContext context, in string pkgID) @safe
+    /**
+     * noop
+     */
+    override Job fetchItem(in string pkgID) @safe
     {
+        return null;
     }
 
     /**

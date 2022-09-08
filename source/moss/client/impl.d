@@ -37,11 +37,12 @@ import moss.format.binary.reader : Reader;
 import std.exception : enforce;
 import std.experimental.logger;
 import std.path : baseName;
+import std.file : mkdirRecurse;
 import std.range : empty;
 import std.stdio : File, writeln;
 import std.string : endsWith, join;
 import core.time;
-
+import std.path : buildPath;
 import core.thread.osthread;
 
 /**
@@ -58,6 +59,7 @@ package class UIThread : Thread
     {
         super(&run);
         this.renderer = ren;
+        this.isDaemon = true;
     }
 
     void stop() @trusted
@@ -132,8 +134,8 @@ public final class MossClient
         }
         cacheProgress = new ProgressBar();
         cacheProgress.type = ProgressBarType.Cacher;
-        totalProgress = new ProgressBar();
-        totalProgress.type = ProgressBarType.Download;
+        downloadProgress = new ProgressBar();
+        downloadProgress.type = ProgressBarType.Download;
 
         /* Callbacks for downloads */
         fetchContext.onComplete.connect(&onComplete);
@@ -217,37 +219,88 @@ public final class MossClient
      */
     void applyTransaction(scope Transaction tx) @safe
     {
+        /* Clean any existing jobs. */
+        () @trusted { workQueue.clear(); }();
+
+        dlTotal = 0;
+        dlCurrent = 0;
+
         ProgressBar blitBar;
         auto application = tx.apply();
         enforce(tx.problems.empty, "applyTransaction: Expected zero problems");
-        enforce(!application.empty, "applyTransaction: Expected valid application");
 
         renderer = new Renderer();
 
         auto st = stateDB.createState(tx, application);
 
+        /* For all packages in state - form job queue */
         foreach (pkg; application)
         {
-            pkg.fetch(fetchContext);
-            totalProgress.total = totalProgress.total + 1;
+            Job job = pkg.fetch();
+            /* Already installed. */
+            if (job is null)
+            {
+                continue;
+            }
+
+            /* Is this available in our install already.. ? */
+            immutable id = pkg.pkgID;
+            if (installDB.metaDB.byID(id).pkgID == id)
+            {
+                tracef("Skipping cache of %s", pkg.pkgID);
+                continue;
+            }
+
+            auto expHash = job.checksum();
+            auto downloadPath = installation.cachePath("downloads", "v1",
+                    expHash[0 .. 5], expHash[$ - 5 .. $]);
+            downloadPath.mkdirRecurse();
+            auto downloadPathFull = downloadPath.buildPath(expHash);
+            job.destinationPath = downloadPathFull;
+
+            auto expSize = job.expectedSize;
+
+            /* TODO: Do we have it downloaded somewhere? */
+            workQueue[job.remoteURI] = job;
+            dlTotal += expSize;
+            /* TODO: Set closure for caching + hash verification! */
+            void threadCompletionHandler(immutable(Fetchable) f, long code) @trusted
+            {
+                if (code != 200 && code != 0)
+                {
+                    return;
+                }
+                cachePackage(f.sourceURI);
+            }
+
+            auto fc = Fetchable(job.remoteURI, job.destinationPath, expSize,
+                    FetchType.RegularFile, &threadCompletionHandler);
+            fetchContext.enqueue(fc);
         }
 
-        /* Space out the text */
-        renderer.add(new Label());
+        downloadProgress.total = workQueue.length;
+        immutable bool haveWork = workQueue.length > 0;
 
-        foreach (bar; fetchProgress)
+        /* Can't have progress on no work.. */
+        if (haveWork)
         {
-            renderer.add(bar);
+            /* Space out the text */
+            renderer.add(new Label());
+
+            foreach (bar; fetchProgress)
+            {
+                renderer.add(bar);
+            }
+
+            auto stepLabel = new Label(Text("Total downloaded").attr(Attribute.Underline));
+            renderer.add(new Label());
+            renderer.add(stepLabel);
+            renderer.add(downloadProgress);
+            renderer.add(new Label());
+
+            renderer.add(new Label(Text("Cache activity").attr(Attribute.Underline)));
+            renderer.add(cacheProgress);
         }
-
-        auto stepLabel = new Label(Text("Total downloaded").attr(Attribute.Underline));
-        renderer.add(new Label());
-        renderer.add(stepLabel);
-        renderer.add(totalProgress);
-        renderer.add(new Label());
-
-        renderer.add(new Label(Text("Cache activity").attr(Attribute.Underline)));
-        renderer.add(cacheProgress);
 
         auto thr = new UIThread(renderer);
         () @trusted { thr.start(); }();
@@ -348,37 +401,44 @@ private:
      */
     void onComplete(Fetchable f, long code) @safe
     {
-        auto c = totalProgress.current;
+        auto c = downloadProgress.current;
         c++;
-        totalProgress.current = c;
-        totalProgress.label = format!"%d out of %d"(cast(int) totalProgress.current,
-                cast(int) totalProgress.total);
+        downloadProgress.current = c;
+        downloadProgress.label = format!"%d out of %d"(cast(int) downloadProgress.current,
+                cast(int) downloadProgress.total);
+    }
 
-        if (!f.sourceURI.endsWith(".stone"))
+    void cachePackage(string originURI) @trusted
+    {
+        synchronized (_cache)
         {
-            return;
+            auto job = workQueue[originURI];
+            if (job.type != JobType.FetchPackage)
+            {
+                return;
+            }
+
+            auto r = new Reader(File(job.destinationPath, "rb"));
+            scope (exit)
+            {
+                r.close();
+            }
+            MetaPayload mp = () @trusted { return r.payload!MetaPayload; }();
+            immutable pkgID = () @trusted { return mp.getPkgID(); }();
+
+            /* Cache it */
+            immutable precache = _cache.install(pkgID, r, cacheProgress, true).match!((Success _) {
+                /* Layout DB merge */
+                return cast(CacheResult) layoutDB.install(pkgID, r).match!( /* InstallDB merge */
+                    (Success _) { return cast(CacheResult) installDB.install(mp); }, (Failure f) {
+                        return cast(CacheResult) f;
+                    });
+            }, (Failure f) { return cast(CacheResult) f; },);
+
+            precache.match!((Success _) {}, (Failure fa) {
+                errorf("Failure to cache pkg: %s", fa);
+            });
         }
-
-        auto r = new Reader(File(f.destinationPath, "rb"));
-        scope (exit)
-        {
-            r.close();
-        }
-        MetaPayload mp = () @trusted { return r.payload!MetaPayload; }();
-        immutable pkgID = () @trusted { return mp.getPkgID(); }();
-
-        /* Cache it */
-        immutable precache = _cache.install(pkgID, r, cacheProgress, true).match!((Success _) {
-            /* Layout DB merge */
-            return cast(CacheResult) layoutDB.install(pkgID, r).match!( /* InstallDB merge */
-                (Success _) { return cast(CacheResult) installDB.install(mp); }, (Failure f) {
-                    return cast(CacheResult) f;
-                });
-        }, (Failure f) { return cast(CacheResult) f; },);
-
-        precache.match!((Success _) {}, (Failure fa) {
-            errorf("Failure to cache pkg: %s", fa);
-        });
     }
 
     Installation _installation;
@@ -391,7 +451,10 @@ private:
     UserInterface _ui;
     FetchController fc;
     ProgressBar[] fetchProgress;
-    ProgressBar totalProgress;
+    ProgressBar downloadProgress;
     ProgressBar cacheProgress;
     Renderer renderer;
+    Job[string] workQueue;
+    double dlTotal = 0;
+    double dlCurrent = 0;
 }
