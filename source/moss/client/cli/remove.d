@@ -77,6 +77,10 @@ import std.stdio : writeln;
         if (!tx.problems.empty)
         {
             errorf("Problems with transaction");
+            foreach (p; tx.problems)
+            {
+                () @trusted { errorf("Problem: %s", p); }();
+            }
             return 1;
         }
         cl.ui.warn!"The following packages will be %s"(Text("removed")
