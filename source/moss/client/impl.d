@@ -285,13 +285,14 @@ public final class MossClient
                 cachePackage(f.sourceURI);
             }
 
+            downloadProgress.total = downloadProgress.total + 1;
+
             /* Only fetch what is missing. */
             auto fc = Fetchable(job.remoteURI, job.destinationPath, expSize,
                     FetchType.RegularFile, &threadCompletionHandler);
             fetchContext.enqueue(fc);
         }
 
-        downloadProgress.total = workQueue.length;
         immutable bool haveWork = workQueue.length > 0 || !precacheItems.empty;
 
         /* Can't have progress on no work.. */
