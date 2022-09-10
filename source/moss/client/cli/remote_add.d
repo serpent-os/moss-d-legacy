@@ -27,7 +27,7 @@ import moss.client.ui;
 /**
  * Add a remote to the system
  */
-@CommandName("add") @CommandAlias("ar") @CommandUsage("[name] [url]") @CommandHelp(
+@CommandName("add") @CommandAlias("ar") @CommandUsage("[name] [uri to a .stone collection index (e.g. https://uri/stone.index)]") @CommandHelp(
         "Add a new remote to the system", "TODO: Improve docs") struct RemoteAddCommand
 {
     BaseCommand pt;
