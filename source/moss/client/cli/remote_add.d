@@ -27,8 +27,10 @@ import moss.client.ui;
 /**
  * Add a remote to the system
  */
-@CommandName("add") @CommandAlias("ar") @CommandUsage("[name] [uri to a .stone collection index (e.g. https://uri/stone.index)]") @CommandHelp(
-        "Add a new remote to the system", "TODO: Improve docs") struct RemoteAddCommand
+@CommandName("add") @CommandAlias("ar") @CommandUsage("[name] [URI]") @CommandHelp(
+    "Add a new remote .stone collection index to the system.",
+    "\nSupports both file:/// and https:// transport protocols." ~
+    "\n\nExample URI: https://dev.serpentos.com/protosnek/x86_64/stone.index") struct RemoteAddCommand
 {
     BaseCommand pt;
     alias pt this;
@@ -40,7 +42,7 @@ import moss.client.ui;
     {
         if (argv.length != 2)
         {
-            writeln("add: Requires [name] and [url] parameters");
+            writeln("add: Requires [name] and [URI] parameters");
             return 1;
         }
 
