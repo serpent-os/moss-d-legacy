@@ -44,6 +44,7 @@ import std.path : buildPath;
 import std.range : empty;
 import std.stdio : File, writeln;
 import std.string : endsWith, format, join;
+import std.conv : to;
 
 /**
  * To throttle updates we only redraw the renderer on
@@ -364,16 +365,46 @@ public final class MossClient
         renderer.redraw();
         writeln();
 
+        finalizeRoot(st);
+
         /* Update system pointer */
         updateSystemPointer(st);
     }
 
 private:
 
+    /**
+     * Finalize the root prior to updating system pointer
+     *
+     * TODO: Run triggers + boot update
+     */
+    void finalizeRoot(scope ref State newState) @safe
+    {
+        import std.file : write;
+        import std.path : dirName;
+        import std.string : replace;
+
+        auto szID = to!string(newState.id);
+        static immutable osReleaseTemplate = import("os-release.in");
+
+        /**
+         * TODO: Support KERNEL and VERSION properly
+         */
+        auto outputFile = osReleaseTemplate.replace("@VERSION@", "borkytests")
+            .replace("@TRANSACTION@", szID);
+
+        auto osReleaseOutput = installation.joinPath(".moss", "root", szID,
+                "usr", "lib", "os-release");
+        auto osReleaseDir = osReleaseOutput.dirName;
+        osReleaseDir.mkdirRecurse();
+        osReleaseOutput.write(outputFile);
+    }
+
+    /**
+     * All went well so we can update the system pointer atomically
+     */
     void updateSystemPointer(scope ref State newState) @safe
     {
-        import std.conv : to;
-
         auto rootfsDir = join([".moss/root", to!string(newState.id)], "/");
 
         /* Construct the primary usr link */

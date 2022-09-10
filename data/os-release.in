@@ -1,0 +1,9 @@
+NAME="Serpent OS"
+VERSION="@VERSION@"
+ID="serpentos"
+VERSION_CODENAME=@VERSION@
+VERSION_ID="@VERSION@"
+PRETTY_NAME="Serpent OS @VERSION@ (fstx #@TRANSACTION@)"
+ANSI_COLOR="1;35"
+HOME_URL="https://serpentos.com"
+BUG_REPORT_URL="https://github.com/serpent-os"

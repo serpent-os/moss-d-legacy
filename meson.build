@@ -96,5 +96,6 @@ moss = executable(
 	install: true,
 	dependencies: moss_deps,
 	include_directories: moss_includes,
+	d_import_dirs: include_directories('data'),
 	link_args: ['--link-defaultlib-shared=false'],
 )
