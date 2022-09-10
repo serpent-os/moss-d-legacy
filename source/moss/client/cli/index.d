@@ -24,10 +24,14 @@ import std.file : exists, isDir, dirEntries, SpanMode;
 import std.algorithm : filter, sort;
 import std.range : take;
 import std.array : array;
+import std.path : relativePath, absolutePath, baseName, buildNormalizedPath, asNormalizedPath;
 
 import moss.format.binary.payload.meta;
 import moss.format.binary.reader;
 import moss.format.binary.writer;
+import moss.core : computeSHA256;
+import std.string : startsWith, endsWith;
+import std.conv : to;
 
 auto getRelease(scope MetaPayload payload) @trusted
 {
@@ -77,6 +81,11 @@ auto getName(scope MetaPayload payload) @trusted
         }
 
         MetaPayload[string] payloads;
+        auto wd = indexDir.absolutePath.asNormalizedPath.to!string;
+        if (wd.endsWith("/"))
+        {
+            wd = wd[0 .. $ - 1];
+        }
 
         () @trusted {
             foreach (entry; dirEntries(indexDir, "*.stone", SpanMode.depth, false).filter!(
@@ -114,10 +123,19 @@ auto getName(scope MetaPayload payload) @trusted
                         continue;
                     }
                 }
+                auto hash = computeSHA256(entry.name, true);
+                auto size = entry.size;
+                auto uri = wd.buildNormalizedPath(entry.name).to!string[wd.length .. $];
+                if (uri.startsWith("/"))
+                {
+                    uri = uri[1 .. $];
+                }
                 current.addRecord(RecordType.String, RecordTag.PackageHash, hash);
                 current.addRecord(RecordType.String, RecordTag.PackageURI, uri);
                 current.addRecord(RecordType.String, RecordTag.PackageSize, size);
                 payloads[pkgName] = current;
+
+                info(format!"Adding %s"(uri));
             }
         }();
 
