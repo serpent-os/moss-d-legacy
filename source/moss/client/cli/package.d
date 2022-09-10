@@ -17,6 +17,7 @@ module moss.client.cli;
 
 public import moss.core.cli;
 
+import moss.client.cli.index;
 import moss.client.cli.info;
 import moss.client.cli.install;
 import moss.client.cli.list;
@@ -68,6 +69,7 @@ package auto initialiseClient(scope ref BaseCommand pt) @trusted
     static auto construct(ref string[] args) @trusted
     {
         auto p = cliProcessor!MossCLI(args);
+        p.addCommand!IndexCommand;
         p.addCommand!InstallCommand;
         auto list = p.addCommand!ListCommand;
         list.addCommand!ListAvailableCommand;
