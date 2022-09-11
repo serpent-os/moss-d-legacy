@@ -8,6 +8,9 @@
 	"version": "0.0.0",
 	"name": "moss",
 	"targetPath": "bin",
+	"stringImportPaths": [
+		"data"
+	],
 	"dependencies": {
 		"moss-core": {
 			"path": "../moss-core"
