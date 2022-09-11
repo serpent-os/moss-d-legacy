@@ -139,6 +139,12 @@ auto getName(scope MetaPayload payload) @trusted
             }
         }();
 
+        if (payloads.length == 0)
+        {
+            error(format!"No .stone files found in directory: %s"(indexDir));
+            return 1;
+        }
+
         auto keys = () @trusted {
             auto keySet = payloads.keys.array;
             keySet.sort!((a, b) => a < b);
