@@ -28,9 +28,9 @@ import moss.client.ui;
  * Add a remote to the system
  */
 @CommandName("add") @CommandAlias("ar") @CommandUsage("[name] [URI]") @CommandHelp(
-    "Add a new remote .stone collection index to the system.",
-    "\nSupports both file:/// and https:// transport protocols." ~
-    "\n\nExample URI: https://dev.serpentos.com/protosnek/x86_64/stone.index") struct RemoteAddCommand
+        "Add a new remote .stone collection index to the system.",
+        "\nSupports both file:/// and https:// transport protocols."
+        ~ "\n\nExample URI: https://dev.serpentos.com/protosnek/x86_64/stone.index") struct RemoteAddCommand
 {
     BaseCommand pt;
     alias pt this;
