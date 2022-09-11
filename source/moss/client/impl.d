@@ -412,6 +412,7 @@ private:
         atomicRootfsLink(usrSource, "usr");
 
         /* Compat links to make usrmerge work */
+        atomicRootfsLink("usr/sbin", "sbin");
         atomicRootfsLink("usr/bin", "bin");
         atomicRootfsLink("usr/lib", "lib");
         atomicRootfsLink("usr/lib", "lib64");
