@@ -56,8 +56,19 @@ import std.stdint : uint64_t;
         auto name = argv[0];
         auto url = argv[1];
 
+        /* Only permit unique remotes */
         foreach (repo; cl.remotes.active)
         {
+            if (name == repo.id)
+            {
+                error(format!"A remote %s already exists with this name. Choose a unique name."(repo.id));
+                return 1;
+            }
+            if (url == repo.uri)
+            {
+                error(format!"The uri %s already exists from the remote %s."(repo.uri, repo.id));
+                return 1;
+            }
             if (priority == repo.priority)
             {
                 error(format!"%s already exists with the priority of %s. Choose a unique priority number."
