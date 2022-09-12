@@ -116,7 +116,8 @@ public final class SystemCache
     /**
      * Install the given package into the SystemCache
      */
-    CacheResult install(string pkgID, scope Reader reader, ProgressBar cacheBar, bool useTmp = false) @trusted
+    CacheResult install(string name, string pkgID, scope Reader reader,
+            ProgressBar cacheBar, bool useTmp = false) @trusted
     {
         IndexPayload ip = reader.payload!IndexPayload;
         ContentPayload cp = reader.payload!ContentPayload;
@@ -131,7 +132,7 @@ public final class SystemCache
 
         cacheBar.total = ip.recordCount;
         cacheBar.current = 0;
-        cacheBar.label = "Caching " ~ pkgID;
+        cacheBar.label = "Caching " ~ name;
 
         return useTmp ? installByMemory(pkgID, cp, ip, reader, cacheBar) : installByDisk(pkgID,
                 cp, ip, reader, cacheBar);

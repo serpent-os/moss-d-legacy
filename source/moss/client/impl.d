@@ -497,10 +497,15 @@ private:
                 r.close();
             }
             MetaPayload mp = () @trusted { return r.payload!MetaPayload; }();
-            immutable pkgID = () @trusted { return mp.getPkgID(); }();
+            immutable pkgID = job.checksum;
+            if (pkgID.empty)
+            {
+                fatal(format!"Failed to cache %s"(job.destinationPath));
+            }
 
             /* Cache it */
-            immutable precache = _cache.install(pkgID, r, cacheProgress, true).match!((Success _) {
+            immutable precache = _cache.install(job.remoteURI.baseName, pkgID,
+                    r, cacheProgress, true).match!((Success _) {
                 /* Layout DB merge */
                 return cast(CacheResult) layoutDB.install(pkgID, r).match!( /* InstallDB merge */
                     (Success _) { return cast(CacheResult) installDB.install(mp); }, (Failure f) {

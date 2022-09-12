@@ -97,7 +97,7 @@ public final class CobblePlugin : RegistryPlugin
         immutable hash = computeSHA256(filename, true);
         immutable uri = format!"file://%s"(filename.absolutePath);
         immutable expSize = f.size();
-        immutable pkgID = mp.getPkgID();
+        immutable pkgID = hash;
         mp.addRecord(RecordType.String, RecordTag.PackageHash, hash);
         mp.addRecord(RecordType.String, RecordTag.PackageURI, uri);
         mp.addRecord(RecordType.String, RecordTag.PackageSize, expSize);

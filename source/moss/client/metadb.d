@@ -352,7 +352,6 @@ private:
     DatabaseResult insertPayload(scope Transaction tx, scope MetaPayload mp) @trusted
     {
         MetaEntry entry;
-        entry.pkgID = mp.getPkgID;
         foreach (pair; mp)
         {
             final switch (pair.tag)
@@ -383,6 +382,7 @@ private:
                 break;
             case RecordTag.PackageHash:
                 entry.hash = pair.get!string;
+                entry.pkgID = entry.hash;
                 break;
             case RecordTag.PackageSize:
                 entry.downloadSize = pair.get!uint64_t;
