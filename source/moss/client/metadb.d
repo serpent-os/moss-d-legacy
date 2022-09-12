@@ -194,11 +194,16 @@ public final class MetaDB
      *
      * Returns: Success or Failure
      */
-    MetaResult connect() @safe
+    MetaResult connect(bool nosync = false) @safe
     {
         tracef("MetaDB: %s", dbPath);
         auto flags = mut == Mutability.ReadWrite
             ? DatabaseFlags.CreateIfNotExists : DatabaseFlags.ReadOnly;
+
+        if (nosync)
+        {
+            flags |= DatabaseFlags.DisableSync;
+        }
 
         /* We have no DB. */
         if (!dbPath.exists && mut == Mutability.ReadOnly)
