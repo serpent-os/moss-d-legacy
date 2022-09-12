@@ -18,6 +18,7 @@ module moss.client.impl;
 import core.thread.osthread;
 import core.time;
 import moss.client.activeplugin;
+import moss.client.cobbleplugin;
 import moss.client.installation;
 import moss.client.installdb;
 import moss.client.label : Label;
@@ -127,6 +128,10 @@ public final class MossClient
         /* Actively installed */
         auto active = new ActivePlugin(_installation, installDB, stateDB);
         _registry.addPlugin(active);
+
+        /* Cobble stones */
+        cobble = new CobblePlugin(_installation);
+        _registry.addPlugin(cobble);
 
         /* Progress bar management */
         foreach (i; 0 .. 4)
@@ -514,6 +519,7 @@ private:
     FetchController fc;
     ProgressBar[] fetchProgress;
     ProgressBar downloadProgress;
+    CobblePlugin cobble;
     Label cacheLabel;
     ProgressBar cacheProgress;
     Renderer renderer;
