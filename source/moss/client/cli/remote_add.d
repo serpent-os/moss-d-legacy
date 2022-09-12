@@ -19,6 +19,7 @@ public import moss.core.cli;
 
 import moss.client.cli : initialiseClient;
 import moss.core.errors;
+import std.format;
 import std.stdio : writeln;
 import std.sumtype;
 import std.experimental.logger;
@@ -54,6 +55,18 @@ import std.stdint : uint64_t;
         }
         auto name = argv[0];
         auto url = argv[1];
+
+        foreach (repo; cl.remotes.active)
+        {
+            if (priority == repo.priority)
+            {
+                error(format!"%s already exists with the priority of %s. Choose a unique priority number."
+                        (repo.id, repo.priority));
+                return 1;
+            }
+        }
+
+        return 0;
 
         return cl.remotes.add(name, url, priority).match!((Failure f) {
             errorf("%s", f.message);
