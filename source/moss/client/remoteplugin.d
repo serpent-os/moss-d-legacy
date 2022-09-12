@@ -160,6 +160,14 @@ public final class RemotePlugin : RegistryPlugin
         return _remoteConfig;
     }
 
+    /**
+     * Priority as set by the remote config
+     */
+    override pure @property uint64_t priority() @safe @nogc nothrow const
+    {
+        return _remoteConfig.priority;
+    }
+
 private:
 
     Repository _remoteConfig;

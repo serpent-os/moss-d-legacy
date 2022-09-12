@@ -204,6 +204,11 @@ public final class CobblePlugin : RegistryPlugin
         dbPath.rmdirRecurse();
     }
 
+    override pure @property uint64_t priority() @safe @nogc nothrow const
+    {
+        return uint64_t.max;
+    }
+
 private:
 
     Installation installation;
