@@ -214,6 +214,16 @@ public final class MossClient
     }
 
     /**
+     * Access CobblePlugin to load things.
+     *
+     * Returns: CobblePlugin
+     */
+    pure @property CobblePlugin cobbler() @safe @nogc nothrow
+    {
+        return cobble;
+    }
+
+    /**
      * Apply the transaction
      *
      * This will perform any caching + downloading up-front using the

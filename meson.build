@@ -46,6 +46,7 @@ link_libmoss_format = moss_format.get_variable('link_libmoss_format_binary')
 
 moss_sources = [
 	'source/moss/client/activeplugin.d',
+	'source/moss/client/cobbleplugin.d',
 	'source/moss/client/cli/index.d',
 	'source/moss/client/cli/info.d',
 	'source/moss/client/cli/install.d',

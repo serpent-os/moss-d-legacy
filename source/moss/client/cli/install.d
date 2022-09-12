@@ -19,14 +19,15 @@ public import moss.core.cli;
 
 import moss.client.cli : initialiseClient;
 import moss.deps.registry;
-import std.stdio : writefln, writef;
+import std.stdio : writefln, writef, writeln;
 import std.experimental.logger;
 import std.range : empty;
-import std.string : join, wrap, format;
+import std.string : join, wrap, format, endsWith;
 import std.algorithm : map, filter;
 import moss.client.ui;
 import moss.client.statedb;
 import moss.client.cli : MossCLI;
+import std.file : exists;
 
 /**
  * Primary grouping for the moss cli
@@ -49,10 +50,26 @@ import moss.client.cli : MossCLI;
             cl.close();
         }
 
-        Transaction tx = cl.registry.transaction();
         RegistryItem[] selections;
         foreach (item; argv)
         {
+            /* Is this a local .stone file ? */
+            if (item.endsWith(".stone") && item.exists)
+            {
+                bool shouldExit;
+                cl.cobbler.loadPackage(item).match!((Failure f) {
+                    error(format!"Unable to load %s: %s"(item, f.message));
+                    shouldExit = true;
+                }, (RegistryItem pkg) {
+                    () @trusted { trace(format!"Sideloading: %s"(pkg)); }();
+                    selections ~= pkg;
+                });
+                if (shouldExit)
+                {
+                    return 1;
+                }
+                continue;
+            }
             auto search = fromString!Provider(item);
             auto candidates = cl.registry.byProvider(search.type, search.target);
             if (candidates.empty)
@@ -61,19 +78,23 @@ import moss.client.cli : MossCLI;
                 return 1;
             }
             auto chosen = candidates.front;
-            () @trusted { tracef("Picking: %s", chosen); }();
+            () @trusted { trace(format!"Picking: %s"(chosen)); }();
             selections ~= chosen;
         }
+        Transaction tx = cl.registry.transaction();
         tx.installPackages(selections);
         auto result = tx.apply();
         auto problems = tx.problems();
         if (!problems.empty)
         {
             cl.ui.warn("Unable to install due to the following problems...");
+            writeln();
             foreach (problem; problems)
             {
-                cl.ui.inform!"[%s] %s"(problem.type, problem.item);
+                cl.ui.inform!" - [%s] %s"(Text(format!"%s"(problem.type))
+                        .attr(Attribute.Bold), Text(problem.dependency.toString).fg(Color.Red));
             }
+            return 1;
         }
         cl.ui.inform("The following packages will be installed\n");
         auto newPkgs = result.filter!((p) => !p.installed);

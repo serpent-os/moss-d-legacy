@@ -27,6 +27,12 @@ import std.string : format;
 import moss.core.ioutil;
 import std.file : rmdirRecurse;
 import std.experimental.logger;
+import std.path : absolutePath;
+
+import moss.core : computeSHA256;
+
+import moss.format.binary.reader;
+import moss.format.binary.payload.meta;
 
 /**
  * We have to remember some additional info as
@@ -38,6 +44,11 @@ private struct FetchInfo
     string hash;
     string uri;
 }
+
+/**
+ * Either a registry item - or a failure.
+ */
+public alias CobbleResult = Optional!(RegistryItem, Failure);
 
 /**
  * Cobbler of local stones
@@ -58,8 +69,40 @@ public final class CobblePlugin : RegistryPlugin
         }();
 
         db = new MetaDB(dbPath, installation.mutability);
-        db.connect(true).match!((Success _) {}, (Failure f) {
+        db.connect().match!((Success _) {}, (Failure f) {
             throw new Error(f.message);
+        });
+    }
+
+    /**
+     * Try to load the package and return a RegistryItem for it.
+     */
+    CobbleResult loadPackage(string filename) @trusted
+    {
+        auto f = File(filename, "rb");
+        Reader reader = new Reader(f);
+        scope (exit)
+        {
+            reader.close();
+        }
+        if (reader.fileType != MossFileType.Binary)
+        {
+            return cast(CobbleResult) fail("CobblePlugin.loadPackage(): Unsupported filetype");
+        }
+        MetaPayload mp = reader.payload!MetaPayload;
+        if (mp is null)
+        {
+            return cast(CobbleResult) fail("CobblePlugin: Missing MetaPayload");
+        }
+        immutable hash = computeSHA256(filename, true);
+        immutable uri = format!"file://%s"(filename.absolutePath);
+        immutable expSize = f.size();
+        immutable pkgID = mp.getPkgID();
+        mp.addRecord(RecordType.String, RecordTag.PackageHash, hash);
+        mp.addRecord(RecordType.String, RecordTag.PackageURI, uri);
+        mp.addRecord(RecordType.String, RecordTag.PackageSize, expSize);
+        return db.install(mp).match!((Failure f) { return cast(CobbleResult) f; }, (_) {
+            return cast(CobbleResult) RegistryItem(pkgID, this, ItemFlags.Available);
         });
     }
 
@@ -140,10 +183,9 @@ public final class CobblePlugin : RegistryPlugin
     {
         MetaEntry item = db.byID(pkgID);
         Job download = new Job(JobType.FetchPackage, pkgID);
-        auto lookup = memory[pkgID];
-        download.checksum = lookup.hash;
-        download.remoteURI = lookup.uri;
-        download.expectedSize = lookup.expectedSize;
+        download.checksum = item.hash;
+        download.remoteURI = item.uri;
+        download.expectedSize = item.downloadSize;
 
         return download;
     }
@@ -165,7 +207,6 @@ public final class CobblePlugin : RegistryPlugin
 private:
 
     Installation installation;
-    FetchInfo[string] memory;
     string dbPath;
     MetaDB db;
 }
