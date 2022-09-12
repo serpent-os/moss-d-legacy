@@ -41,7 +41,7 @@ import std.stdio : writefln;
 
         foreach (rm; cl.remotes.active)
         {
-            writefln("%s [active]\n    %s", rm.id, rm.uri);
+            writefln("%s [active] priority = %s\n    %s", rm.id, rm.priority, rm.uri);
         }
         return 0;
     }
