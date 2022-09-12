@@ -35,7 +35,7 @@ import moss.config.io.configuration;
 import moss.config.repo;
 import moss.deps.registry;
 import moss.fetcher.controller;
-import moss.format.binary.payload.meta : MetaPayload;
+import moss.format.binary.payload.meta;
 import moss.format.binary.reader : Reader;
 import std.exception : enforce;
 import std.experimental.logger;
@@ -502,6 +502,11 @@ private:
             {
                 fatal(format!"Failed to cache %s"(job.destinationPath));
             }
+
+            /* IMPORTANT: We need to re-add these index fields */
+            mp.addRecord(RecordType.String, RecordTag.PackageHash, pkgID);
+            mp.addRecord(RecordType.String, RecordTag.PackageSize, job.expectedSize);
+            mp.addRecord(RecordType.String, RecordTag.PackageURI, job.remoteURI);
 
             /* Cache it */
             immutable precache = _cache.install(job.remoteURI.baseName, pkgID,
