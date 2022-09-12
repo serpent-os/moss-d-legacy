@@ -23,6 +23,7 @@ import std.stdio : writeln;
 import std.sumtype;
 import std.experimental.logger;
 import moss.client.ui;
+import std.stdint : uint64_t;
 
 /**
  * Add a remote to the system
@@ -54,9 +55,15 @@ import moss.client.ui;
         auto name = argv[0];
         auto url = argv[1];
 
-        return cl.remotes.add(name, url).match!((Failure f) {
+        return cl.remotes.add(name, url, priority).match!((Failure f) {
             errorf("%s", f.message);
             return 1;
         }, (_) { infof("Added remote %s", name); return 0; });
     }
+
+    /**
+     * Higher priority wins
+     */
+    @Option("p", "priority", "Priority to enable this remote with")
+    uint64_t priority = 0;
 }

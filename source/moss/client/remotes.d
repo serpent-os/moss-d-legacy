@@ -87,7 +87,7 @@ public final class RemoteManager
      *      origin = Where to download things from.
      * Returns: A RemoteResult
      */
-    RemoteResult add(string identifier, string origin) @safe
+    RemoteResult add(string identifier, string origin, uint64_t priority = 0) @safe
     {
         import std.file : write;
 
@@ -107,7 +107,8 @@ public final class RemoteManager
 - %s:
     description: "%s"
     uri: "%s"
-`(saneID, description, origin);
+    priority: %s
+`(saneID, description, origin, priority);
         tracef("New config at: %s", confFile);
         confFile.dirName.mkdirRecurse();
 
