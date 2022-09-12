@@ -61,7 +61,8 @@ import std.stdint : uint64_t;
         {
             if (name == repo.id)
             {
-                error(format!"A remote %s already exists with this name. Choose a unique name."(repo.id));
+                error(format!"A remote %s already exists with this name. Choose a unique name."(
+                        repo.id));
                 return 1;
             }
             if (url == repo.uri)
@@ -71,8 +72,8 @@ import std.stdint : uint64_t;
             }
             if (priority == repo.priority)
             {
-                error(format!"%s already exists with the priority of %s. Choose a unique priority number."
-                        (repo.id, repo.priority));
+                error(format!"%s already exists with the priority of %s. Choose a unique priority number."(repo.id,
+                        repo.priority));
                 return 1;
             }
         }
