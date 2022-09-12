@@ -141,8 +141,7 @@ auto getName(scope MetaPayload payload) @trusted
 
         if (payloads.length == 0)
         {
-            error(format!"No .stone files found in directory: %s"(indexDir));
-            return 1;
+            warning(format!"No .stone files found in directory: %s"(indexDir));
         }
 
         auto keys = () @trusted {
@@ -151,7 +150,8 @@ auto getName(scope MetaPayload payload) @trusted
             return keySet;
         }();
 
-        auto w = new Writer(File("stone.index", "w"));
+        immutable idxFile = wd.buildNormalizedPath("stone.index");
+        auto w = new Writer(File(idxFile, "wb"));
         w.compressionType = PayloadCompression.Zstd;
         w.fileType = MossFileType.Repository;
 
