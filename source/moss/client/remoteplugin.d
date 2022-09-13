@@ -88,7 +88,12 @@ public final class RemotePlugin : RegistryPlugin
      */
     override NullableRegistryItem queryID(in string pkgID) @safe
     {
-        return NullableRegistryItem(NullableRegistryItem.init);
+        auto entry = db.byID(pkgID);
+        if (entry.pkgID == pkgID)
+        {
+            return NullableRegistryItem(RegistryItem(pkgID, this, ItemFlags.Available));
+        }
+        return NullableRegistryItem(RegistryItem.init);
     }
 
     /**

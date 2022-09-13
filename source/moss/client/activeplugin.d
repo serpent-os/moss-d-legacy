@@ -85,7 +85,16 @@ public final class ActivePlugin : RegistryPlugin
      */
     override NullableRegistryItem queryID(in string pkgID) @safe
     {
-        return NullableRegistryItem(NullableRegistryItem.init);
+        if (!(pkgID in pkgIDs))
+        {
+            return NullableRegistryItem(RegistryItem.init);
+        }
+        auto entry = installDB.metaDB.byID(pkgID);
+        if (entry.pkgID == pkgID)
+        {
+            return NullableRegistryItem(RegistryItem(pkgID, this, ItemFlags.Available));
+        }
+        return NullableRegistryItem(RegistryItem.init);
     }
 
     /**
