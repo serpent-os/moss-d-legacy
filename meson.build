@@ -57,6 +57,7 @@ moss_sources = [
 	'source/moss/client/cli/remote_add.d',
 	'source/moss/client/cli/remote_list.d',
 	'source/moss/client/cli/remote_update.d',
+	'source/moss/client/cli/remote_remove.d',
 	'source/moss/client/cli/remote.d',
 	'source/moss/client/cli/remove.d',
 	'source/moss/client/cli/search.d',
