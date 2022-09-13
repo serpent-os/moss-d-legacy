@@ -17,13 +17,14 @@ module moss.client.cli.list_installed;
 
 public import moss.core.cli;
 
+import moss.client.remoteplugin;
 import moss.client.cli : initialiseClient;
 import moss.deps.registry;
 import moss.client.ui;
 import std.stdio : writefln;
 import std.algorithm : map;
 import std.array : array;
-import std.algorithm : each, sort, SwapStrategy, maxElement;
+import std.algorithm : each, sort, SwapStrategy, maxElement, filter;
 import std.range : empty;
 import moss.client.cli.list_available : DisplayItem;
 
@@ -51,11 +52,31 @@ static void printItem(ulong longestName, ref DisplayItem item) @trusted
             cl.close();
         }
         DisplayItem[] di = () @trusted {
-            return cl.registry.list(ItemFlags.Installed).map!((i) {
-                auto info = i.info();
-                return DisplayItem(info.name, info.summary,
-                    format!"%s-%s"(info.versionID, info.releaseNumber));
-            }).array();
+            return cl.registry.list(ItemFlags.Installed).filter!((i) {
+                if (collectionID is null)
+                {
+                    return true;
+                }
+                auto altCandidates = cl.registry.byID(i.pkgID).filter!((rp) {
+                    if (rp.installed)
+                    {
+                        return false;
+                    }
+                    auto r = cast(RemotePlugin) rp.plugin;
+                    if (r !is null && r.remoteConfig.id == collectionID)
+                    {
+                        return true;
+                    }
+                    return false;
+                });
+                return !altCandidates.empty;
+            })
+                .map!((i) {
+                    auto info = i.info();
+                    return DisplayItem(info.name, info.summary,
+                        format!"%s-%s"(info.versionID, info.releaseNumber));
+                })
+                .array();
         }();
         if (di.empty)
         {
@@ -67,4 +88,10 @@ static void printItem(ulong longestName, ref DisplayItem item) @trusted
         di.each!((d) => printItem(largestName + largestVersion, d));
         return 0;
     }
+
+    /**
+     * Collection ID to filter by
+     */
+    @Option("c", "collection", "Filter results by collection ID")
+    string collectionID;
 }
