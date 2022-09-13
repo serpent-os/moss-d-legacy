@@ -163,6 +163,9 @@ auto getName(scope MetaPayload payload) @trusted
 
         w.close();
 
+        info(format!"Successfully wrote index to %s, containing %s stones."(idxFile,
+                payloads.length));
+
         return 0;
     }
 }
