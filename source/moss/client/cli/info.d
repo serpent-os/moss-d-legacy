@@ -103,10 +103,7 @@ static void printCandidate(scope ref RegistryItem item) @trusted
             {
                 cl.cobbler.loadPackage(arg).match!((Failure f) {
                     error(format!"Unable to parse %s: %s"(arg, f.message));
-                }, (RegistryItem pkg) {
-                    printCandidate(pkg);
-                    writefln("");
-                });
+                }, (RegistryItem pkg) { printCandidate(pkg); writefln(""); });
                 continue;
             }
 
