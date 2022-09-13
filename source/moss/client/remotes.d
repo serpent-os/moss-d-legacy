@@ -121,6 +121,35 @@ public final class RemoteManager
     }
 
     /**
+     * Remove an existing remote
+     *
+     * Params:
+     *      identifier = Unique identifier for the remote
+     * Returns: A RemoteResult
+     */
+    RemoteResult remove(string identifier) @safe
+    {
+        import std.file : remove, rmdirRecurse;
+
+        /**
+         * Mutable only!
+         */
+        if (installation.mutability != Mutability.ReadWrite)
+        {
+            return cast(RemoteResult) fail("Cannot remove remote to non-mutable system");
+        }
+
+        immutable saneID = identifier.map!((m) => (m.isAlphaNum ? m : '_').toLower)
+            .to!string;
+        immutable confFile = installation.joinPath("etc", "moss", "repos.conf.d", saneID ~ ".conf");
+        auto remotePath = installation.joinPath(".moss", "remotes", saneID);
+        confFile.remove();
+        remotePath.rmdirRecurse();
+
+        return cast(RemoteResult) Success();
+    }
+
+    /**
      * Refresh all of the remotes
      *
      * Returns: RemoteResult
