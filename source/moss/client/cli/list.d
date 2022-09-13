@@ -17,6 +17,9 @@ module moss.client.cli.list;
 
 public import moss.core.cli;
 
+import moss.client.ui;
+import std.stdio : writefln;
+
 /**
  * Grouping for listing commands
  */
@@ -24,4 +27,24 @@ public import moss.core.cli;
 {
     BaseCommand pt;
     alias pt this;
+}
+
+/**
+ * Common helper struct to display items
+ */
+struct DisplayItem
+{
+    string name;
+    string summary;
+    string versionID;
+}
+
+/**
+ * Print items with consistent formatting
+ */
+static void printItem(ulong longestName, ref DisplayItem item) @trusted
+{
+    immutable size = (longestName - (item.name.length + item.versionID.length)) + 2;
+    writefln(" %s %*s %s - %s", Text(item.name).attr(Attribute.Bold), size,
+            " ", Text(item.versionID).fg(Color.Magenta), item.summary);
 }

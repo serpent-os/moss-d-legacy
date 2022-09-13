@@ -25,20 +25,8 @@ import std.algorithm : map;
 import std.array : array;
 import std.algorithm : each, sort, SwapStrategy, maxElement;
 import std.range : empty;
-
-struct DisplayItem
-{
-    string name;
-    string summary;
-    string versionID;
-}
-
-static void printItem(ulong longestName, ref DisplayItem item) @trusted
-{
-    immutable size = (longestName - (item.name.length + item.versionID.length)) + 2;
-    writefln(" %s %*s %s - %s", Text(item.name).attr(Attribute.Bold), size,
-            " ", Text(item.versionID).fg(Color.Magenta), item.summary);
-}
+import moss.client.cli.list : DisplayItem, printItem;
+import std.format;
 
 /**
  * List the available packages
