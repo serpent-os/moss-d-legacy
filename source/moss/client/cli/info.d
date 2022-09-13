@@ -20,10 +20,13 @@ public import moss.core.cli;
 import moss.client.cli : initialiseClient;
 import moss.deps.registry;
 import moss.client.ui;
+import std.file : exists;
 import std.stdio : writefln;
 import std.experimental.logger;
 import std.string : join, wrap, endsWith;
+import moss.client.cobbleplugin;
 import moss.client.remoteplugin;
+import moss.client.statedb;
 import std.algorithm : map;
 import std.range : empty;
 
@@ -94,6 +97,20 @@ static void printCandidate(scope ref RegistryItem item) @trusted
         }
         foreach (arg; argv)
         {
+            /* Use cobbler plugin to parse .stone file(s) */
+            RegistryItem[] selections;
+            if (arg.endsWith(".stone") && arg.exists)
+            {
+                cl.cobbler.loadPackage(arg).match!((Failure f) {
+                    error(format!"Unable to parse %s: %s"(arg, f.message));
+                }, (RegistryItem pkg) {
+                    printCandidate(pkg);
+                    writefln("");
+                });
+                continue;
+            }
+
+            /* Otherwise look for it in index collections */
             auto pkgs = cl.registry.byName(arg);
             if (pkgs.empty)
             {
