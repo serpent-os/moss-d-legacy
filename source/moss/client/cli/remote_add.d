@@ -78,8 +78,6 @@ import std.stdint : uint64_t;
             }
         }
 
-        return 0;
-
         return cl.remotes.add(name, url, priority).match!((Failure f) {
             errorf("%s", f.message);
             return 1;
