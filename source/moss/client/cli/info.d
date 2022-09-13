@@ -98,7 +98,6 @@ static void printCandidate(scope ref RegistryItem item) @trusted
         foreach (arg; argv)
         {
             /* Use cobbler plugin to parse .stone file(s) */
-            RegistryItem[] selections;
             if (arg.endsWith(".stone") && arg.exists)
             {
                 cl.cobbler.loadPackage(arg).match!((Failure f) {
