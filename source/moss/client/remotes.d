@@ -109,7 +109,7 @@ public final class RemoteManager
     uri: "%s"
     priority: %s
 `(saneID, description, origin, priority);
-        tracef("New config at: %s", confFile);
+        trace(format!"New config at: %s"(confFile));
         confFile.dirName.mkdirRecurse();
 
         write(confFile, data);
@@ -149,12 +149,12 @@ public final class RemoteManager
         {
             immutable indexFile = installation.joinPath(".moss", "remotes",
                     plugin.remoteConfig.id, plugin.remoteConfig.uri.baseName);
-            infof("Rebuilding indices on `%s`", plugin.remoteConfig.id);
+            info(format!"Rebuilding indices on `%s`"(plugin.remoteConfig.id));
 
             auto remotePath = installation.joinPath(".moss", "remotes", plugin.remoteConfig.id);
             remotePath.mkdirRecurse();
             plugin.loadFromIndex(indexFile).match!((Failure f) {
-                errorf("Failed to refresh plugin: %s", f.message);
+                error(format!"Failed to refresh plugin: %s"(f.message));
             }, (_) {});
         }
 
