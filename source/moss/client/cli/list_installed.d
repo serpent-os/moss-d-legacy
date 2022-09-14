@@ -17,17 +17,16 @@ module moss.client.cli.list_installed;
 
 public import moss.core.cli;
 
-import moss.client.remoteplugin;
 import moss.client.cli : initialiseClient;
-import moss.deps.registry;
+import moss.client.cli.list : DisplayItem, printItem;
 import moss.client.ui;
-import std.stdio : writefln;
+import moss.client.remoteplugin;
+import moss.deps.registry;
 import std.algorithm : map;
 import std.array : array;
-import std.algorithm : each, sort, SwapStrategy, maxElement, filter;
-import std.range : empty;
-import moss.client.cli.list : DisplayItem, printItem;
+import std.algorithm : each, filter, map ,maxElement, sort, SwapStrategy;
 import std.format;
+import std.range : empty;
 
 /**
  * List the installed packages
@@ -47,6 +46,7 @@ import std.format;
         }
         DisplayItem[] di = () @trusted {
             return cl.registry.list(ItemFlags.Installed).filter!((i) {
+                /* no collection id specified, list all installed packages */
                 if (collectionID is null)
                 {
                     return true;
