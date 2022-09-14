@@ -26,7 +26,7 @@ import std.stdio : writefln;
 import moss.client.ui;
 import std.array : array;
 
-import moss.client.cli.list_available : DisplayItem;
+import moss.client.cli.list : DisplayItem;
 
 public enum SearchMode
 {
