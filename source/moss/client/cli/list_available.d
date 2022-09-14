@@ -18,15 +18,14 @@ module moss.client.cli.list_available;
 public import moss.core.cli;
 
 import moss.client.cli : initialiseClient;
-import moss.deps.registry;
-import moss.client.ui;
-import std.stdio : writefln;
-import std.algorithm : map;
-import std.array : array;
-import std.algorithm : each, sort, SwapStrategy, maxElement;
-import std.range : empty;
 import moss.client.cli.list : DisplayItem, printItem;
+import moss.client.ui;
+import moss.client.remoteplugin;
+import moss.deps.registry;
+import std.array : array;
+import std.algorithm : each, filter, map ,maxElement, sort, SwapStrategy;
 import std.format;
+import std.range : empty;
 
 /**
  * List the available packages
@@ -45,11 +44,27 @@ import std.format;
             cl.close();
         }
         DisplayItem[] di = () @trusted {
-            return cl.registry.list(ItemFlags.Available).map!((i) {
-                auto info = i.info();
-                return DisplayItem(info.name, info.summary,
-                    format!"%s-%s"(info.versionID, info.releaseNumber));
-            }).array();
+            return cl.registry.list(ItemFlags.Available).filter!((i) {
+                if (collectionID is null)
+                {
+                    return true;
+                }
+                auto altCandidates = cl.registry.byID(i.pkgID).filter!((rp) {
+                    auto r = cast(RemotePlugin) rp.plugin;
+                    if (r !is null && r.remoteConfig.id == collectionID)
+                    {
+                        return true;
+                    }
+                    return false;
+                });
+                return !altCandidates.empty;
+            })
+                .map!((i) {
+                    auto info = i.info();
+                    return DisplayItem(info.name, info.summary,
+                        format!"%s-%s"(info.versionID, info.releaseNumber));
+                })
+                .array();
         }();
         if (di.empty)
         {
@@ -61,4 +76,10 @@ import std.format;
         di.each!((d) => printItem(largestName + largestVersion, d));
         return 0;
     }
+
+    /**
+     * Collection ID to filter by
+     */
+    @Option("c", "collection", "Filter results by collection ID")
+    string collectionID;
 }
