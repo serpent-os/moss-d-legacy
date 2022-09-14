@@ -28,3 +28,5 @@ import moss.client.cli : initialiseClient;
     BaseCommand pt;
     alias pt this;
 }
+
+immutable auto SupportedProtocols = ["https://", "http://", "file://", "ftp://"];
