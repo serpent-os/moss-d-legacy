@@ -54,13 +54,6 @@ public final class Installation
     {
         _root = root;
 
-        /* We're good to go. */
-        if (geteuid() == 0)
-        {
-            _mut = Mutability.ReadWrite;
-            return;
-        }
-
         /* Detect current state */
         immutable usrPath = joinPath("usr");
         if (usrPath.exists && usrPath.isSymlink)
@@ -76,6 +69,13 @@ public final class Installation
         if (_activeState == 0)
         {
             warning("Unable to discover Active State ID");
+        }
+
+        /* We're good to go. */
+        if (geteuid() == 0)
+        {
+            _mut = Mutability.ReadWrite;
+            return;
         }
 
         /* Potential read-write? Root MUST exist */
