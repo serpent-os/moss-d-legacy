@@ -13,7 +13,7 @@ and development headers, including (in fedora package names format):
 - `cmake`, `meson` and `ninja`
 - `libcurl` and `libcurl-devel`
 - `libzstd` and `libzstd-devel`
-- `rocksdb` and `rocksdb-devel`
+- `lmdb` and `lmdbdb-devel`
 - `xxhash-libs` and `xxhash-devel`
 
 #### Building
