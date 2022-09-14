@@ -45,6 +45,7 @@ import std.range : empty;
         }
         DisplayItem[] di = () @trusted {
             return cl.registry.list(ItemFlags.Available).filter!((i) {
+                /* no collection id specified, list all available packages */
                 if (collectionID is null)
                 {
                     return true;

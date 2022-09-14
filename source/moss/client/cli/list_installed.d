@@ -46,6 +46,7 @@ import std.range : empty;
         }
         DisplayItem[] di = () @trusted {
             return cl.registry.list(ItemFlags.Installed).filter!((i) {
+                /* no collection id specified, list all installed packages */
                 if (collectionID is null)
                 {
                     return true;
