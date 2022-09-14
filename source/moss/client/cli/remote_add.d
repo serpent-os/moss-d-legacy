@@ -19,12 +19,16 @@ public import moss.core.cli;
 
 import moss.client.cli : initialiseClient;
 import moss.core.errors;
+import moss.client.cli.remote : SupportedProtocols;
+import std.algorithm : filter;
+import std.algorithm.searching : startsWith, endsWith;
 import std.format;
 import std.stdio : writeln;
 import std.sumtype;
 import std.experimental.logger;
 import moss.client.ui;
 import std.stdint : uint64_t;
+import std.stdio;
 
 /**
  * Add a remote to the system
@@ -54,7 +58,23 @@ import std.stdint : uint64_t;
             cl.close();
         }
         auto name = argv[0];
-        auto url = argv[1];
+        auto uri = argv[1];
+
+        /* URI points to a stone.index file? */
+        if (!uri.endsWith("stone.index"))
+        {
+            error("Doesn't like look a valid URI. Must point to a stone.index file");
+            return 1;
+        }
+
+        /* URI starts with supported protocol? */
+        auto match = SupportedProtocols.filter!((i) => uri.startsWith(i));
+        if (match.empty)
+        {
+            error(format!"Doesn't like look a valid URI. Must start with one of the following protocols: %s"(
+                    SupportedProtocols));
+            return 1;
+        }
 
         /* Only permit unique remotes */
         foreach (repo; cl.remotes.active)
@@ -65,7 +85,7 @@ import std.stdint : uint64_t;
                         repo.id));
                 return 1;
             }
-            if (url == repo.uri)
+            if (uri == repo.uri)
             {
                 error(format!"The uri %s already exists from the remote %s."(repo.uri, repo.id));
                 return 1;
@@ -78,7 +98,7 @@ import std.stdint : uint64_t;
             }
         }
 
-        return cl.remotes.add(name, url, priority).match!((Failure f) {
+        return cl.remotes.add(name, uri, priority).match!((Failure f) {
             errorf("%s", f.message);
             return 1;
         }, (_) { infof("Added remote %s", name); return 0; });
