@@ -1,5 +1,9 @@
 /bin
 /.dub
-/testpackage.stone
+# don't want any stones committed
+*.stone
 /dub.selections.json
+# ikey uses this per reflex
 /destdir
+# documented in onboarding README
+/sosroot
