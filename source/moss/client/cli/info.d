@@ -18,17 +18,18 @@ module moss.client.cli.info;
 public import moss.core.cli;
 
 import moss.client.cli : initialiseClient;
-import moss.deps.registry;
-import moss.client.ui;
-import std.file : exists;
-import std.stdio : writefln;
-import std.experimental.logger;
-import std.string : join, wrap, endsWith;
 import moss.client.cobbleplugin;
 import moss.client.remoteplugin;
 import moss.client.statedb;
+import moss.client.ui;
+import moss.deps.registry;
 import std.algorithm : map;
+import std.experimental.logger;
+import std.file : exists;
+import std.format : format;
 import std.range : empty;
+import std.stdio : writeln;
+import std.string : join, wrap, endsWith;
 
 /**
  * Print a candidate
@@ -43,11 +44,11 @@ static void printCandidate(scope ref RegistryItem item) @trusted
     static void printRow(string columnID, string portion) @trusted
     {
         immutable length = longestColumn - columnID.length;
-        writefln("%s %*s %s", Text(columnID).attr(Attribute.Bold), length, " ", portion);
+        writeln(format!"%s %*s %s"(Text(columnID).attr(Attribute.Bold), length, " ", portion));
     }
 
     printRow("Name", info.name);
-    printRow("Version", info.versionID);
+    printRow("Version", format!"%s-%s"(info.versionID, info.releaseNumber));
 
     if (!(rr is null))
     {
@@ -78,7 +79,9 @@ static void printCandidate(scope ref RegistryItem item) @trusted
 /**
  * Show package details
  */
-@CommandName("info") @CommandHelp("Show package details", "TODO: Improve docs") struct InfoCommand
+@CommandName("info") @CommandHelp("Show package details",
+    "Lists detailed package info, including version, release, the colleciton the
+package was installed from etc.") struct InfoCommand
 {
     BaseCommand pt;
     alias pt this;
@@ -102,7 +105,7 @@ static void printCandidate(scope ref RegistryItem item) @trusted
             {
                 cl.cobbler.loadPackage(arg).match!((Failure f) {
                     error(format!"Unable to parse %s: %s"(arg, f.message));
-                }, (RegistryItem pkg) { printCandidate(pkg); writefln(""); });
+                }, (RegistryItem pkg) { printCandidate(pkg); writeln(""); });
                 continue;
             }
 
@@ -110,13 +113,13 @@ static void printCandidate(scope ref RegistryItem item) @trusted
             auto pkgs = cl.registry.byName(arg);
             if (pkgs.empty)
             {
-                errorf("Unable to find any package matching '%s'", arg);
+                error(format!"Unable to find any package matching '%s'"(arg));
                 continue;
             }
             foreach (candidate; pkgs)
             {
                 printCandidate(candidate);
-                writefln("");
+                writeln("");
             }
         }
         return 0;
