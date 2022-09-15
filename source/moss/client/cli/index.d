@@ -111,7 +111,7 @@ auto getName(scope MetaPayload payload) @trusted
                 if (existing !is null)
                 {
                     immutable oldRel = existing.getRelease;
-                    immutable newRel = existing.getRelease;
+                    immutable newRel = current.getRelease;
                     if (oldRel == newRel)
                     {
                         fatal(format!"Trying to include two packages with same release number: %s - %s"(
