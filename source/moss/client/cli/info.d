@@ -55,7 +55,7 @@ static void printCandidate(scope ref RegistryItem item) @trusted
     }
     printRow("Homepage", info.homepage);
     printRow("Summary", Text(info.summary).attr(Attribute.Italic).toString);
-    printRow("Description", Text(info.summary).attr(Attribute.Italic).toString);
+    printRow("Description", Text(info.description).attr(Attribute.Italic).toString);
     printRow("Licenses", info.licenses.join(", "));
 
     auto dependencies = item.dependencies;
