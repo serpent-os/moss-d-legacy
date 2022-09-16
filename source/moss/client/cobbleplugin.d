@@ -68,7 +68,7 @@ public final class CobblePlugin : RegistryPlugin
             }, (string s) { trace(format!"CobblePlugin: %s"(s)); dbPath = s; });
         }();
 
-        db = new MetaDB(dbPath, installation.mutability);
+        db = new MetaDB(dbPath, installation.mutability == Mutability.ReadWrite);
         db.connect().match!((Success _) {}, (Failure f) {
             throw new Error(f.message);
         });

@@ -45,7 +45,7 @@ public final class RemotePlugin : RegistryPlugin
         this._remoteConfig = remoteConfig;
         this.installation = installation;
         dbPath = installation.joinPath(".moss", "remotes", remoteConfig.id, "db");
-        db = new MetaDB(dbPath, installation.mutability);
+        db = new MetaDB(dbPath, installation.mutability == Mutability.ReadWrite);
 
         db.connect.match!((Success _) {}, (Failure f) {
             throw new Error(f.message);

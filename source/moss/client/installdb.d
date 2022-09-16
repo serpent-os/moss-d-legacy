@@ -34,7 +34,7 @@ public final class InstallDB
     {
         this.installation = installation;
         auto dbPath = installation.dbPath("install");
-        this.db = new MetaDB(dbPath, installation.mutability);
+        this.db = new MetaDB(dbPath, installation.mutability == Mutability.ReadWrite);
     }
 
     /**

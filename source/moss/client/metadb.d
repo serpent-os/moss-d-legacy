@@ -15,7 +15,6 @@
 
 module moss.client.metadb;
 import moss.core.errors;
-import moss.client.installation : Mutability;
 import moss.db.keyvalue;
 import moss.db.keyvalue.errors;
 import moss.db.keyvalue.interfaces;
@@ -150,10 +149,10 @@ public final class MetaDB
     /**
      * Construct a new MetaDB from the given path
      */
-    this(string dbPath, Mutability mut) @safe
+    this(string dbPath, bool readWrite) @safe
     {
         this.dbPath = dbPath;
-        this.mut = mut;
+        this.readWrite = readWrite;
     }
 
     /**
@@ -197,7 +196,7 @@ public final class MetaDB
     MetaResult connect(bool nosync = false) @safe
     {
         tracef("MetaDB: %s", dbPath);
-        auto flags = mut == Mutability.ReadWrite
+        auto flags = readWrite
             ? DatabaseFlags.CreateIfNotExists : DatabaseFlags.ReadOnly;
 
         if (nosync)
@@ -206,7 +205,7 @@ public final class MetaDB
         }
 
         /* We have no DB. */
-        if (!dbPath.exists && mut == Mutability.ReadOnly)
+        if (!dbPath.exists && !readWrite)
         {
             return cast(MetaResult) fail(format!"MetaDB: Cannot find %s"(dbPath));
         }
@@ -218,7 +217,7 @@ public final class MetaDB
         /**
          * Ensure our DB model exists.
          */
-        if (mut == Mutability.ReadWrite)
+        if (readWrite)
         {
             auto err = db.update((scope tx) => tx.createModel!(MetaEntry, ProviderMap));
             if (!err.isNull)
@@ -469,6 +468,6 @@ private:
     }
 
     string dbPath;
-    Mutability mut;
+    bool readWrite;
     Database db;
 }
