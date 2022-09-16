@@ -80,7 +80,7 @@ static void printCandidate(scope ref RegistryItem item) @trusted
  * Show package details
  */
 @CommandName("info") @CommandHelp("Show package details",
-    "Lists detailed package info, including version, release, the colleciton the
+        "Lists detailed package info, including version, release, the colleciton the
 package was installed from etc.") struct InfoCommand
 {
     BaseCommand pt;

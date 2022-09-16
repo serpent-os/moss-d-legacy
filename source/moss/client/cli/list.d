@@ -46,6 +46,6 @@ struct DisplayItem
 static void printItem(ulong longestName, ref DisplayItem item) @trusted
 {
     immutable size = (longestName - (item.name.length + item.versionID.length)) + 2;
-    writeln(format!" %s %*s %s - %s"(Text(item.name).attr(Attribute.Bold), size,
-            " ", Text(item.versionID).fg(Color.Magenta), item.summary));
+    writeln(format!" %s %*s %s - %s"(Text(item.name).attr(Attribute.Bold),
+            size, " ", Text(item.versionID).fg(Color.Magenta), item.summary));
 }

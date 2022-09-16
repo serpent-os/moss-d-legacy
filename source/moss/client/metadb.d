@@ -196,8 +196,7 @@ public final class MetaDB
     MetaResult connect(bool nosync = false) @safe
     {
         tracef("MetaDB: %s", dbPath);
-        auto flags = readWrite
-            ? DatabaseFlags.CreateIfNotExists : DatabaseFlags.ReadOnly;
+        auto flags = readWrite ? DatabaseFlags.CreateIfNotExists : DatabaseFlags.ReadOnly;
 
         if (nosync)
         {

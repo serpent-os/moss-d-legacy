@@ -23,7 +23,7 @@ import moss.client.ui;
 import moss.client.remoteplugin;
 import moss.deps.registry;
 import std.array : array;
-import std.algorithm : each, filter, map ,maxElement, sort, SwapStrategy;
+import std.algorithm : each, filter, map, maxElement, sort, SwapStrategy;
 import std.format;
 import std.range : empty;
 
