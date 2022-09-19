@@ -22,6 +22,7 @@ import moss.core.errors;
 import moss.client.cli.remote : SupportedProtocols;
 import std.algorithm : filter;
 import std.algorithm.searching : startsWith, endsWith;
+import std.file : exists;
 import std.format;
 import std.stdio : writeln;
 import std.sumtype;
@@ -74,6 +75,15 @@ import std.stdio;
             error(format!"Doesn't like look a valid URI. Must start with one of the following protocols: %s"(
                     SupportedProtocols));
             return 1;
+        }
+        if (uri.startsWith("file://"))
+        {
+            auto fileURIpath = uri["file://".length .. $];
+            if (!fileURIpath.exists)
+            {
+                error(format!"Doesn't like look a valid URI. Cannot find %s on disk."(fileURIpath));
+                return 1;
+            }
         }
 
         /* Only permit unique remotes */
