@@ -406,6 +406,15 @@ private:
             case RecordTag.Version:
                 entry.versionIdentifier = pair.get!string;
                 break;
+                /* Currently we do not store source information */
+            case RecordTag.BuildDepends:
+                break;
+            case RecordTag.SourceURI:
+                break;
+            case RecordTag.SourcePath:
+                break;
+            case RecordTag.SourceRef:
+                break;
             }
         }
 
