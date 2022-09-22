@@ -108,15 +108,16 @@ import std.stdio;
             }
         }
 
-        return cl.remotes.add(name, uri, priority).match!((Failure f) {
+        return cl.remotes.add(name, uri, description, priority).match!((Failure f) {
             errorf("%s", f.message);
             return 1;
         }, (_) { infof("Added remote %s", name); return 0; });
     }
 
-    /**
-     * Higher priority wins
-     */
+    /* Optional user description for remote */
+    @Option("c", "description", "User description to help identify the remote")
+    string description = "User added repository";
+    /* Higher priority wins */
     @Option("p", "priority", "Priority to enable this remote with")
     uint64_t priority = 0;
 }
