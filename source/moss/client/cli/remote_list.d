@@ -18,7 +18,9 @@ module moss.client.cli.remote_list;
 public import moss.core.cli;
 
 import moss.client.cli : initialiseClient;
-import std.stdio : writefln;
+import moss.client.ui;
+import std.stdio : writeln, writefln;
+import std.string : format;
 
 /**
  * List remotes on the system
@@ -41,7 +43,11 @@ import std.stdio : writefln;
 
         foreach (rm; cl.remotes.active)
         {
-            writefln("%s [active] priority = %s\n    %s", rm.id, rm.priority, rm.uri);
+            writeln(format!"%s %s %s %s %s %s %s"(Text(rm.id)
+                    .fg(Color.Magenta).attr(Attribute.Bold), Text("[active]")
+                    .fg(Color.Green), Text(rm.uri).fg(Color.White),
+                    Text("Priority:").fg(Color.Blue), rm.priority, Text("Description:")
+                    .fg(Color.Yellow), Text(rm.description).attr(Attribute.Italic)));
         }
         return 0;
     }
