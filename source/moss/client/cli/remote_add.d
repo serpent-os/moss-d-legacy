@@ -27,9 +27,7 @@ import std.format;
 import std.stdio : writeln;
 import std.sumtype;
 import std.experimental.logger;
-import moss.client.ui;
 import std.stdint : uint64_t;
-import std.stdio;
 
 /**
  * Add a remote to the system

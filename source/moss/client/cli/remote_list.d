@@ -19,7 +19,7 @@ public import moss.core.cli;
 
 import moss.client.cli : initialiseClient;
 import moss.client.ui;
-import std.stdio : writeln, writefln;
+import std.stdio : writeln;
 import std.string : format;
 
 /**
