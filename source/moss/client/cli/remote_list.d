@@ -62,15 +62,15 @@ import std.string : format;
         foreach (rm; cl.remotes.active)
         {
             /* Calculate padding between elements for consistent output */
-            auto idPadding = (idMaxLen - rm.id.length) + 2;
-            auto uriPadding = (uriMaxLen - rm.uri.length) + 2;
+            auto idPadding = (idMaxLen - rm.id.length) + 1;
+            auto uriPadding = (uriMaxLen - rm.uri.length) + 1;
 
-            /* id, idPadding, active, uri, uriPadding, priority, priorityNum, Description, descString */
+            /* id, idPadding, active, uri, uriPadding, priority, priorityNum, comment, descString */
             writeln(format!"%s %*s %s %s %*s %s %s %s %s"(Text(rm.id)
                     .fg(Color.Magenta).attr(Attribute.Bold), idPadding, " ",
                     Text("[active]").fg(Color.Green), Text(rm.uri)
                     .fg(Color.White), uriPadding, " ", Text("Priority:").fg(Color.Blue),
-                    rm.priority, Text("Description:").fg(Color.Yellow),
+                    rm.priority, Text("Comment:").fg(Color.Yellow),
                     Text(rm.description).attr(Attribute.Italic)));
         }
         return 0;
