@@ -87,7 +87,7 @@ public final class RemoteManager
      *      origin = Where to download things from.
      * Returns: A RemoteResult
      */
-    RemoteResult add(string identifier, string origin, uint64_t priority = 0) @safe
+    RemoteResult add(string identifier, string origin, string description, uint64_t priority = 0) @safe
     {
         import std.file : write;
 
@@ -102,7 +102,6 @@ public final class RemoteManager
         immutable saneID = identifier.map!((m) => (m.isAlphaNum ? m : '_').toLower)
             .to!string;
         immutable confFile = installation.joinPath("etc", "moss", "repos.conf.d", saneID ~ ".conf");
-        immutable description = "User added repository";
         immutable data = format!`
 - %s:
     description: "%s"

@@ -27,9 +27,7 @@ import std.format;
 import std.stdio : writeln;
 import std.sumtype;
 import std.experimental.logger;
-import moss.client.ui;
 import std.stdint : uint64_t;
-import std.stdio;
 
 /**
  * Add a remote to the system
@@ -108,15 +106,16 @@ import std.stdio;
             }
         }
 
-        return cl.remotes.add(name, uri, priority).match!((Failure f) {
+        return cl.remotes.add(name, uri, description, priority).match!((Failure f) {
             errorf("%s", f.message);
             return 1;
         }, (_) { infof("Added remote %s", name); return 0; });
     }
 
-    /**
-     * Higher priority wins
-     */
+    /* Optional user description for remote */
+    @Option("c", "comment", "User comment to help identify the remote")
+    string description = "User added repository";
+    /* Higher priority wins */
     @Option("p", "priority", "Priority to enable this remote with")
     uint64_t priority = 0;
 }
