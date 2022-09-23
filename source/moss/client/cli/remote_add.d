@@ -115,7 +115,7 @@ import std.stdio;
     }
 
     /* Optional user description for remote */
-    @Option("c", "description", "User description to help identify the remote")
+    @Option("c", "comment", "User comment to help identify the remote")
     string description = "User added repository";
     /* Higher priority wins */
     @Option("p", "priority", "Priority to enable this remote with")
