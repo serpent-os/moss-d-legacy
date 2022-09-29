@@ -19,6 +19,7 @@ public import moss.core.cli;
 
 import moss.client.cli.index;
 import moss.client.cli.info;
+import moss.client.cli.inspect;
 import moss.client.cli.install;
 import moss.client.cli.list;
 import moss.client.cli.list_available;
@@ -71,7 +72,11 @@ package auto initialiseClient(scope ref BaseCommand pt) @trusted
     {
         auto p = cliProcessor!MossCLI(args);
         p.addCommand!IndexCommand;
+        p.addCommand!InfoCommand;
+        p.addCommand!InspectCommand;
         p.addCommand!InstallCommand;
+        p.addCommand!RemoveCommand;
+        p.addCommand!SearchCommand;
         auto list = p.addCommand!ListCommand;
         list.addCommand!ListAvailableCommand;
         list.addCommand!ListInstalledCommand;
@@ -80,9 +85,6 @@ package auto initialiseClient(scope ref BaseCommand pt) @trusted
         remotes.addCommand!RemoteRemoveCommand;
         remotes.addCommand!RemoteListCommand;
         remotes.addCommand!RemoteUpdateCommand;
-        p.addCommand!InfoCommand;
-        p.addCommand!RemoveCommand;
-        p.addCommand!SearchCommand;
         return p;
     }
 

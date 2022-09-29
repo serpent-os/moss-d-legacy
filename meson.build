@@ -49,6 +49,7 @@ moss_sources = [
 	'source/moss/client/cobbleplugin.d',
 	'source/moss/client/cli/index.d',
 	'source/moss/client/cli/info.d',
+	'source/moss/client/cli/inspect.d',
 	'source/moss/client/cli/install.d',
 	'source/moss/client/cli/list_available.d',
 	'source/moss/client/cli/list_installed.d',

@@ -40,13 +40,32 @@ public struct FormattedSize
     string suffix;
 
     /**
-     * Default pretty print
+     * Default pretty print of size (12 characters wide including suffix)
+     *
+     * Example:
+     * "      100  B"
+     * "    1,023  B"
+     * "    1.00 KiB"
+     * "  999.99 Kib"
+     * "    1.00 MiB"
+     *     (...)
+     * "  999.99 TiB"
+     * "9,999.99 TiB"
      *
      * Returns: String representation of this FormattedSize
      */
     auto toString() @safe const
     {
-        return format!"%.2f%s"(numUnits, suffix);
+        if (suffix != "B")
+        {
+            /* ensure that very large sizes have enough room */
+            return format!"%7,.2f %-3s"(numUnits, suffix);
+        }
+        else
+        {
+            /* match up bytes nicely without a dot separator */
+            return format!"%8,.0f %2s"(numUnits, suffix);
+        }
     }
 }
 
