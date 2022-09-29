@@ -38,13 +38,13 @@ import std.string : join, wrap, endsWith, startsWith;
  * InspectCommand is used to inspect the payload of an archive
  */
 @CommandName("inspect")
-@CommandHelp("Inspect contents of a .stone or a manfiest.*.bin file",
-"With a locally available .stone or manifest.*.bin file, this command will
-attempt to read, validate and extract information from the given package.
+@CommandHelp("Inspect contents of a .stone or a manifest.*.bin archive",
+"With a locally available .stone or manifest.*.bin archive, this command will
+attempt to read, validate and extract information from the given archive.
 
-If the file is not a valid .stone or manifest.*.bin file for moss, an error
+If the file is not a valid .stone or manifest.*.bin moss archive, an error
 will be reported.")
-@CommandUsage("[.stone or manifest.*.bin file]")
+@CommandUsage("[.stone or manifest.*.bin]")
 struct InspectCommand
 {
     /**
@@ -60,7 +60,7 @@ struct InspectCommand
     {
         if (argv.length < 1)
         {
-            error("moss inspect: Please provide one or more .stone/manifest.*.bin arguments?");
+            error("moss inspect: Please supply a valid moss archive filename.");
             return 1;
         }
         foreach (arg; argv)
@@ -86,7 +86,7 @@ void readPackage(string packageName)
 
     if (!packageName.exists())
     {
-        stderr.writefln!"No such package: %s"(packageName);
+        stderr.writefln!"No such file: %s"(packageName);
         return;
     }
 
