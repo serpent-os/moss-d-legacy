@@ -69,8 +69,8 @@ import std.string : format;
             writeln(format!"%s %*s %s %s %*s %s %s %s %s"(Text(rm.id)
                     .fg(Color.Magenta).attr(Attribute.Bold), idPadding, " ",
                     Text("[active]").fg(Color.Green), Text(rm.uri)
-                    .fg(Color.White), uriPadding, " ", Text("Priority:").fg(Color.Blue),
-                    rm.priority, Text("Comment:").fg(Color.Yellow),
+                    .fg(Color.White), uriPadding, " ", Text("Priority:")
+                    .fg(Color.Blue), rm.priority, Text("Comment:").fg(Color.Yellow),
                     Text(rm.description).attr(Attribute.Italic)));
         }
         return 0;

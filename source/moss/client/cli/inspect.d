@@ -39,7 +39,7 @@ import std.string : join, wrap, endsWith, startsWith;
  */
 @CommandName("inspect")
 @CommandHelp("Inspect contents of a .stone or a manifest.*.bin archive",
-"With a locally available .stone or manifest.*.bin archive, this command will
+        "With a locally available .stone or manifest.*.bin archive, this command will
 attempt to read, validate and extract information from the given archive.
 
 If the file is not a valid .stone or manifest.*.bin moss archive, an error
@@ -105,8 +105,8 @@ void readPackage(string packageName)
         /* Cast should always succeed because size is never negative */
         auto puncomp = formattedSize(uncomp);
         auto savings = (comp > 0 ? (100.0f - (comp / uncomp) * 100.0f) : 0);
-        stdout.writefln!"Payload: %s [Records: %d Compression: %s, Savings: %.2f%%, Size: %s]"(
-                         to!string(hdr.type), hdr.numRecords, to!string(hdr.compression), savings, puncomp);
+        stdout.writefln!"Payload: %s [Records: %d Compression: %s, Savings: %.2f%%, Size: %s]"(to!string(hdr.type),
+                hdr.numRecords, to!string(hdr.compression), savings, puncomp);
         switch (hdr.type)
         {
         case PayloadType.Meta:
@@ -188,11 +188,11 @@ void printLayout(scope Payload p)
         {
         case FileType.Regular:
             writefln!"  - /usr/%s -> %s [%s]"(entry.target,
-                                              entry.digestString(), to!string(entry.entry.type));
+                    entry.digestString(), to!string(entry.entry.type));
             break;
         case FileType.Symlink:
             writefln!"  - /usr/%s -> %s [%s]"(entry.target,
-                                              entry.symlinkSource(), to!string(entry.entry.type));
+                    entry.symlinkSource(), to!string(entry.entry.type));
             break;
         default:
             writefln!"  - /usr/%s [%s]"(entry.target, to!string(entry.entry.type));
@@ -212,6 +212,7 @@ void printIndex(scope Payload p)
     foreach (entry; index)
     {
         immutable auto entrySize = cast(double) entry.contentSize;
-        stdout.writefln!"  - %s [size: %s]"(cast(string) entry.digestString(), formattedSize(entrySize));
+        stdout.writefln!"  - %s [size: %s]"(cast(string) entry.digestString(),
+                formattedSize(entrySize));
     }
 }
