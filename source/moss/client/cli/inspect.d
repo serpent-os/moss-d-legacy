@@ -135,7 +135,7 @@ void printMeta(scope Payload p)
     auto metadata = cast(MetaPayload) p;
     foreach (pair; metadata)
     {
-        writefln!"%-15s : "(pair.tag.to!string);
+        writef!"%-15s : "(pair.tag.to!string);
 
         /* TODO: Care more about other values :)) */
         switch (pair.type)
