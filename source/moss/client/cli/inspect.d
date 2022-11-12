@@ -19,9 +19,9 @@ module moss.client.cli.inspect;
 
 public import moss.core.cli;
 
-import moss.client.sizing;
 import moss.client.ui;
 import moss.core;
+import moss.core.sizing;
 import moss.deps;
 import moss.format.binary.payload;
 import moss.format.binary.reader;

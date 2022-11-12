@@ -73,7 +73,6 @@ moss_sources = [
 	'source/moss/client/remoteplugin.d',
 	'source/moss/client/remotes.d',
 	'source/moss/client/renderer.d',
-	'source/moss/client/sizing.d',
 	'source/moss/client/statedb.d',
 	'source/moss/client/systemcache.d',
 	'source/moss/client/systemroot.d',
