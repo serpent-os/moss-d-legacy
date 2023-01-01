@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright © 2020-2022 Serpent OS Developers
+ * SPDX-FileCopyrightText: Copyright © 2020-2023 Serpent OS Developers
  *
  * SPDX-License-Identifier: Zlib
  */
@@ -9,7 +9,7 @@
  *
  * Metadata DB
  *
- * Authors: Copyright © 2020-2022 Serpent OS Developers
+ * Authors: Copyright © 2020-2023 Serpent OS Developers
  * License: Zlib
  */
 

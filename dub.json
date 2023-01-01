@@ -2,7 +2,7 @@
 	"authors": [
 		"Serpent OS Developers"
 	],
-	"copyright": "Copyright © 2020-2022 Serpent OS Developers",
+	"copyright": "Copyright © 2020-2023 Serpent OS Developers",
 	"description": "Serpent OS Package Manager",
 	"license": "Zlib",
 	"version": "0.0.0",
