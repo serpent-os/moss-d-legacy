@@ -153,7 +153,7 @@ public final class ActivePlugin : RegistryPlugin
 
     override pure @property uint64_t priority() @safe @nogc nothrow const
     {
-        return 0;
+        return uint64_t.max;
     }
 
 private:
