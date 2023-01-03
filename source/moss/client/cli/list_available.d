@@ -19,11 +19,11 @@ public import moss.core.cli;
 
 import moss.client.cli : initialiseClient;
 import moss.client.cli.list : DisplayItem, printItem;
-import moss.client.ui;
 import moss.client.remoteplugin;
+import moss.client.ui;
 import moss.deps.registry;
+import std.algorithm : each, filter, map, maxElement, sort, SwapStrategy, uniq;
 import std.array : array;
-import std.algorithm : each, filter, map, maxElement, sort, SwapStrategy;
 import std.format;
 import std.range : empty;
 
@@ -43,30 +43,39 @@ import std.range : empty;
         {
             cl.close();
         }
-        DisplayItem[] di = () @trusted {
-            return cl.registry.list(ItemFlags.Available).filter!((i) {
-                /* no collection id specified, list all available packages */
-                if (collectionID is null)
-                {
-                    return true;
-                }
-                auto altCandidates = cl.registry.byID(i.pkgID).filter!((rp) {
-                    auto r = cast(RemotePlugin) rp.plugin;
-                    if (r !is null && r.remoteConfig.id == collectionID)
-                    {
-                        return true;
-                    }
-                    return false;
-                });
-                return !altCandidates.empty;
-            })
-                .map!((i) {
-                    auto info = i.info();
-                    return DisplayItem(info.name, info.summary,
-                        format!"%s-%s"(info.versionID, info.releaseNumber));
-                })
-                .array();
+
+        bool showCandidate(in RegistryItem item) @safe
+        {
+            if (collectionID.empty)
+            {
+                return true;
+            }
+            auto r = () @trusted { return cast(RemotePlugin) item.plugin; }();
+            return (r !is null && r.remoteConfig.id == collectionID);
+        }
+
+        /* Grab all *unique* pkg names */
+        auto uniqueNames = () @trusted {
+            auto names = cl.registry.list(ItemFlags.Available).filter!showCandidate
+                .map!((i) => cast(string) i.info.name)
+                .array;
+            names.sort;
+            return names;
         }();
+
+        /* Map a candidate's name to a display item */
+        DisplayItem mappedName(string name) @safe
+        {
+            auto candidate = cl.registry.byName(name).front;
+            auto info = candidate.info;
+            return DisplayItem(info.name, info.summary,
+                    format!"%s-%s"(info.versionID, info.releaseNumber));
+        }
+
+        DisplayItem[] di = () @trusted {
+            return uniqueNames.uniq.map!mappedName.array;
+        }();
+
         if (di.empty)
         {
             return 0;
