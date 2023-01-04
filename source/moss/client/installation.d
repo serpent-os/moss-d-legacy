@@ -197,6 +197,22 @@ public final class Installation
     }
 
     /**
+     * The staging path for a new install/root
+     */
+    pure auto stagingPath(S...)(S p) @safe const
+    {
+        return joinPath(".moss", "root", "staging", p);
+    }
+
+    /**
+     * Returns: the transaction staging tree
+     */
+    pure @property auto stagingDir() @safe const
+    {
+        return joinPath(".moss", "root", "staging");
+    }
+
+    /**
      * Access the active state 
      */
     pure @property StateID activeState() @safe @nogc nothrow const
