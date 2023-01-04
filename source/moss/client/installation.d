@@ -17,7 +17,7 @@ module moss.client.installation;
 
 import core.sys.posix.unistd : geteuid, access, W_OK;
 import std.path : dirName, baseName;
-import std.file : mkdirRecurse, exists, isSymlink, readLink;
+import std.file : mkdirRecurse, exists, isSymlink, readLink, readText;
 import std.experimental.logger;
 import std.string : endsWith;
 import std.conv : to;
@@ -49,6 +49,12 @@ public final class Installation
     /**
      * Construct an Installation object and get the basics
      * up and running
+     *
+     * Notes regarding Active State ID
+     *
+     * In older versions of moss, the `/usr` entry was a symlink
+     * to an active state. In newer versions, the state is recorded
+     * within the installation tree. (`/usr/.stateID`)
      */
     this(string root = "/") @safe
     {
@@ -56,19 +62,27 @@ public final class Installation
 
         /* Detect current state */
         immutable usrPath = joinPath("usr");
-        if (usrPath.exists && usrPath.isSymlink)
+        immutable statePath = joinPath("usr", ".stateID");
+        if (statePath.exists)
+        {
+            _activeState = to!StateID(statePath.readText);
+        }
+        else if (usrPath.exists && usrPath.isSymlink)
         {
             auto usrTarget = usrPath.readLink();
             if (usrTarget.endsWith("usr"))
             {
                 _activeState = to!StateID(usrTarget.dirName.baseName);
-                tracef("Active State ID: %d", _activeState);
             }
         }
 
         if (_activeState == 0)
         {
             warning("Unable to discover Active State ID");
+        }
+        else
+        {
+            tracef("Active State ID: %d", _activeState);
         }
 
         /* We're good to go. */
