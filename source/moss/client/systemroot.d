@@ -73,7 +73,7 @@ public final class SystemRoot
     /**
      * Apply the transaction to disk
      */
-    RootResult apply(ProgressBar blitBar) @safe
+    void apply(ProgressBar blitBar) @safe
     {
         import std.experimental.logger : infof;
 
@@ -119,7 +119,6 @@ public final class SystemRoot
             default:
             }
         }
-        return cast(RootResult) fail("ruh roh");
     }
 
 private:
