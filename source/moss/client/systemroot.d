@@ -41,6 +41,7 @@ alias EntryTree = RedBlackTree!(EntrySet, (a, b) {
 
 /**
  * Encapsulation and construction of new system roots
+ * Each construction is performed within the global staging tree.
  */
 public final class SystemRoot
 {
@@ -81,19 +82,21 @@ public final class SystemRoot
 
         string stateID = to!string(_rootID);
         string madeDir = null;
-        auto usrDir = installation.rootPath(stateID, "usr");
+        auto usrDir = installation.stagingPath("usr");
         usrDir.mkdirRecurse();
 
+        /* Construct the stateID finaliser file */
         {
             import std.file : write;
 
-            auto statePath = installation.rootPath(stateID, "usr", ".stateID");
+            auto statePath = installation.stagingPath("usr", ".stateID");
             statePath.write(stateID);
         }
 
+        /* Walk the entries, ordered, apply */
         foreach (entry; systemEntries[])
         {
-            auto fpName = installation.rootPath(stateID, "usr", entry.target);
+            auto fpName = installation.stagingPath("usr", entry.target);
             auto fpDir = fpName.dirName;
 
             scope (exit)

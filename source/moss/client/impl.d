@@ -40,12 +40,20 @@ import moss.format.binary.reader : Reader;
 import std.exception : enforce;
 import std.experimental.logger;
 import std.file : exists, mkdirRecurse;
-import std.path : baseName;
-import std.path : buildPath;
+import std.path : baseName, dirName, buildPath;
 import std.range : empty;
 import std.stdio : File, writeln;
-import std.string : endsWith, format, join;
+import std.string : endsWith, format, join, toStringz;
 import std.conv : to;
+import core.sys.posix.fcntl : AT_FDCWD;
+
+private static const uint renameExchange = (1 << 1);
+
+/**
+ * The only part of renameat2 we really want is `RENAME_EXCHANGE`
+ */
+extern (C) int renameat2(int olddirfd, const char* oldpath, int newdirfd,
+        const char* newpath, uint flags);
 
 /**
  * To throttle updates we only redraw the renderer on
@@ -380,10 +388,16 @@ public final class MossClient
         renderer.redraw();
         writeln();
 
+        /* Finish writing the new transaction */
         finalizeRoot(st);
 
-        /* Update system pointer */
-        updateSystemPointer(st);
+        /* TODO: Support /deferred/ swap */
+        updateRootLayout();
+        promoteStagingToLive(st);
+        if (installation.activeState > 0)
+        {
+            archiveState(installation.activeState);
+        }
     }
 
 private:
@@ -408,25 +422,17 @@ private:
         auto outputFile = osReleaseTemplate.replace("@VERSION@", "borkytests")
             .replace("@TRANSACTION@", szID);
 
-        auto osReleaseOutput = installation.joinPath(".moss", "root", szID,
-                "usr", "lib", "os-release");
+        auto osReleaseOutput = installation.stagingPath("usr", "lib", "os-release");
         auto osReleaseDir = osReleaseOutput.dirName;
         osReleaseDir.mkdirRecurse();
         osReleaseOutput.write(outputFile);
     }
 
     /**
-     * All went well so we can update the system pointer atomically
+     * Correct the filesystem layout for usrmerge
      */
-    void updateSystemPointer(scope ref State newState) @safe
+    void updateRootLayout() @safe
     {
-        auto rootfsDir = join([".moss/root", to!string(newState.id)], "/");
-
-        /* Construct the primary usr link */
-        auto usrSource = join([rootfsDir, "usr"], "/");
-        atomicRootfsLink(usrSource, "usr");
-
-        /* Compat links to make usrmerge work */
         atomicRootfsLink("usr/sbin", "sbin");
         atomicRootfsLink("usr/bin", "bin");
         atomicRootfsLink("usr/lib", "lib");
@@ -434,6 +440,13 @@ private:
         atomicRootfsLink("usr/lib32", "lib32");
     }
 
+    /**
+     * Atomically perform a link update
+     *
+     * Params:
+     *      sourcePath = Source to link *from*
+     *      targetPath = target to link *to*
+     */
     void atomicRootfsLink(in string sourcePath, in string targetPath) @trusted
     {
         import std.file : remove, symlink, rename, exists, isSymlink, readLink;
@@ -455,6 +468,61 @@ private:
         /* Symlink staging link in now */
         symlink(sourcePath, stagingTarget);
         rename(stagingTarget, finalTarget);
+    }
+
+    /**
+     * Promote the new staging tree to live
+     */
+    void promoteStagingToLive(scope const ref State newState) @safe
+    {
+        immutable usrSourceFull = installation.stagingPath("usr");
+        immutable usrTargetFull = installation.joinPath("usr");
+
+        /* We can only swap if a node for /usr exists in some fashion */
+        if (!usrTargetFull.exists)
+        {
+            mkdirRecurse(usrTargetFull);
+        }
+
+        /* Hullo C */
+        auto sourceZ = () @trusted { return usrSourceFull.toStringz; }();
+        auto targetZ = () @trusted { return usrTargetFull.toStringz; }();
+
+        immutable ret = () @trusted {
+            return renameat2(AT_FDCWD, sourceZ, AT_FDCWD, targetZ, renameExchange);
+        }();
+        enforce(ret == 0, "Failed to promote staging to live. OHNO");
+    }
+
+    /**
+     * Whatever *was* /usr, needs to now live in the archive
+     *
+     * Params:
+     *      oldState = The last active state
+     */
+    void archiveState(StateID oldState) @safe
+    {
+        import std.file : isSymlink, rename;
+
+        immutable szID = to!string(oldState);
+        immutable statePathTarget = installation.rootPath(szID, "usr");
+        immutable statePathSource = installation.stagingPath("usr");
+        immutable stateTree = statePathTarget.dirName;
+
+        /* Ensure root of old state tree exists. */
+        if (!stateTree.exists)
+        {
+            stateTree.mkdirRecurse();
+        }
+
+        /* LEGACY: Just a symlink to /usr, the tree already exists in place */
+        if (statePathSource.isSymlink)
+        {
+            return;
+        }
+
+        /* Now rename the internal staged usr (post-swap) into tx tree */
+        statePathSource.rename(statePathTarget);
     }
 
     void onFail(Fetchable f, string failureMessage) @safe
