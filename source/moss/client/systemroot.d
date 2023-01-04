@@ -84,6 +84,13 @@ public final class SystemRoot
         auto usrDir = installation.rootPath(stateID, "usr");
         usrDir.mkdirRecurse();
 
+        {
+            import std.file : write;
+
+            auto statePath = installation.rootPath(stateID, "usr", ".stateID");
+            statePath.write(stateID);
+        }
+
         foreach (entry; systemEntries[])
         {
             auto fpName = installation.rootPath(stateID, "usr", entry.target);
