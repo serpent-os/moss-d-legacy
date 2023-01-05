@@ -95,13 +95,6 @@ listed below:
     │   │           └── c2
     │   │               └── 91
     │   │                   └── 6dc2910a903a7e047335e51d0c6a7abc
-    │   ├── cache
-    │   │   ├── content
-    │   │   └── downloads
-    │   │       └── v1
-    │   │           └── ee0a7
-    │   │               └── 8a584
-    │   │                   └── ee0a7e10a5b3cfd4f2b567e63bba6d5fc42282e296701455077c32987998a584
     ├── sbin -> usr/sbin
     └── usr
         ├── bin
