@@ -52,10 +52,13 @@ to point to the new `usr` tree within an exploded OS rootfs.
 
 #### Deduplication
 
-moss will extract unique blobs from packages to a shared cache on the
-system, ensuring unique files are only present **once**. Additionally, a rootfs
-will be largely constructed by hardlinking the cache out to the final location
-within an OS subtree, ready for pointer update. (`/usr`)
+During the caching stage of package installation, the unique files within the
+content payload are extracted to the global content store if not already present.
+Each unique asset is indexed by an `xxhash` key to allow a fast deduplication
+strategy.
+
+During transaction application, unique content is then hardlinked into the staging
+tree.
 
 #### Rollbacks
 
