@@ -8,6 +8,8 @@ The primary aim of `moss` is to blend the flexibility, ownership and freedom of 
 
 With moss the smallest unit of granularity is once again a package. In addition, moss has complete dependency resolution, parallel fetching + caching, deduplication, offline rollbacks, priority based `collections` ("binary repository"), as well as fully atomic updates.
 
+All of this is achieved by leveraging common sense, the Linux kernel and remaining agnostic of filesystems.
+
 #### Build prerequisites
 
 `moss` (and its own dependencies) depends on a couple of system libraries
@@ -30,9 +32,11 @@ and development headers, including (in fedora package names format):
 
 #### Atomic update
 
-moss will reuse the same concept found in next-generation package managers
-to support atomic updates. This involves switching a pointer on the rootfs
-to point to the new `usr` tree within an exploded OS rootfs.
+To **apply** a moss transaction to the filesystem - we first build it in a staging tree. Every transaction is a unique tree and created entirely fresh using the content store. The complete `/usr` tree is built and populated using hardlinks - we refer to this as blitting.
+
+When completed, we activate the new system by way of `renameat2()` with `RENAME_EXCHANGE`  to atomically swap the new system with the old one.
+
+Note that `moss` enforces a usr-merge pattern which allows this method to work.
 
 #### Deduplication
 
