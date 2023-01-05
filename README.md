@@ -81,36 +81,37 @@ While the paths may change, we are considering a layout similar to the one
 listed below:
 
 
-    ├── bin -> os/store/installation/0/usr/bin
-    ├── boot
-    ├── etc
-    ├── home
-    │   └── root
-    ├── lib -> os/store/installation/0/usr/lib
-    ├── lib64 -> os/store/installation/0/usr/lib
-    ├── media
-    ├── root -> home/root
-    ├── run
-    ├── sbin -> os/store/installation/0/usr/bin
-    ├── os
-    │   └── store
-    │       ├── hash
-    │       │   └── 96918944c1e369411ddb68e8f4f4f479a99f7eccc67ba55b2ce6433901f7832d
-    │       └── installation
-    │           └── 0
-    │               └── usr
-    │                   ├── bin
-    │                   │   └── bash
-    │                   ├── include
-    │                   ├── lib
-    │                   ├── lib64 -> lib
-    │                   ├── sbin -> bin
-    │                   └── share
-    ├── usr -> os/installation/0/usr
-    └── var
+    /
+    ├── bin -> usr/bin
+    ├── lib -> usr/lib
+    ├── .moss
+    │   ├── assets
+    │   │   └── v2
+    │   │       ├── 5f
+    │   │       │   └── ee
+    │   │       │       └── 65
+    │   │       │           └── 5fee65451cc8788410cff93cdbe7f904
+    │   │       └── 6d
+    │   │           └── c2
+    │   │               └── 91
+    │   │                   └── 6dc2910a903a7e047335e51d0c6a7abc
+    │   ├── cache
+    │   │   ├── content
+    │   │   └── downloads
+    │   │       └── v1
+    │   │           └── ee0a7
+    │   │               └── 8a584
+    │   │                   └── ee0a7e10a5b3cfd4f2b567e63bba6d5fc42282e296701455077c32987998a584
+    ├── sbin -> usr/sbin
+    └── usr
+        ├── bin
+        │   └── neofetch
+        ├── share
+        │   └── man
+        │       └── man1
+        │           └── neofetch.1
+        └── .stateID
 
-It is entirely possible we'll choose to collapse paths and rely on a single
-link, `/usr`, with the rest being statically defined.
 
 #### Inspiration
 
