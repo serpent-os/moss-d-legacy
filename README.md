@@ -25,25 +25,6 @@ and development headers, including (in fedora package names format):
 
     build/moss -h
 
-#### Package Format
-
-The `stone` container format is entirely binary encoded, consisting of
-well-structured `Payload` containers. Each payload is preceded by a
-fixed header, defining the **type**, version, compression, etc.
-
-For the majority of packages, 4 payloads are employed:
-
- - Meta: Strongly typed key-value pairs of metadata
- - Content: Concatenated, de-duplicated binary blob containing all file data, **no** metadata.
- - Layout: Strongly typed records defining the final filesystem layout of the package
- - Index: Series of indices making the content addressable.
-
-#### Stateless by default
-
-By virtue of **design**, `.stone` packages are forbidden from including any
-path outside of the `/usr` tree. This is to enforce proper stateless decisions
-are made with the OS to permit vendor + administration data/configuration split.
-
 #### Atomic update
 
 moss will reuse the same concept found in next-generation package managers
@@ -60,11 +41,32 @@ strategy.
 During transaction application, unique content is then hardlinked into the staging
 tree.
 
+#### Stateless by default
+
+By virtue of **design**, `.stone` packages are forbidden from including any
+path outside of the `/usr` tree. This is to enforce proper stateless decisions
+are made with the OS to permit vendor + administration data/configuration split.
+
+
 #### Rollbacks
 
 Thanks to deduplication, it is very cheap to retain our transactions on disk.
 Thus, offline rollbacks are entirely possible by swapping `/usr` for an older
 transaction.
+
+#### Package Format
+
+The `stone` container format is entirely binary encoded, consisting of
+well-structured `Payload` containers. Each payload is preceded by a
+fixed header, defining the **type**, version, compression, etc.
+
+For the majority of packages, 4 payloads are employed:
+
+ - Meta: Strongly typed key-value pairs of metadata
+ - Content: Concatenated, de-duplicated binary blob containing all file data, **no** metadata.
+ - Layout: Strongly typed records defining the final filesystem layout of the package
+ - Index: Series of indices making the content addressable.
+
 
 #### Proposed Layout
 
@@ -102,16 +104,6 @@ listed below:
 
 It is entirely possible we'll choose to collapse paths and rely on a single
 link, `/usr`, with the rest being statically defined.
-
-#### How Does It Differ?
-
-We will only permit **known configurations**, and still be a fairly traditional
-OS. However, instead of creating the OS from a large series of symlinks, the
-target rootfs will be composed primarily of hardlinks, allowing mass deduplication
-**and** a far simpler implementation. By enforcing certain constraints on the
-layout and OS (i.e. stateless, usr merge) we can get away with a minimal number
-of support symlinks, and still be fully compatible with other distributions
-in terms of introspection and chrooting.
 
 #### Inspiration
 
