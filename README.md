@@ -40,9 +40,9 @@ For the majority of packages, 4 payloads are employed:
 
 #### Stateless by default
 
-We will absolutely forbid the inclusion of non-OS files within packages,
-to prevent situations where conflicts or merges are required. This requires
-more effort on the side of the OS development to ensure proper integration.
+By virtue of **design**, `.stone` packages are forbidden from including any
+path outside of the `/usr` tree. This is to enforce proper stateless decisions
+are made with the OS to permit vendor + administration data/configuration split.
 
 #### Atomic update
 
@@ -62,9 +62,9 @@ tree.
 
 #### Rollbacks
 
-Each mutation-transaction can create a new versioned OS tree, so we will support
-atomically updating the system to an earlier version. For updates where a reboot
-is required, we will defer updating the pointer until early boot.
+Thanks to deduplication, it is very cheap to retain our transactions on disk.
+Thus, offline rollbacks are entirely possible by swapping `/usr` for an older
+transaction.
 
 #### Proposed Layout
 
