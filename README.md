@@ -1,9 +1,12 @@
-### moss
+# moss
 
-This repository supports the development of the new system software manager for
-Serpent OS. It is not intended as a replacement for other package managers,
-or indeed, even "next generation". Simply it aims to be a
-package manager with a focus on reliability and trust.
+Traditionally, Linux distribution use is largely driven by the use of package management. Unfortunately, package managers were built a long time ago and are full of many flaws.
+
+In today's world, traditional package managers are being replaced in order to provide reliability and immutability. Unfortunately that has led to a great reduction in flexibility and composition with the Linux experience.
+
+The primary aim of `moss` is to blend the flexibility, ownership and freedom of traditional package management with the features expected by default in appliance-targeted package managers.
+
+With moss the smallest unit of granularity is once again a package. In addition, moss has complete dependency resolution, parallel fetching + caching, deduplication, offline rollbacks, priority based `collections` ("binary repository"), as well as fully atomic updates.
 
 #### Build prerequisites
 
