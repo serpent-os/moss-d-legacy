@@ -27,10 +27,16 @@ and development headers, including (in fedora package names format):
 
 #### Package Format
 
-Our plan is a binary format that contains a well-known and versioned header,
-offsets, extendable meta tables and a payload. The payload will be a series
-of hash-keyed blobs, storing only unique content. This ensures that a payload
-is deduplicated by default.
+The `stone` container format is entirely binary encoded, consisting of
+well-structured `Payload` containers. Each payload is preceded by a
+fixed header, defining the **type**, version, compression, etc.
+
+For the majority of packages, 4 payloads are employed:
+
+ - Meta: Strongly typed key-value pairs of metadata
+ - Content: Concatenated, de-duplicated binary blob containing all file data, **no** metadata.
+ - Layout: Strongly typed records defining the final filesystem layout of the package
+ - Index: Series of indices making the content addressable.
 
 #### Stateless by default
 
@@ -103,17 +109,6 @@ target rootfs will be composed primarily of hardlinks, allowing mass deduplicati
 layout and OS (i.e. stateless, usr merge) we can get away with a minimal number
 of support symlinks, and still be fully compatible with other distributions
 in terms of introspection and chrooting.
-
-#### Impact On Other Tooling
-
-We will likely need to work upstream with `clr-boot-manager` to add direct
-support for our system, so that each kernel is specific to a transaction or
-repository release. Additionally the kernel will need to arguments passed
-to it so our earlyboot code can switch to the appropriate system version.
-
-This will allow us to automatically have boot entries for the last X versions
-of Serpent OS, making it a far more robust and reliable system for administrators
-and users alike.
 
 #### Inspiration
 
