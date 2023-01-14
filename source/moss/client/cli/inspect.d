@@ -103,7 +103,7 @@ void readPackage(string packageName)
         immutable double comp = hdr.storedSize;
         immutable double uncomp = hdr.plainSize;
         /* Cast should always succeed because size is never negative */
-        auto puncomp = formattedSize(uncomp);
+        auto puncomp = formattedSizePadding(uncomp);
         auto savings = (comp > 0 ? (100.0f - (comp / uncomp) * 100.0f) : 0);
         stdout.writefln!"Payload: %s [Records: %d Compression: %s, Savings: %.2f%%, Size: %s]"(to!string(hdr.type),
                 hdr.numRecords, to!string(hdr.compression), savings, puncomp);
@@ -147,7 +147,7 @@ void printMeta(scope Payload p)
             if (pair.tag == RecordTag.PackageSize)
             {
                 immutable auto size = cast(double) pair.get!uint64_t;
-                writeln(formattedSize(size));
+                writeln(formattedSizePadding(size));
             }
             else
             {
@@ -213,6 +213,6 @@ void printIndex(scope Payload p)
     {
         immutable auto entrySize = cast(double) entry.contentSize;
         stdout.writefln!"  - %s [size: %s]"(cast(string) entry.digestString(),
-                formattedSize(entrySize));
+                formattedSizePadding(entrySize));
     }
 }
