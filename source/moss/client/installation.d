@@ -116,9 +116,9 @@ public final class Installation
         }
 
         foreach (ref dir; [
-                joinPath(".moss", "db"), joinPath(".moss", "cache"),
-                joinPath(".moss", "remotes"), stagingDir(),
-            ])
+            joinPath(".moss", "db"), joinPath(".moss", "cache"),
+            joinPath(".moss", "remotes"), stagingDir(),
+        ])
         {
             if (dir.exists)
             {
