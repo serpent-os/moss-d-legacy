@@ -87,7 +87,8 @@ public final class RemoteManager
      *      origin = Where to download things from.
      * Returns: A RemoteResult
      */
-    RemoteResult add(string identifier, string origin, string description, uint64_t priority = 0) @safe
+    RemoteResult add(string identifier, string origin, string description,
+            uint64_t priority = 0, bool nofetch = false) @safe
     {
         import std.file : write;
 
@@ -115,6 +116,11 @@ public final class RemoteManager
 
         auto remotePath = installation.joinPath(".moss", "remotes", saneID);
         remotePath.mkdirRecurse();
+
+        if (nofetch)
+        {
+            return cast(RemoteResult) Success();
+        }
 
         return refresh();
     }

@@ -106,7 +106,7 @@ import std.stdint : uint64_t;
             }
         }
 
-        return cl.remotes.add(name, uri, description, priority).match!((Failure f) {
+        return cl.remotes.add(name, uri, description, priority, nofetch).match!((Failure f) {
             errorf("%s", f.message);
             return 1;
         }, (_) { infof("Added remote %s", name); return 0; });
@@ -118,4 +118,7 @@ import std.stdint : uint64_t;
     /* Higher priority wins */
     @Option("p", "priority", "Priority to enable this remote with")
     uint64_t priority = 0;
+    /* Do not fetch the repo index after adding the repo */
+    @Option("n", "no-fetch", "Do not fetch repository index after adding")
+    bool nofetch = false;
 }
