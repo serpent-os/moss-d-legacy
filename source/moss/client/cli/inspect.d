@@ -64,8 +64,9 @@ struct InspectCommand
         }
         foreach (arg; argv)
         {
-            if (arg.endsWith(".stone") || (arg.startsWith("manifest.")
-                    && arg.endsWith(".bin")) || arg.endsWith("stone.index"))
+            // TODO: Make this architecture agnostic for manifest moss archives
+            if (arg.endsWith(".stone") || arg.endsWith("manifest.x86_64.bin")
+                || arg.endsWith("stone.index"))
             {
                 readPackage(arg);
             }
