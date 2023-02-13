@@ -38,13 +38,14 @@ import std.string : join, wrap, endsWith, startsWith;
  * InspectCommand is used to inspect the payload of an archive
  */
 @CommandName("inspect")
-@CommandHelp("Inspect contents of a .stone or a manifest.*.bin archive",
-        "With a locally available .stone or manifest.*.bin archive, this command will
-attempt to read, validate and extract information from the given archive.
+@CommandHelp("Inspect contents of a .stone, a manifest.*.bin archive or a stone.index",
+        "With a locally available .stone / manifest.*.bin / stone.index archive, this
+command will attempt to read, validate and extract information from the given
+archive.
 
-If the file is not a valid .stone or manifest.*.bin moss archive, an error
-will be reported.")
-@CommandUsage("[.stone or manifest.*.bin]")
+If the file is not a valid .stone or manifest.*.bin moss archive, an error will be
+reported.")
+@CommandUsage("[.stone / manifest.*.bin / stone.index]")
 struct InspectCommand
 {
     /**
@@ -65,7 +66,7 @@ struct InspectCommand
         }
         foreach (arg; argv)
         {
-            if (arg.endsWith(".stone") || (arg.startsWith("manifest.") && arg.endsWith(".bin")))
+            if (arg.endsWith(".stone") || (arg.startsWith("manifest.") && arg.endsWith(".bin")) || arg == "stone.index")
             {
                 readPackage(arg);
             }
