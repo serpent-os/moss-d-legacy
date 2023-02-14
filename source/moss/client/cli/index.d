@@ -132,7 +132,7 @@ auto getName(scope MetaPayload payload) @trusted
                 }
                 current.addRecord(RecordType.String, RecordTag.PackageHash, hash);
                 current.addRecord(RecordType.String, RecordTag.PackageURI, uri);
-                current.addRecord(RecordType.String, RecordTag.PackageSize, size);
+                current.addRecord(RecordType.Uint64, RecordTag.PackageSize, size);
                 payloads[pkgName] = current;
 
                 info(format!"Adding %s"(uri));
@@ -162,7 +162,6 @@ auto getName(scope MetaPayload payload) @trusted
         }
 
         w.close();
-
         info(format!"Successfully wrote index to %s, containing %s stones."(idxFile,
                 payloads.length));
 
