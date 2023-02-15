@@ -125,11 +125,7 @@ auto getName(scope MetaPayload payload) @trusted
                 }
                 auto hash = computeSHA256(entry.name, true);
                 auto size = entry.size;
-                auto uri = wd.buildNormalizedPath(entry.name).to!string[wd.length .. $];
-                if (uri.startsWith("/"))
-                {
-                    uri = uri[1 .. $];
-                }
+                auto uri = entry.name.relativePath(wd).asNormalizedPath.to!string;
                 current.addRecord(RecordType.String, RecordTag.PackageHash, hash);
                 current.addRecord(RecordType.String, RecordTag.PackageURI, uri);
                 current.addRecord(RecordType.Uint64, RecordTag.PackageSize, size);
