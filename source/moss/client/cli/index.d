@@ -21,17 +21,36 @@ import std.experimental.logger;
 import std.string : format;
 import std.stdio : File;
 import std.file : exists, isDir, dirEntries, SpanMode;
-import std.algorithm : filter, sort;
+import std.algorithm : filter, sort, map;
 import std.range : take;
 import std.array : array;
 import std.path : relativePath, absolutePath, baseName, buildNormalizedPath, asNormalizedPath;
-
+import std.parallelism : TaskPool;
 import moss.format.binary.payload.meta;
 import moss.format.binary.reader;
 import moss.format.binary.writer;
 import moss.core : computeSHA256;
 import std.string : startsWith, endsWith;
 import std.conv : to;
+import std.exception : enforce;
+
+/** 
+ * Due to LDC lacking dual-context support, we convert our
+ * input paths into real paths and resolved relative paths
+ * for the index before processing.
+ */
+struct EnqueuedFile
+{
+    /**
+     * Real path on disk
+     */
+    string realPath;
+
+    /**
+     * Relative to work directory
+     */
+    string relaPath;
+}
 
 auto getRelease(scope MetaPayload payload) @trusted
 {
@@ -87,70 +106,77 @@ auto getName(scope MetaPayload payload) @trusted
             wd = wd[0 .. $ - 1];
         }
 
-        () @trusted {
-            foreach (entry; dirEntries(indexDir, "*.stone", SpanMode.depth, false).filter!(
-                    (i) => i.isFile))
-            {
-                auto r = new Reader(File(entry.name, "r"));
-                scope (exit)
-                {
-                    r.close();
-                }
-                MetaPayload current = r.payload!MetaPayload;
-                immutable pkgName = current.getName;
-                if (current is null)
-                {
-                    fatal("NO PAYLOAD");
-                    return;
-                }
-                MetaPayload existing;
-                if (pkgName in payloads)
-                {
-                    existing = payloads[pkgName];
-                }
-                if (existing !is null)
-                {
-                    immutable oldRel = existing.getRelease;
-                    immutable newRel = current.getRelease;
-                    if (oldRel == newRel)
-                    {
-                        fatal(format!"Trying to include two packages with same release number: %s - %s"(
-                                existing.getPkgID, current.getPkgID));
-                    }
-                    /* Old release trumps new release */
-                    if (oldRel > newRel)
-                    {
-                        continue;
-                    }
-                }
-                auto hash = computeSHA256(entry.name, true);
-                auto size = entry.size;
-                auto uri = entry.name.relativePath(wd).asNormalizedPath.to!string;
-                current.addRecord(RecordType.String, RecordTag.PackageHash, hash);
-                current.addRecord(RecordType.String, RecordTag.PackageURI, uri);
-                current.addRecord(RecordType.Uint64, RecordTag.PackageSize, size);
-                payloads[pkgName] = current;
+        /* Map all entries into something useful */
+        auto tp = new TaskPool();
+        tp.isDaemon = false;
 
-                info(format!"Adding %s"(uri));
-            }
+        /* Find all of the stones */
+        auto stones = () @trusted {
+            return indexDir.dirEntries("*.stone", SpanMode.depth, false).filter!((i) => i.isFile)
+                .map!((i) => EnqueuedFile(i.name, i.name.relativePath(wd)
+                        .asNormalizedPath.to!string))
+                .array();
         }();
+
+        /* Map to payloads */
+        auto mappedPayloads = () @trusted { return tp.amap!loadPayload(stones); }();
+        tp.finish();
+
+        /* Organise them now */
+        foreach (payload; mappedPayloads)
+        {
+            MetaPayload existing;
+            immutable pkgName = payload.getName;
+
+            /* Displacement possible? */
+            if (pkgName in payloads)
+            {
+                existing = payloads[pkgName];
+            }
+            else
+            {
+                payloads[pkgName] = payload;
+                continue;
+            }
+
+            /* Compare oldRel + newRel */
+            immutable oldRel = existing.getRelease;
+            immutable newRel = payload.getRelease;
+            if (oldRel == newRel)
+            {
+                immutable existingID = () @trusted { return existing.getPkgID(); }();
+                immutable currentID = () @trusted { return payload.getPkgID(); }();
+                fatal(format!"Trying to include two packages with same release number: %s - %s"(existingID,
+                        currentID));
+            }
+
+            /* Old release trumps new release */
+            if (oldRel > newRel)
+            {
+                continue;
+            }
+
+            /* Newest now, displace */
+            payloads[pkgName] = payload;
+        }
 
         if (payloads.length == 0)
         {
             warning(format!"No .stone files found in directory: %s"(indexDir));
         }
 
+        /* Hash-Stable emission order */
         auto keys = () @trusted {
             auto keySet = payloads.keys.array;
             keySet.sort!((a, b) => a < b);
             return keySet;
         }();
 
+        /* Write index to disk */
         immutable idxFile = wd.buildNormalizedPath("stone.index");
         auto w = new Writer(File(idxFile, "wb"));
         w.compressionType = PayloadCompression.Zstd;
         w.fileType = MossFileType.Repository;
-
         foreach (pkgName; keys)
         {
             auto payload = payloads[pkgName];
@@ -162,5 +188,31 @@ auto getName(scope MetaPayload payload) @trusted
                 payloads.length));
 
         return 0;
+    }
+
+    /** 
+     * Process an input .stone into a suitable MetaPayload for index emission
+     * Params:
+     *   file = Enqueued file for processing
+     * Returns: Fully populated MetaPayload
+     */
+    static MetaPayload loadPayload(EnqueuedFile file) @trusted
+    {
+        info(format!"Indexing %s"(file.realPath));
+        auto hash = computeSHA256(file.realPath, true);
+        auto fi = File(file.realPath, "rb");
+        scope reader = new Reader(fi);
+        scope (exit)
+        {
+            reader.close();
+            fi.close();
+        }
+        auto current = reader.payload!MetaPayload;
+        enforce(current !is null, "Missing payload!");
+        auto size = fi.size();
+        current.addRecord(RecordType.String, RecordTag.PackageHash, hash);
+        current.addRecord(RecordType.String, RecordTag.PackageURI, file.relaPath);
+        current.addRecord(RecordType.Uint64, RecordTag.PackageSize, size);
+        return current;
     }
 }
