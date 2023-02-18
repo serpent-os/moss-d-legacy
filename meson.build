@@ -7,6 +7,11 @@ project(
 	]
 )
 
+compiler = meson.get_compiler('d')
+if compiler.get_id() == 'llvm' and compiler.version().version_compare('<1.31.0')
+	error('LDC must be at least 1.31.0')
+endif
+
 pkgconf = import('pkgconfig')
 
 # Configure moss-vendor
