@@ -54,15 +54,41 @@ public final class ProgressBar : Renderable
         static const totalElements = 24;
         const auto fraction = (totalElements * pct);
 
+        /*
+         * The Linux Console only supports the 256 character CP-437 character set
+         * (including the extended ASCII range above codepoint 127) when using 16
+         * colours, so use a suitable set of supported fallback graphics blocks
+         * for the case TERM=linux.
+         *
+         * Truly "dumb" terminals might not even support extended ASCII, so use a
+         * set of fallback glyphs present in 7-bit ASCII.
+         */
+
+        static immutable string dumbEmpty = "=";
+        static immutable string dumbFull = "#";
+        static immutable string cp437Empty = "░";
+        static immutable string cp437Full = "▓";
+        static immutable string utf8Empty = "◻";
+        static immutable string utf8Full = "◼";
+
         immutable pty = environment.get("TERM");
 
-        static barEmpty = "◻";
-        static barFull = "◼";
-        /* Use ASCII CP-437 chars for tty/dumb terminals */
+        /* The most common case in practice */
+        static string barEmpty = utf8Empty;
+        static string barFull = utf8Full;
+
+        /* Make it look better in VM consoles please */
         if (pty == "linux")
         {
-            barEmpty = "░";
-            barFull = "▓";
+            barEmpty = cp437Empty;
+            barFull = cp437Full;
+        }
+
+        /* Yes, there's a terminfo entry for dumb terminals (man infocmp) */
+        if (pty == "dumb")
+        {
+            barEmpty = dumbEmpty;
+            barFull = dumbFull;
         }
 
         string msg = "";
@@ -81,16 +107,16 @@ public final class ProgressBar : Renderable
         final switch (_type)
         {
         case ProgressBarType.Standard:
-            renderColor = Color.Cyan;
+            renderColor = pty == "dumb" ? Color.Default : Color.Cyan;
             break;
         case ProgressBarType.Download:
-            renderColor = Color.Green;
+            renderColor = pty == "dumb" ? Color.Default : Color.Green;
             break;
         case ProgressBarType.Blitter:
-            renderColor = Color.Magenta;
+            renderColor = pty == "dumb" ? Color.Default : Color.Magenta;
             break;
         case ProgressBarType.Cacher:
-            renderColor = Color.Red;
+            renderColor = pty == "dumb" ? Color.Default : Color.Red;
             break;
         }
         auto percentage = cast(int)(pct * 100.0);
