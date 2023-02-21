@@ -17,6 +17,7 @@ module moss.client.progressbar;
 
 public import moss.client.renderer;
 
+import std.process : environment;
 import std.string : format;
 import moss.client.ui;
 
@@ -52,8 +53,17 @@ public final class ProgressBar : Renderable
         }
         static const totalElements = 24;
         const auto fraction = (totalElements * pct);
-        static const barEmpty = "◻";
-        static const barFull = "◼";
+
+        immutable pty = environment.get("TERM");
+
+        static barEmpty = "◻";
+        static barFull = "◼";
+        /* Use ASCII CP-437 chars for tty/dumb terminals */
+        if (pty == "linux")
+        {
+            barEmpty = "░";
+            barFull = "▓";
+        }
 
         string msg = "";
         foreach (i; 0 .. totalElements)
