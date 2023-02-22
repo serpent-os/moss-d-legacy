@@ -60,32 +60,39 @@ public final class ProgressBar : Renderable
          * colours, so use a suitable set of supported fallback graphics blocks
          * for the case TERM=linux.
          *
+         * However, UTF-8 locales will seamlessly translate unicode code points
+         * into something the linux console can display, so rather than using a
+         * glyph or its corresponding hex value, just use the unicode code point
+         * of the corresponding block graphics character available in the CP-437
+         * character set.
+         *
          * Truly "dumb" terminals might not even support extended ASCII, so use a
          * set of fallback glyphs present in 7-bit ASCII.
          */
 
         static immutable string dumbEmpty = "=";
         static immutable string dumbFull = "#";
-        static immutable string cp437Empty = "░";
-        static immutable string cp437Full = "▓";
+        /* when joined, the following two stippled block characters create a solid block */
+        static immutable string linuxEmpty = "\u2591"; /* ░ in ter-v32n */
+        static immutable string linuxFull = "\u2588"; /* ▓ in ter-v32n */
         static immutable string utf8Empty = "◻";
         static immutable string utf8Full = "◼";
 
-        immutable pty = environment.get("TERM");
+        immutable TERM = environment.get("TERM");
 
         /* The most common case in practice */
         static string barEmpty = utf8Empty;
         static string barFull = utf8Full;
 
         /* Make it look better in VM consoles please */
-        if (pty == "linux")
+        if (TERM == "linux")
         {
-            barEmpty = cp437Empty;
-            barFull = cp437Full;
+            barEmpty = linuxEmpty;
+            barFull = linuxFull;
         }
 
         /* Yes, there's a terminfo entry for dumb terminals (man infocmp) */
-        if (pty == "dumb")
+        if (TERM == "dumb")
         {
             barEmpty = dumbEmpty;
             barFull = dumbFull;
@@ -107,16 +114,16 @@ public final class ProgressBar : Renderable
         final switch (_type)
         {
         case ProgressBarType.Standard:
-            renderColor = pty == "dumb" ? Color.Default : Color.Cyan;
+            renderColor = TERM == "dumb" ? Color.Default : Color.Cyan;
             break;
         case ProgressBarType.Download:
-            renderColor = pty == "dumb" ? Color.Default : Color.Green;
+            renderColor = TERM == "dumb" ? Color.Default : Color.Green;
             break;
         case ProgressBarType.Blitter:
-            renderColor = pty == "dumb" ? Color.Default : Color.Magenta;
+            renderColor = TERM == "dumb" ? Color.Default : Color.Magenta;
             break;
         case ProgressBarType.Cacher:
-            renderColor = pty == "dumb" ? Color.Default : Color.Red;
+            renderColor = TERM == "dumb" ? Color.Default : Color.Red;
             break;
         }
         auto percentage = cast(int)(pct * 100.0);
