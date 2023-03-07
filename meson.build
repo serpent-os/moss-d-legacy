@@ -12,42 +12,29 @@ if compiler.get_id() == 'llvm' and compiler.version().version_compare('<1.31.0')
 	error('LDC must be at least 1.31.0')
 endif
 
-pkgconf = import('pkgconfig')
-
-# Configure moss-vendor
-subproject('moss-vendor',
+libmoss = subproject('libmoss',
 	default_options: [
-		'with_elf=true',
-		'with_lmdb=true',
-		'with_xxhash=true',
-		'with_yaml=true',
-		'with_zstd=true',
+		'with-format=binary'
 	]
 )
 
 # Grab moss-config
-moss_config = subproject('moss-config')
-link_libmoss_config = moss_config.get_variable('link_libmoss_config')
+link_libmoss_config = libmoss.get_variable('link_libmoss_config')
 
 # Grab moss-core
-moss_core = subproject('moss-core')
-link_libmoss_core = moss_core.get_variable('link_libmoss_core')
+link_libmoss_core = libmoss.get_variable('link_libmoss_core')
 
 # Grab moss-db
-moss_db = subproject('moss-db')
-link_libmoss_db = moss_db.get_variable('link_libmoss_db')
+link_libmoss_db = libmoss.get_variable('link_libmoss_db')
 
 # Grab moss-deps
-moss_deps = subproject('moss-deps')
-link_libmoss_deps = moss_deps.get_variable('link_libmoss_deps')
+link_libmoss_deps = libmoss.get_variable('link_libmoss_deps')
 
 # Grab moss-fetcher
-moss_fetcher = subproject('moss-fetcher')
-link_libmoss_fetcher = moss_fetcher.get_variable('link_libmoss_fetcher')
+link_libmoss_fetcher = libmoss.get_variable('link_libmoss_fetcher')
 
 # Grab moss-format
-moss_format = subproject('moss-format')
-link_libmoss_format = moss_format.get_variable('link_libmoss_format_binary')
+link_libmoss_format = libmoss.get_variable('link_libmoss_format_binary')
 
 moss_sources = [
 	'source/moss/client/activeplugin.d',

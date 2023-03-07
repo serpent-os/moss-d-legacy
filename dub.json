@@ -15,23 +15,8 @@
 		"ldc": ">=1.31.0"
 	},
 	"dependencies": {
-		"moss-core": {
-			"path": "../moss-core"
-		},
-		"moss-config": {
-			"path": "../moss-config"
-		},
-		"moss-format:binary": {
-			"path": "../moss-format"
-		},
-		"moss-db": {
-			"path": "../moss-db"
-		},
-		"moss-deps": {
-			"path": "../moss-deps"
-		},
-		"moss-fetcher": {
-			"path": "../moss-fetcher"
+		"libmoss": {
+			"path": "../libmoss"
 		}
 	}
 }
