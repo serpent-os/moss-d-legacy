@@ -12,10 +12,13 @@ if compiler.get_id() == 'llvm' and compiler.version().version_compare('<1.31.0')
 	error('LDC must be at least 1.31.0')
 endif
 
+# libmoss without recipe (stone.yml) support
 libmoss = subproject('libmoss',
 	default_options: [
+		'default_library=static',
 		'with-format=binary'
-	]
+	],
+	version: '>=1.1.0'
 )
 
 # Grab moss-config
