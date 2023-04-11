@@ -17,6 +17,7 @@ module main;
 
 import std.experimental.logger;
 
+import core.sys.posix.unistd;
 import moss.client;
 import moss.core.logger;
 import moss.client.cli;
@@ -30,7 +31,14 @@ import moss.client.cli;
  */
 int main(string[] args) @safe
 {
-    configureLogger();
+    if (isatty(0) && isatty(1))
+    {
+        configureLogger();
+    }
+    else
+    {
+        configureLogger(ColorLoggerFlags.None);
+    }
 
     return () @trusted { return MossCLI.construct(args).process(args); }();
 }
