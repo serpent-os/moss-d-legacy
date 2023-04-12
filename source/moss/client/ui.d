@@ -490,8 +490,8 @@ public final class UserInterface
         auto workset = displayable.array;
         workset.sort!"a.toString < b.toString";
 
-        /* Ensure small sets go multiline */
-        auto colHeight = max(workset.length / nColumns, 1);
+        /* Ensure small sets go multiline. Use max() to avoid integer overflow */
+        auto colHeight = ((max(workset.length, 1) - 1) / nColumns) + 1;
         if (workset.length > nColumns && colHeight == 1)
         {
             colHeight++;

@@ -74,7 +74,7 @@ import std.file : exists;
             auto candidates = cl.registry.byProvider(search.type, search.target);
             if (candidates.empty)
             {
-                errorf("Cannot find package %s", item);
+                error(format!"Cannot find package %s"(item));
                 return 1;
             }
             auto chosen = candidates.front;
@@ -96,7 +96,8 @@ import std.file : exists;
             }
             return 1;
         }
-        cl.ui.inform("The following packages will be installed\n");
+        cl.ui.inform!"The following %d %s will be installed\n"
+            (result.length, result.length == 1 ? "package" : "packages");
         auto newPkgs = result.filter!((p) => !p.installed);
         cl.ui.emitAsColumns(newPkgs);
         cl.ui.inform("");
