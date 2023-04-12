@@ -74,7 +74,7 @@ import std.file : exists;
             auto candidates = cl.registry.byProvider(search.type, search.target);
             if (candidates.empty)
             {
-                errorf("Cannot find package %s", item);
+                error(format!"Cannot find package %s", item);
                 return 1;
             }
             auto chosen = candidates.front;
