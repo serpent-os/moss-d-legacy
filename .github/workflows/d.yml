@@ -1,0 +1,38 @@
+name: D
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v3
+      with:
+        path: moss
+
+    - name: Checkout libmoss source
+      uses: actions/checkout@v3
+      with:
+        repository: serpent-os/libmoss
+        path: libmoss
+        ref: main
+
+    - name: Setup D compiler
+      uses: dlang-community/setup-dlang@v1.3.0
+      with:
+        compiler: ldc-1.32.0
+
+    - name: Install deps
+      run: |
+        sudo apt-get install libcurl4-openssl-dev liblmdb-dev libxxhash-dev libzstd-dev
+
+    - name: Build & Test
+      run: |
+        dub test
