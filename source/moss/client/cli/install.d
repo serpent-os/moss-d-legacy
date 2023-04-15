@@ -96,8 +96,8 @@ import std.file : exists;
             }
             return 1;
         }
-        cl.ui.inform!"The following %d %s will be installed\n"
-            (result.length, result.length == 1 ? "package" : "packages");
+        cl.ui.inform!"The following %d %s will be installed\n"(result.length,
+                result.length == 1 ? "package" : "packages");
         auto newPkgs = result.filter!((p) => !p.installed);
         cl.ui.emitAsColumns(newPkgs);
         cl.ui.inform("");
