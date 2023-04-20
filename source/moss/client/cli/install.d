@@ -17,17 +17,18 @@ module moss.client.cli.install;
 
 public import moss.core.cli;
 
-import moss.client.cli : initialiseClient;
-import moss.deps.registry;
-import std.stdio : writefln, writef, writeln;
-import std.experimental.logger;
-import std.range : empty;
-import std.string : join, wrap, format, endsWith;
-import std.algorithm : map, filter;
-import moss.client.ui;
-import moss.client.statedb;
 import moss.client.cli : MossCLI;
+import moss.client.cli : initialiseClient;
+import moss.client.statedb;
+import moss.client.ui;
+import moss.deps.registry;
+import std.algorithm : map, filter;
+import std.array : array;
+import std.experimental.logger;
 import std.file : exists;
+import std.range : empty;
+import std.stdio : writefln, writef, writeln;
+import std.string : join, wrap, format, endsWith;
 
 /**
  * Primary grouping for the moss cli
@@ -96,11 +97,23 @@ import std.file : exists;
             }
             return 1;
         }
-        cl.ui.inform!"The following %d %s will be installed\n"(result.length,
-                result.length == 1 ? "package" : "packages");
-        auto newPkgs = result.filter!((p) => !p.installed);
-        cl.ui.emitAsColumns(newPkgs);
-        cl.ui.inform("");
+        auto installedPkgs = selections.filter!(p => p.installed).array;
+        auto newPkgs = result.filter!(p => !p.installed).array;
+        if (!newPkgs.empty)
+        {
+            cl.ui.inform!"The following %d %s will be installed\n"(newPkgs.length,
+                    newPkgs.length == 1 ? "package" : "packages");
+            cl.ui.emitAsColumns(newPkgs);
+            cl.ui.inform("");
+        }
+        else if (!installedPkgs.empty)
+        {
+            cl.ui.inform!"The following %d %s already installed\n"(installedPkgs.length,
+                    installedPkgs.length == 1 ? "package is" : "packages are");
+            cl.ui.emitAsColumns(installedPkgs);
+            cl.ui.inform("");
+            return 1;
+        }
         if (!base.yesAll)
         {
             if (!cl.ui.ask("Do you want to continue?"))
