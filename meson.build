@@ -18,7 +18,7 @@ libmoss = subproject('libmoss',
 		'default_library=static',
 		'with-format=binary'
 	],
-	version: '>=1.1.0'
+	version: '>=1.2.0'
 )
 
 # Grab moss-config
