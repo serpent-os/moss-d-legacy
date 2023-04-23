@@ -5,7 +5,7 @@
 	"copyright": "Copyright © 2020-2023 Serpent OS Developers",
 	"description": "Serpent OS Package Manager",
 	"license": "Zlib",
-	"version": "0.0.0",
+	"version": "1.0.1",
 	"name": "moss",
 	"targetPath": "bin",
 	"stringImportPaths": [
